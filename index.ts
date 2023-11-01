@@ -7,6 +7,7 @@ import morganMiddleware from "./utils/morganMiddleware"
 import Logger from "./utils/logger"
 import swaggerUi from "swagger-ui-express"
 import apiSpec from "./utils/swagger"
+import 'source-map-support/register'
 
 dotenv.config()
 
@@ -22,6 +23,12 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(apiSpec))
  * /logger:
  *   get:
  *     description: Returns the hello world
+ *     parameters:
+ *       - in: query
+ *         name: generateError
+ *         schema:
+ *           type: boolean
+ *         description: The boolean flag to generate an error
  *     produces:
  *       - application/json
  *     responses:
@@ -33,7 +40,11 @@ app.get('/logger', (req: Request, res: Response) => {
     Logger.error('Hello World')
     Logger.warn('Hello World')
     Logger.debug('Hello World')
-    Logger.verbose('Hello World')
+
+    if (req.query.generateError) {
+        throw new Error('Error')
+    }
+
 
     res.send('Hello World')
 })
