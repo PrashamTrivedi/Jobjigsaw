@@ -8,6 +8,7 @@ import Logger from "./utils/logger"
 import swaggerUi from "swagger-ui-express"
 import apiSpec from "./utils/swagger"
 import 'source-map-support/register'
+import router from "./routes"
 
 dotenv.config()
 
@@ -16,7 +17,6 @@ const app = express()
 
 app.use(morganMiddleware)
 
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(apiSpec))
 
 /**
  * @swagger
@@ -48,6 +48,10 @@ app.get('/logger', (req: Request, res: Response) => {
 
     res.send('Hello World')
 })
+
+app.use('/', router)
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(apiSpec))
 
 const server = createServer(app)
 

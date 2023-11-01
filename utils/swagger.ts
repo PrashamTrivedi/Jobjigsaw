@@ -10,7 +10,7 @@ const options = {
         host: 'localhost:3000',
         basePath: '/',
     },
-    apis: ['./index.ts'],
+    apis: ['**/*.ts'],
 }
 
 const openApiSpecification = swaggerJSDoc(options)
