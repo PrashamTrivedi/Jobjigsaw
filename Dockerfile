@@ -1,5 +1,5 @@
 # Use an official Node runtime as the base image
-FROM node:20-alpine
+FROM node:21-alpine
 
 # Make port 3000 available to the world outside this container
 EXPOSE 3000
