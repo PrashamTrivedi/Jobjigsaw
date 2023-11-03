@@ -27,6 +27,8 @@ public/
 Thumbs.db
 
 *.sqlite
-database.db
+mainResume.json
 *.db
 uploads/*
+database.db
+database.db

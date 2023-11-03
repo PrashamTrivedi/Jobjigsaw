@@ -11,6 +11,8 @@ const mainResumeRouter = express.Router()
 const mainResumeController = new MainResumeController()
 
 
-mainResumeRouter.post('/setMainResume', upload.single('resume'), (req, res, next) => mainResumeController.setMainResume(req, res, next))
+mainResumeRouter.post('/setMainResume', upload.single('resume'), (req, res, next) => mainResumeController.setMainResume(req, res))
+mainResumeRouter.get('/getMainResume', (req, res, next) => mainResumeController.getMainResumeJson(req, res))
+
 
 export default mainResumeRouter

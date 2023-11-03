@@ -6,8 +6,6 @@ export async function getDb(): Promise<Database<sqlite3.Database, sqlite3.Statem
         filename: './database.db',
         driver: sqlite3.cached.Database,
     })
-    // Create a table called mainResume if it doesn't exist, with a single column called text
-    await db.run('CREATE TABLE IF NOT EXISTS mainResume (text TEXT, resumeJson TEXT)')
 
     // Create a table called JD if it doesn't exist, with following columns, text, url, companyName, post, type, location, date
     await db.run('CREATE TABLE IF NOT EXISTS JD (text TEXT, url TEXT, companyName TEXT, post TEXT, type TEXT, location TEXT, date TEXT)')

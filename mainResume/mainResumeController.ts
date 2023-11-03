@@ -8,16 +8,6 @@ import {generateJsonFromResume} from "../openai"
 export class MainResumeController {
     constructor() { }
 
-    async getMainResume(req: Request, res: Response) {
-        try {
-            const db = await getDb()
-            const mainResumeModel = new MainResumeModel(db)
-            const mainResume = await mainResumeModel.getMainResume()
-            return res.json(mainResume)
-        } catch (e) {
-            return res.status(500).json({message: "Internal server error"})
-        }
-    }
 
     async updateMainResume(req: Request, res: Response) {
         const mainResume = req.body.mainResume
@@ -35,9 +25,9 @@ export class MainResumeController {
     /**
  * @swagger
  * /mainResume/setMainResume:
- *   tags: Main Resume
- *   description: Main Resume management
  *   post:
+ *     tags: 
+ *       - Main Resume
  *     summary: Uploads a resume file
  *     consumes:
  *       - multipart/form-data
@@ -68,8 +58,10 @@ export class MainResumeController {
             const pdfText = await readPdfText({
                 filePath: resumeFile.path,
             })
+            Logger.info('Got text')
             const resumeJson = await generateJsonFromResume(pdfText)
-            await mainResumeModel.setMainResume(pdfText,resumeJson)
+            Logger.info('Got parsed JSON from Openai')
+            await mainResumeModel.setMainResume(pdfText, resumeJson)
             return res.json({message: "Main resume set"})
         } catch (e) {
             Logger.error(e)
@@ -78,5 +70,32 @@ export class MainResumeController {
 
     }
 
+    /**
+ * @swagger
+ * /mainResume/getMainResume:
+ *   get:
+ *     tags:
+ *       - Main Resume
+ *     summary: Get main resume json
+ *     responses:
+ *       200:
+ *         description: Main resume json
+ *       500:
+ *         description: Internal server error
+ */
+    async getMainResumeJson(req: Request, res: Response) {
+        try {
+            const db = await getDb()
+            const mainResumeModel = new MainResumeModel(db)
+            const mainResume = await mainResumeModel.getMainResume()
+            const jsonData = mainResume
+            if (mainResume.resumeJson) {
+                jsonData.resumeJson = JSON.parse(mainResume.resumeJson)
+            }
+            return res.json(jsonData)
+        } catch (e) {
+            return res.status(500).json({message: "Internal server error"})
+        }
+    }
 
 }
