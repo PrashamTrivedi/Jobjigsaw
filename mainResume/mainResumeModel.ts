@@ -1,27 +1,60 @@
 import {Database} from 'sqlite'
+import {Project, Resume, Skills, WorkExperience, mainResume} from "../mainResume"
 
-interface Resume {
-    text: string,
-    resumeJson?: string
-}
+import fs from 'fs'
 export class MainResumeModel {
 
+    private mainResumeData: Resume = mainResume
 
-
-    constructor(private readonly db: Database) { }
+    constructor() { }
 
     async getMainResume(): Promise<Resume> {
-        const mainResume = await this.db.all<Resume[]>('SELECT text,resumeJson FROM mainResume')
-        return mainResume[0]
+        this.mainResumeData = JSON.parse(fs.readFileSync('./mainResume.json').toString())
+
+        return this.mainResumeData
     }
 
-    async updateMainResume(mainResume: string, resumeJson?: string): Promise<void> {
-        await this.db.run('UPDATE mainResume SET text = ?, resumeJson = ?', mainResume, resumeJson)
+    async updateSkills(skills: Skills[]): Promise<void> {
+        for (const skill of skills) {
+            const index = this.mainResumeData.skills.findIndex((p) => p.name === skill.name)
+            if (index !== -1) {
+                this.mainResumeData.skills[index].items.push(...skill.items)
+            } else {
+                this.mainResumeData.skills.push(skill)
+            }
+        }
+        // Write main resume to ../mainResume.json
+        fs.writeFileSync('./mainResume.json', JSON.stringify(this.mainResumeData, null, 4))
+
     }
 
-
-    async setMainResume(mainResume: string, resumeJson?: string): Promise<void> {
-        await this.db.run('DELETE FROM mainResume')
-        await this.db.run('INSERT INTO mainResume (text,resumeJson) VALUES (?,?)', mainResume, resumeJson)
+    async addWorkExperience(workExperience: WorkExperience): Promise<void> {
+        const index = this.mainResumeData.workExperience.findIndex((p) => p.company === workExperience.company)
+        if (index !== -1) {
+            this.mainResumeData.workExperience[index] = workExperience
+        } else {
+            this.mainResumeData.workExperience.push(workExperience)
+        }
+        // Write main resume to ../mainResume.json
+        fs.writeFileSync('./mainResume.json', JSON.stringify(this.mainResumeData, null, 4))
     }
+
+    async addProject(project: Project): Promise<void> {
+        const index = this.mainResumeData.projects.findIndex((p) => p.name === project.name)
+        if (index !== -1) {
+            this.mainResumeData.projects[index] = project
+        } else {
+
+            this.mainResumeData.projects.push(project)
+        }
+        // Write main resume to ../mainResume.json
+        fs.writeFileSync('./mainResume.json', JSON.stringify(this.mainResumeData, null, 4))
+    }
+
+    async addCertification(certification: string): Promise<void> {
+        this.mainResumeData.certifications.push(certification)
+        // Write main resume to ../mainResume.json
+        fs.writeFileSync('./mainResume.json', JSON.stringify(this.mainResumeData, null, 4))
+    }
+
 }
