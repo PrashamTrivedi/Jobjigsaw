@@ -27,4 +27,6 @@ public/
 Thumbs.db
 
 *.sqlite
+database.db
+*.db
 uploads/*

@@ -3,6 +3,7 @@ import {MainResumeModel} from "./mainResumeModel"
 import {readPdfText} from 'pdf-text-reader'
 import Logger from "../utils/logger"
 import {getDb} from "../database"
+import {generateJsonFromResume} from "../openai"
 
 export class MainResumeController {
     constructor() { }
@@ -67,7 +68,8 @@ export class MainResumeController {
             const pdfText = await readPdfText({
                 filePath: resumeFile.path,
             })
-            await mainResumeModel.setMainResume(pdfText)
+            const resumeJson = await generateJsonFromResume(pdfText)
+            await mainResumeModel.setMainResume(pdfText,resumeJson)
             return res.json({message: "Main resume set"})
         } catch (e) {
             Logger.error(e)
