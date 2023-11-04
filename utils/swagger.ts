@@ -7,7 +7,7 @@ const options = {
             version: '1.0.0',
             description: 'API',
         },
-        host: 'localhost:3000',
+        host: process.env.API_HOST,
         basePath: '/',
     },
     apis: ['**/*.ts'],
