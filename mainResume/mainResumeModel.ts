@@ -1,4 +1,4 @@
-import {Database} from 'sqlite'
+
 import {Project, Resume, Skills, WorkExperience, mainResume} from "../mainResume"
 
 import fs from 'fs'
