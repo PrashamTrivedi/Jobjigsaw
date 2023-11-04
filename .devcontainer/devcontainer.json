@@ -15,7 +15,7 @@
 		}
 	},
 	"remoteEnv": {
-		"API_HOST": "http://localhost:3000",
+		"API_HOST": "localhost:3000"
 	},
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	// "features": {},
