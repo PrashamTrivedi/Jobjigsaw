@@ -2,7 +2,8 @@ import express, {Request, Response} from 'express'
 import JobModel from './jobModel'
 import Logger from "../utils/logger"
 import {getDb} from "../database"
-import {inferJobDescription} from "../openai"
+import {checkCompatiblity, inferJobDescription} from "../openai"
+import {MainResumeModel} from "../mainResume/mainResumeModel"
 
 class JobController {
 
@@ -47,6 +48,43 @@ class JobController {
             res.status(500).json({error: error})
         }
     }
+
+    /**
+* @swagger
+* /jobs/infer-match:
+*   post:
+*     tags:
+*     - Jobs
+*     summary: Infer if job description matches the resume
+*     parameters:
+*       - in: body
+*         name: job
+*         description: The job description to infer.
+*         schema:
+*           type: object
+*           properties:
+ *             description:
+ *               type: object
+*     
+*     responses:
+*       200:
+*         description: Job description inferred successfully
+*       500:
+*         description: Server error
+*/
+    public inferJobMatch = async (req: Request, res: Response) => {
+        try {
+            const {description, additionalFields} = req.body
+            const mainResumeModel = new MainResumeModel()
+            const mainResume = await mainResumeModel.getMainResume()
+            const compatibilityMatrix = await checkCompatiblity(JSON.stringify(description), JSON.stringify(mainResume))
+            res.status(200).json({compatibilityMatrix: JSON.parse(compatibilityMatrix ?? "")})
+        } catch (error) {
+            Logger.error(error)
+            res.status(500).json({error: error})
+        }
+    }
+
 
     /**
      * @swagger
@@ -94,8 +132,21 @@ class JobController {
         try {
             const db = await getDb()
             const jobModel = new JobModel(db)
-            const {text, url, companyName, post, type, location, date} = req.body
-            const jobId = await jobModel.addJob(text, url, companyName, post, type, location, date)
+            const {text, url, companyName, post, type, location, technicalSkills, softSkills} = req.body
+            let skillsStr = ""
+            if (Array.isArray(technicalSkills)) {
+                skillsStr = technicalSkills.join(",")
+            } else {
+                skillsStr = JSON.stringify(technicalSkills)
+            }
+
+            let softSkillsStr = ""
+            if (Array.isArray(softSkills)) {
+                softSkillsStr = softSkills.join(",")
+            } else {
+                softSkillsStr = JSON.stringify(softSkills)
+            }
+            const jobId = await jobModel.addJob(text, url, companyName, post, type, location, Date.now().toString(), skillsStr, softSkillsStr)
             res.status(200).json({jobId})
         } catch (err) {
             Logger.error(err)

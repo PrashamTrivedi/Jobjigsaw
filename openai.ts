@@ -49,7 +49,6 @@ export async function inferJobDescription(description: string, additionalFields:
 
     const jobDescriptionMessages: ChatCompletionMessageParam[] = [{
         role: "user",
-        name: 'JobDescription',
         content: description
     }]
 
@@ -61,7 +60,7 @@ export async function inferJobDescription(description: string, additionalFields:
     }
 
     const jobDescriptionJson = await openai.chat.completions.create({
-        model: 'gpt-4',
+        model: 'gpt-4-1106-preview',
         messages: jobDescriptionMessages,
         functions: [{
             name: 'getJobAnalysis',
@@ -101,16 +100,8 @@ export async function inferJobDescription(description: string, additionalFields:
                             "type": "string"
                         }
                     },
-                    "hypeRating": {
-                        "type": "number",
-                        "description": "How much of this job description is too good to be true. 1 means clear job description, 5 means too much sugarcoating"
-                    },
-                    "hypeRatingReason": {
-                        "type": "string",
-                        "description": "Reason for hype rating"
-                    }
                 },
-                "required": ["text", "url", "companyName", "post", "type", "location", "technicalSkills", "softSkills", "date", "hypeRating", "hypeRatingReason"]
+                "required": ["text", "url", "companyName", "post", "type", "location", "technicalSkills", "softSkills"]
 
             }
         }]
@@ -119,76 +110,86 @@ export async function inferJobDescription(description: string, additionalFields:
 
     if (jobDescriptionJson.choices[0].finish_reason === 'function_call') {
         const jobDescriptionFuctionArgs = jobDescriptionJson.choices[0].message.function_call?.arguments
-        const functionMessage: ChatCompletionMessageParam = {
-            role: "function",
-            name: 'getJobAnalysis',
-            content: "That's it, thanks a lot"
-        }
-        jobDescriptionMessages.push(functionMessage)
-        const jobDescriptionJsonPostFunction = await openai.chat.completions.create({
-            model: 'gpt-4',
-            messages: jobDescriptionMessages,
-            functions: [{
-                name: 'getJobAnalysis',
-                description: 'This function extracts the Job description from the input',
-                parameters: {
-
-                    "$schema": "http://json-schema.org/draft-07/schema#",
-                    "type": "object",
-                    "properties": {
-                        "text": {
-                            "type": "string"
-                        },
-                        "url": {
-                            "type": "string"
-                        },
-                        "companyName": {
-                            "type": "string"
-                        },
-                        "post": {
-                            "type": "string"
-                        },
-                        "type": {
-                            "type": "string"
-                        },
-                        "location": {
-                            "type": "string"
-                        },
-                        "technicalSkills": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        },
-                        "softSkills": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        },
-                        "date": {
-                            "type": "string"
-                        },
-                        "hypeRating": {
-                            "type": "number"
-                        },
-                        "hypeRatingReason": {
-                            "type": "string"
-                        }
-                    },
-                    "required": ["text", "url", "companyName", "post", "type", "location", "technicalSkills", "softSkills", "date", "hypeRating", "hypeRatingReason"]
-
-                }
-            }]
-        })
-        Logger.info(`Job description JSON: ${JSON.stringify(jobDescriptionJsonPostFunction
-            .choices[0].message.content)}`)
 
         return jobDescriptionFuctionArgs
 
     } else {
 
         return jobDescriptionJson.choices[0].message.content || undefined
+    }
+}
+
+export async function checkCompatiblity(description: string, mainResume: string): Promise<string | undefined> {
+    const openai = new OpenAI({apiKey: process.env.OPENAI_API_KEY, timeout: 60000})
+    const compatibilityMessage: ChatCompletionMessageParam[] = [{
+        role: "user",
+        content: `You have two JSONs a Resume, and a JD.
+        You need to check if the person is a good fit for the job or not. 
+        Tell how much % is the match between the person and the job.State the reasons for your answer.
+        Resume: ${mainResume}
+        Job Description: ${description}`
+    }]
+
+    const tokens = await calculateTokens(compatibilityMessage)
+    const modelLimit = modelLimits.find(modelLimit => modelLimit.name >= 'gpt-4')
+    const modelLimitTokens = modelLimit?.limit ?? 0
+    if (modelLimitTokens < tokens) {
+        throw new Error(`Job description is too long. It has ${tokens} tokens, but the limit is ${modelLimit?.limit}`)
+    }
+
+    const matchJson = await openai.chat.completions.create({
+        model: 'gpt-4-1106-preview',
+        messages: compatibilityMessage,
+        functions: [{
+            name: 'getJobAnalysis',
+            description: 'This function gets the Job output in JSON and processes it further',
+            parameters: {
+                "type": "object",
+                "properties": {
+
+                    "matchPercentage": {
+                        "type": "number",
+                        "description": "How much % is the match between the person and the job"
+                    },
+                    "matchReason": {
+                        "type": "string",
+                        "description": "Reason for match percentage"
+                    },
+                    "matchingSkills": {
+                        "type": "object",
+                        "properties": {
+                            "technicalSkills": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                },
+                                "description": "Technical skills from resume that makes the person a good fit for the job"
+                            },
+                            "softSkills": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                },
+                                "description": "Soft skills from resume that makes the person a good fit for the job"
+                            }
+                        }
+                    }
+                },
+                "required": ["matchPercentage", "matchReason", "matchingSkills"]
+
+            }
+        }]
+    })
+
+
+    if (matchJson.choices[0].finish_reason === 'function_call') {
+        const matchFunctionArgs = matchJson.choices[0].message.function_call?.arguments
+
+        return matchFunctionArgs
+        
+    } else {
+
+        return matchJson.choices[0].message.content || undefined
     }
 }
 
