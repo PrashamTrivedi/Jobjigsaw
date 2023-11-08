@@ -30,22 +30,26 @@ export async function generateJsonFromResume(resumeText: string): Promise<string
 
 export async function inferJobDescription(description: string, additionalFields: string[]): Promise<string | undefined> {
     const openai = new OpenAI({apiKey: process.env.OPENAI_API_KEY, timeout: 60000})
-    const originalPrompt = `Here's a job description I found.
-        Analyze it and tell me, the technical and soft skills required for this job. 
-        Also give me following information in JSON so that I can process it further
-        - Company Name
-        - Job Title
-        - Is the job is remote or not, if the job is not remote, give me the job location. 
-        - Is the job is full time or part time.
-        - Anything in the job description that seems too good to be true or overly positive. 
-            Rate this on a scale of 1 to 5, 
-            where 1 means the job description is realistic and straightforward, 
-            and 5 means there's a lot of hype or unrealistic expectations.`
+    const originalPrompt = `I am a developer with 14+ years of experience. 
+    You will assess a Job description and infer and extract following fields in JSON. 
+
+- Company Name
+- Job Title
+- Type Of Job: Full time, part time or contract
+- isRemote: Is the Job Remote?
+- location: Leave blank if the job is remote. Or mention it in LOCATION NAME/HYBRID or FULL TIME format
+- technicalSkills
+- softSkills
+- sugercoatingRating: Rate the following job according to how much it is sugar-coated. 1 if it isn't sugar-coated, 5 if it's full of sugar-coating. Focus only on soft skills and not on technical skills
+- sugercoatingRatingReason: Give the reason for the bullshit rating. Also site the relevant text that helped you to calculate the rating`
     const prompt = additionalFields?.length ?? 0 > 0 ? `${originalPrompt}
     Also check for following data points: ${additionalFields.join(', ')}` : originalPrompt
 
 
     const jobDescriptionMessages: ChatCompletionMessageParam[] = [{
+        role: "system",
+        content: prompt
+    }, {
         role: "user",
         content: description
     }]
@@ -60,49 +64,8 @@ export async function inferJobDescription(description: string, additionalFields:
     const jobDescriptionJson = await openai.chat.completions.create({
         model: 'gpt-4-1106-preview',
         messages: jobDescriptionMessages,
-        functions: [{
-            name: 'getJobAnalysis',
-            description: 'This function gets the Job output in JSON and processes it further',
-            parameters: {
-                "type": "object",
-                "properties": {
-                    "text": {
-                        "type": "string"
-                    },
-                    "companyName": {
-                        "type": "string"
-                    },
-                    "jobTitle": {
-                        "type": "string"
-                    },
-                    "type": {
-                        "type": "string",
-                        "description": "Full time or part time"
-                    },
-                    "isRemote": {
-                        "type": "boolean",
-                    },
-                    "location": {
-                        "type": "string",
-                        "description": "If the job is remote, then this field will be empty, otherwise location along with type in LOCATION (HYBRID/FULL TIME) format"
-                    },
-                    "technicalSkills": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
-                    },
-                    "softSkills": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
-                    },
-                },
-                "required": ["text", "url", "companyName", "post", "type", "location", "technicalSkills", "softSkills"]
-
-            }
-        }]
+        response_format: {type: "json_object"},
+        temperature: 0,
     })
 
 
