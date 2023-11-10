@@ -30,8 +30,6 @@ class JobController {
  *           properties:
  *             description:
  *               type: string
- *             additionalFields:
- *               type: object
  *     responses:
  *       200:
  *         description: Job description inferred successfully
@@ -64,7 +62,7 @@ class JobController {
 *           type: object
 *           properties:
  *             description:
- *               type: object
+ *               type: string
 *     
 *     responses:
 *       200:
