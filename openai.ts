@@ -86,9 +86,11 @@ export async function checkCompatiblity(description: string, mainResume: string)
         role: "system",
         content: `You have my resume in JSON format.And you will be given a JD.
         You need to check if I am a good fit for the job or not. 
-        Tell how much % is the match between my profile and the job.
-        State the reasons for your answer.
-        You will also tell me which skills required in JD match my resume, add it under matchedSkills, use techSkills and softSkills keys.
+        You will extract following fields in JSON.
+        - matchPercentage: How much % is the match between my profile and the JD.
+        - matchReason: State the reasons for your answer.
+        - requiredSkills.softSkills: List of soft skills required in the JD that matches with my resume
+        - requiredSkills.techSkills: List of tech skills required in the JD that matches with my resume
         Resume: ${mainResume}`
     }, {
         role: "user",
