@@ -100,7 +100,9 @@ export async function checkCompatiblity(description: string, mainResume: string)
 
     const matchJson = await openai.chat.completions.create({
         model: 'gpt-4-1106-preview',
-        messages: compatibilityMessage
+        messages: compatibilityMessage,
+        response_format: {type: "json_object"},
+        temperature: 0,
     })
 
 
