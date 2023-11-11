@@ -4,6 +4,7 @@ import Logger from "../utils/logger"
 import {getDb} from "../database"
 import {mainResume} from "../mainResume"
 import ResumeTemplate from "./resumeTemplate"
+import {generateResume} from "../openai"
 
 class ResumeController {
     constructor() {
@@ -37,6 +38,8 @@ class ResumeController {
      *               type: string
      *             softSkills:
      *               type: string
+     *             coverLetter:
+     *               type: string
      *     responses:
      *       200:
      *         description: Resume added successfully
@@ -45,7 +48,7 @@ class ResumeController {
      */
     public addResume = async (req: Request, res: Response) => {
         try {
-            const {jobId, updatedResume, technicalSkills, softSkills} = req.body
+            const {jobId, updatedResume, technicalSkills, softSkills, coverLetter} = req.body
             const db = await getDb()
             const resumeModel = new ResumeModel(db)
             const resumeId = await resumeModel.createResume(jobId, updatedResume, technicalSkills, softSkills)
@@ -131,6 +134,53 @@ class ResumeController {
 
     /**
      * @swagger
+     * /resumes/generate:
+     *   post:
+     *     tags:
+     *     - Resumes
+     *     summary: Generate a resume based on job compatibility data and cover letter requirement
+     *     parameters:
+     *       - in: body
+     *         name: resumeData
+     *         description: The data to generate the resume from.
+     *         schema:
+     *           type: object
+     *           required:
+     *             - jobCompatibilityData
+     *             - generateCoverLetter
+     *           properties:
+     *             jobCompatibilityData:
+     *               type: object
+     *               description: Job compatibility data as a JSON object
+     *             generateCoverLetter:
+     *               type: boolean
+     *               description: Flag to indicate if a cover letter should be generated
+     *     responses:
+     *       200:
+     *         description: Generated resume data
+     *       400:
+     *         description: Bad request if the input data is invalid
+     *       500:
+     *         description: Server error
+     */
+    public generateResume = async (req: Request, res: Response) => {
+        try {
+            const {jobCompatibilityData, generateCoverLetter} = req.body
+            const jobCompatibilityDataString = JSON.stringify(jobCompatibilityData)
+            if (typeof generateCoverLetter !== 'boolean') {
+                return res.status(400).json({error: 'Invalid input data'})
+            }
+            const generatedResume = await generateResume(JSON.stringify(mainResume), jobCompatibilityDataString, generateCoverLetter)
+
+            res.status(200).json({generatedResume: JSON.parse(generatedResume ?? "")})
+        } catch (error) {
+            Logger.error(error)
+            res.status(500).json({error: 'Server error'})
+        }
+    }
+
+    /**
+     * @swagger
      * /resumes/html/{id}:
      *   get:
      *     tags:
@@ -201,6 +251,8 @@ class ResumeController {
      *               type: string
      *             softSkills:
      *               type: string
+     *             coverLetter:
+     *               type: string
      *     responses:
      *       200:
      *         description: Resume updated successfully
@@ -214,9 +266,10 @@ class ResumeController {
     public updateResume = async (req: Request, res: Response) => {
         try {
             const {id} = req.params
-            const {updatedResume, technicalSkills, softSkills} = req.body
-            // Logic to update the resume by ID
-            // ...
+            const {updatedResume, technicalSkills, softSkills, coverLetter} = req.body
+            const db = await getDb()
+            const resumeModel = new ResumeModel(db)
+            await resumeModel.updateResume(Number(id), updatedResume, technicalSkills, softSkills, coverLetter)
             res.status(200).json({message: 'Resume updated successfully'})
         } catch (error) {
             Logger.error(error)

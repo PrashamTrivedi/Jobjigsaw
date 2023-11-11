@@ -6,6 +6,7 @@ interface Resume {
     updated_resume: string
     technical_skills: string
     soft_skills: string
+    cover_letter: string // New field for cover letter
     created_on: string
 }
 
@@ -16,11 +17,11 @@ export default class ResumeModel {
         this.db = db
     }
 
-    async createResume(jobId: number, updatedResume: string, technicalSkills: string, softSkills: string): Promise<number | bigint> {
+    async createResume(jobId: number, updatedResume: string, technicalSkills: string, softSkills: string, coverLetter: string): Promise<number | bigint> {
         const insert = this.db.prepare(`
-            INSERT INTO saved_resumes (job_id, updated_resume, technical_skills, soft_skills)
-            VALUES (?, ?, ?, ?)
-        `).run(jobId, updatedResume, technicalSkills, softSkills)
+            INSERT INTO saved_resumes (job_id, updated_resume, technical_skills, soft_skills, cover_letter)
+            VALUES (?, ?, ?, ?, ?)
+        `).run(jobId, updatedResume, technicalSkills, softSkills,coverLetter)
         return insert.lastInsertRowid
     }
 
@@ -41,4 +42,11 @@ export default class ResumeModel {
         `).all() as Resume[]
     }
 
+    async updateCoverLetter(id: number, coverLetter: string): Promise<void> {
+        this.db.prepare(`
+            UPDATE saved_resumes
+            SET cover_letter = ?
+            WHERE id = ?
+        `).run(coverLetter, id)
+    }
 }

@@ -18,8 +18,9 @@ resumeRouter.delete('/:id', resumeController.removeResume);
 
 // Route to get the complete HTML resume by its id
 resumeRouter.get('/html/:id', resumeController.getCompleteResumeHtml);
-
 // Route to update a resume by its id
 resumeRouter.put('/:id', resumeController.updateResume);
+
+resumeRouter.post('/generate', resumeController.generateResume);
 
 export default resumeRouter;
