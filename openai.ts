@@ -157,6 +157,7 @@ export async function generateResume(mainResume: string, jobCompatibilityData: s
     ${generateCoverLetter ? `- I need a cover letter for this job. I came to know about this job from LinkedIn, add this as coverLetter key in JSON` : ``} 
 
     Do not lie, when you add a new skill which is not in resume or change the meaning of responsibility heavily, that will be lying. 
+    Give the output in JSON format
     Resume: ${mainResume}`
 
     const resumeMessages: ChatCompletionMessageParam[] = [{
