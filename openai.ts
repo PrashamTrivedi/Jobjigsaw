@@ -83,13 +83,19 @@ export async function inferJobDescription(description: string, additionalFields:
 export async function checkCompatiblity(description: string, mainResume: string): Promise<string | undefined> {
     const openai = new OpenAI({apiKey: process.env.OPENAI_API_KEY, timeout: 60000})
     const compatibilityMessage: ChatCompletionMessageParam[] = [{
-        role: "user",
-        content: `You have two JSONs: My Resume, and a JD.
+        role: "system",
+        content: `You have my resume in JSON format.And you will be given a JD.
         You need to check if I am a good fit for the job or not. 
-        Tell how much % is the match between my profile and the job.State the reasons for your answer.
-        Resume: ${mainResume}
-        Job Description: ${description}`
+        Tell how much % is the match between my profile and the job.
+        State the reasons for your answer.
+        You will also tell me which skills required in JD match my resume, add it under matchedSkills, use techSkills and softSkills keys.
+        Resume: ${mainResume}`
+    }, {
+        role: "user",
+        content: description
+
     }]
+
 
     const tokens = await calculateTokens(compatibilityMessage)
     const modelLimit = modelLimits.find(modelLimit => modelLimit.name >= 'gpt-4')
