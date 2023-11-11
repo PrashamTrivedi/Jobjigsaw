@@ -84,9 +84,9 @@ export async function checkCompatiblity(description: string, mainResume: string)
     const openai = new OpenAI({apiKey: process.env.OPENAI_API_KEY, timeout: 60000})
     const compatibilityMessage: ChatCompletionMessageParam[] = [{
         role: "user",
-        content: `You have two JSONs a Resume, and a JD.
-        You need to check if the person is a good fit for the job or not. 
-        Tell how much % is the match between the person and the job.State the reasons for your answer.
+        content: `You have two JSONs: My Resume, and a JD.
+        You need to check if I am a good fit for the job or not. 
+        Tell how much % is the match between my profile and the job.State the reasons for your answer.
         Resume: ${mainResume}
         Job Description: ${description}`
     }]
@@ -100,46 +100,7 @@ export async function checkCompatiblity(description: string, mainResume: string)
 
     const matchJson = await openai.chat.completions.create({
         model: 'gpt-4-1106-preview',
-        messages: compatibilityMessage,
-        functions: [{
-            name: 'getJobAnalysis',
-            description: 'This function gets the Job output in JSON and processes it further',
-            parameters: {
-                "type": "object",
-                "properties": {
-
-                    "matchPercentage": {
-                        "type": "number",
-                        "description": "How much % is the match between the person and the job"
-                    },
-                    "matchReason": {
-                        "type": "string",
-                        "description": "Reason for match percentage"
-                    },
-                    "matchingSkills": {
-                        "type": "object",
-                        "properties": {
-                            "technicalSkills": {
-                                "type": "array",
-                                "items": {
-                                    "type": "string"
-                                },
-                                "description": "Technical skills from resume that makes the person a good fit for the job"
-                            },
-                            "softSkills": {
-                                "type": "array",
-                                "items": {
-                                    "type": "string"
-                                },
-                                "description": "Soft skills from resume that makes the person a good fit for the job"
-                            }
-                        }
-                    }
-                },
-                "required": ["matchPercentage", "matchReason", "matchingSkills"]
-
-            }
-        }]
+        messages: compatibilityMessage
     })
 
 
@@ -153,6 +114,8 @@ export async function checkCompatiblity(description: string, mainResume: string)
         return matchJson.choices[0].message.content || undefined
     }
 }
+
+
 
 async function calculateTokens(messages: ChatCompletionMessageParam[]): Promise<number> {
     const chatMessages = messages.filter(message => message.content?.length ?? 0 > 0).map(message => message.content)
@@ -168,3 +131,46 @@ const modelLimits = [
     {name: 'gpt-3.5-turbo', limit: 4000},
     {name: 'gpt-3.5-turbo-16k', limit: 16000}
 ]
+
+export async function generateResume(mainResume: string, jobCompatibilityData: string, generateCoverLetter: boolean): Promise<string | undefined> {
+    const openai = new OpenAI({apiKey: process.env.OPENAI_API_KEY, timeout: 60000})
+    // The prompt logic will be added later, for now it's an empty string
+    const prompt = `You are a resume generator. You a have my resume in JSON format, and you will be given the job title, required tech skills and required soft skills in JSON format. You will modify the resume according to the data given to you. Your modification includes following things.
+    - Change about section
+    - Make required skills priority in the resume.
+    - If a skill required is not there in resume, highlight adjacent skills which are there in the resume. for example when required skills have MySQL, highlight Postgres. When required skills have Google Cloud, highlight AWS. 
+    - Do not add new skill in the resume at all.
+    - Drop any skills from resume which are not in the required skills and may actually hurt my job application
+    -  Each item in work experience must include 3-5 responsibilities and each responsibility should be 150-300 words long.
+    - When altering the work experience, take care of the role and original responsibilities. You can alter some words that highlight the skills, but can't change meaning entirely, e.g. Can not add any AWS skills when my title involved Android. 
+    - If a responsibility doesn't highlight required skill, leave it as it is.
+    ${generateCoverLetter ? `- I need a cover letter for this job. I came to know about this job from LinkedIn, add this as coverLetter key in JSON` : ``} 
+
+    Do not lie, when you add a new skill which is not in resume or change the meaning of responsibility heavily, that will be lying. 
+    Resume: ${mainResume}`
+
+    const resumeMessages: ChatCompletionMessageParam[] = [{
+        role: "system",
+        content: prompt
+    }, {
+        role: "user",
+        content: jobCompatibilityData
+    }]
+    const tokens = await calculateTokens(resumeMessages)
+    const modelLimit = modelLimits.find(modelLimit => modelLimit.name >= 'gpt-4')
+    const modelLimitTokens = modelLimit?.limit ?? 0
+    if (modelLimitTokens < tokens) {
+        throw new Error(`Job description is too long. It has ${tokens} tokens, but the limit is ${modelLimit?.limit}`)
+    }
+    // Additional logic for generating a cover letter can be added here based on the generateCoverLetter parameter
+
+    const resumeJson = await openai.chat.completions.create({
+        model: 'gpt-4-1106-preview',
+        messages: resumeMessages,
+        response_format: {type: "json_object"},
+        temperature: 0,
+    })
+
+    // Handle the JSON response from the API
+    return resumeJson.choices[0].message.content || undefined
+}
