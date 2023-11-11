@@ -42,11 +42,28 @@ export default class ResumeModel {
         `).all() as Resume[]
     }
 
-    async updateCoverLetter(id: number, coverLetter: string): Promise<void> {
-        this.db.prepare(`
+    async updateResume(id: number, updatedResume: string, technicalSkills: string, softSkills: string, coverLetter: string, about?: string, workExperience?: string, projects?: string): Promise<void> {
+        const updateQuery = this.db.prepare(`
             UPDATE saved_resumes
-            SET cover_letter = ?
+            SET updated_resume = ?,
+                technical_skills = ?,
+                soft_skills = ?,
+                cover_letter = ?
+                ${about ? ', about = ?' : ''}
+                ${workExperience ? ', work_experience = ?' : ''}
+                ${projects ? ', projects = ?' : ''}
             WHERE id = ?
-        `).run(coverLetter, id)
+        `)
+        const updateParams = [
+            updatedResume,
+            technicalSkills,
+            softSkills,
+            coverLetter,
+            ...(about ? [about] : []),
+            ...(workExperience ? [workExperience] : []),
+            ...(projects ? [projects] : []),
+            id
+        ]
+        updateQuery.run(...updateParams)
     }
 }

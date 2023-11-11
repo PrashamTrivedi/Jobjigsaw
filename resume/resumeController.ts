@@ -51,7 +51,7 @@ class ResumeController {
             const {jobId, updatedResume, technicalSkills, softSkills, coverLetter} = req.body
             const db = await getDb()
             const resumeModel = new ResumeModel(db)
-            const resumeId = await resumeModel.createResume(jobId, updatedResume, technicalSkills, softSkills)
+            const resumeId = await resumeModel.createResume(jobId, updatedResume, technicalSkills, softSkills, coverLetter)
             res.status(200).json({resumeId})
         } catch (error) {
             Logger.error(error)
@@ -253,6 +253,15 @@ class ResumeController {
      *               type: string
      *             coverLetter:
      *               type: string
+     *             about:
+     *               type: string
+     *               description: JSON string of the about section
+     *             workExperience:
+     *               type: string
+     *               description: JSON string of the work experience section
+     *             projects:
+     *               type: string
+     *               description: JSON string of the projects section
      *     responses:
      *       200:
      *         description: Resume updated successfully
@@ -266,10 +275,10 @@ class ResumeController {
     public updateResume = async (req: Request, res: Response) => {
         try {
             const {id} = req.params
-            const {updatedResume, technicalSkills, softSkills, coverLetter} = req.body
+            const {updatedResume, technicalSkills, softSkills, coverLetter, about, workExperience, projects} = req.body
             const db = await getDb()
             const resumeModel = new ResumeModel(db)
-            await resumeModel.updateResume(Number(id), updatedResume, technicalSkills, softSkills, coverLetter)
+            await resumeModel.updateResume(Number(id), updatedResume, technicalSkills, softSkills, coverLetter, about, workExperience, projects)
             res.status(200).json({message: 'Resume updated successfully'})
         } catch (error) {
             Logger.error(error)
