@@ -62,7 +62,7 @@ Add additional notes about how to deploy this on a live system.
 * [YourDatabase] - Dependency Management
 * [YourTool] - Used to generate RSS Feeds
 
-```mermaidjs
+```mermaid
 flowchart TD
     A[Start: Upload Main Resume] -->|POST/PUT| B[Main Resume Management]
     B --> C{Resume Enhanced?}
