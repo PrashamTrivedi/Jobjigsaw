@@ -53,8 +53,8 @@ app.get('/logger', (req: Request, res: Response) => {
 
 app.use('/', router)
 
+app.get("/api-docs/swagger.json", (req, res) => res.json(apiSpec))
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(apiSpec))
-
 const server = createServer(app)
 
 

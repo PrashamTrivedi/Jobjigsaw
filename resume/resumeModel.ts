@@ -49,9 +49,6 @@ export default class ResumeModel {
                 technical_skills = ?,
                 soft_skills = ?,
                 cover_letter = ?
-                ${about ? ', about = ?' : ''}
-                ${workExperience ? ', work_experience = ?' : ''}
-                ${projects ? ', projects = ?' : ''}
             WHERE id = ?
         `)
         const updateParams = [
@@ -59,9 +56,6 @@ export default class ResumeModel {
             technicalSkills,
             softSkills,
             coverLetter,
-            ...(about ? [about] : []),
-            ...(workExperience ? [workExperience] : []),
-            ...(projects ? [projects] : []),
             id
         ]
         updateQuery.run(...updateParams)
