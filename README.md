@@ -62,6 +62,40 @@ Add additional notes about how to deploy this on a live system.
 * [YourDatabase] - Dependency Management
 * [YourTool] - Used to generate RSS Feeds
 
+```mermaidjs
+flowchart TD
+    A[Start: Upload Main Resume] -->|POST/PUT| B[Main Resume Management]
+    B --> C{Resume Enhanced?}
+    C -->|Yes| D[Update Skills, Experience, Projects]
+    C -->|No| E[Upload Job Description]
+    D --> E
+    E -->|POST| F[Job Description Management]
+    F -->|GET| G[Job Description Inference]
+    G -->|POST| H[Match Resume to Job Description]
+    H -->|POST| I[Generate Customized Resume]
+    I -->|GET| J[Retrieve Generated Resume]
+    J --> K[Review and Finalize Resume]
+    K --> L[End]
+
+    subgraph mainResume
+    B
+    end
+
+    subgraph jobs
+    E
+    F
+    G
+    H
+    end
+
+    subgraph resumes
+    I
+    J
+    K
+    end
+
+```
+
 ## Contributing
 
 Please read [CONTRIBUTING.md](http://example.com/) for details on our code of conduct, and the process for submitting pull requests to us.
