@@ -14,22 +14,60 @@ jspm_packages/
 .eslintcache
 
 # Build output
-dist/
-build/
-out/
-public/
+backend/dist/
+backend/build/
+backend/out/
+backend/public/
 
 # dotenv environment variables file
-.env
+backend/.env
 
 # OS generated files
 .DS_Store
 Thumbs.db
 
-*.sqlite
-mainResume.json
-*.db
-uploads/*
-database.db
-database.db
+backend/*.sqlite
+backend/mainResume.json
+backend/*.db
+backend/uploads/*
+backend/database.db
+backend/database.db
 .aider*
+
+
+# Next.js
+frontend/.next/
+frontend/out/
+frontend/node_modules/
+
+# Build artifacts
+frontend/.next/
+frontend/out/
+
+# Environment variables
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+
+# Serverless build output
+frontend/.serverless/
+
+# Compiled output
+frontend/build/
+
+# Dependency directories
+frontend/.pnp/
+frontend/.pnp.js
+
+# Testing
+frontend/coverage/
+
+# IDE files
+frontend/.idea
+frontend/.vscode
+frontend/*.iml
+
+# OS generated files
+frontend/.DS_Store
+frontend/Thumbs.db

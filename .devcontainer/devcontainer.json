@@ -31,7 +31,10 @@
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],
 	// Use 'postCreateCommand' to run commands after the container is created.
-	// "postCreateCommand": "yarn install",
+	"postStartCommand": {
+		"backend": "cd ${containerWorkspaceFolder}/backend && npm install && npm run dev",
+		"frontend": "cd ${containerWorkspaceFolder}/frontend && npm install && npm run dev"
+	},
 	// Configure tool-specific properties.
 	"customizations": {
 		"vscode": {
