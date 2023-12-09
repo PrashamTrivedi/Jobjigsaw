@@ -7,10 +7,19 @@
 	"features": {
 		"ghcr.io/devcontainers/features/git:1": {}
 	},
-	"appPort": "3000:3000",
+	"appPort": [
+		"3000:3000",
+		"3001:3001"
+	],
 	"portsAttributes": {
 		"3000": {
-			"label": "Application",
+			"label": "Backend",
+			"autoForward": true,
+			"onAutoForward": "openBrowser"
+		},
+		"3001": {
+			"label": "Frontend",
+			"autoForward": true,
 			"onAutoForward": "openBrowser"
 		}
 	},
@@ -29,8 +38,8 @@
 			"extensions": [
 				"GitHub.copilot",
 				"GitHub.copilot-chat",
-				"GitHub.copilot-labs",
-				"dbaeumer.vscode-eslint"
+				"dbaeumer.vscode-eslint",
+				"bradlc.vscode-tailwindcss"
 			]
 		}
 	},
