@@ -1,7 +1,7 @@
 
 import {inferJob, inferJobMatch} from "./lib/actions/jobInferrence"
 
-export default function Home() {
+export default function Page() {
 
 
 
