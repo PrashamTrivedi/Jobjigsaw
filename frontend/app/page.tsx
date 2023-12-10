@@ -1,8 +1,7 @@
-
-import {inferJob, inferJobMatch} from "./lib/actions/jobInferrence"
+'use client'
+import {InferJobButton, InferJobMatchButton} from "./ui/buttons"
 
 export default function Page() {
-
 
 
   return (
@@ -18,8 +17,8 @@ export default function Page() {
         name="jobDescription"
       />
       <div className="flex space-x-4 mt-4">
-        <button className="bg-blue-500 text-white px-4 py-2 rounded" formAction={inferJob}>Infer Job</button>
-        <button className="bg-green-500 text-white px-4 py-2 rounded" formAction={inferJobMatch}>Infer Match</button>
+        <InferJobButton />
+        <InferJobMatchButton />
       </div>
     </form >
 

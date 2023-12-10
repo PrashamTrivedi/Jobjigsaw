@@ -1,15 +1,16 @@
 import {cookies} from "next/headers"
 import {inferJob, inferJobMatch} from "../lib/actions/jobInferrence"
+import {InferJobButton, InferJobMatchButton} from "../ui/buttons"
 
 export default function Page() {
 
-    const jobDescription = cookies().get("jobDescription")?.value
+    const jobDescription = cookies().get("jobDescription")?.value ?? "No Job Description Found"
     const inferredJobString = cookies().get("inferredJob")?.value
     const inferredJobMatchString = cookies().get("inferredJobMatch")?.value
 
     const inferredJob = JSON.parse(inferredJobString ?? "{}")
     const inferredJobMatch = JSON.parse(inferredJobMatchString ?? "{}")
-    console.log(JSON.stringify(inferredJobMatch))
+
 
     return (
         <>
@@ -28,9 +29,7 @@ export default function Page() {
                     <form action={inferJob} className="mt-4">
                         <input type="hidden" value={jobDescription} name="jobDescription" />
 
-                        <button className="px-4 py-2 bg-blue-500 text-white rounded dark:bg-blue-400">
-                            Infer Job
-                        </button>
+                        <InferJobButton />
                     </form >
                 ) :
 
@@ -50,9 +49,7 @@ export default function Page() {
                         <form action={inferJob} className="mt-4">
                             <input type="hidden" value={jobDescription} name="jobDescription" />
 
-                            <button className="px-4 py-2 bg-blue-500 text-white rounded dark:bg-blue-400">
-                                Re-Infer Job
-                            </button>
+                            <InferJobButton defaultText="Re-Infer Job" />
                         </form >
                     </>
             }
@@ -64,9 +61,7 @@ export default function Page() {
                     <form action={inferJobMatch} className="mt-4">
                         <input type="hidden" value={jobDescription} name="jobDescription" />
 
-                        <button className="px-4 py-2 bg-green-500 text-white rounded ">
-                            Infer Match
-                        </button>
+                        <InferJobMatchButton />
                     </form >
                 ) :
                     <>
@@ -87,10 +82,7 @@ export default function Page() {
                         <form action={inferJobMatch} className="mt-4">
                             <input type="hidden" value={jobDescription} name="jobDescription" />
 
-                            <button className="px-4 py-2 bg-green-500 text-white rounded ">
-                                Re-Infer Match
-                            </button>
-                        </form >
+                            <InferJobMatchButton defaultText="Re-Infer Match" />                        </form >
                     </>
             }
         </>

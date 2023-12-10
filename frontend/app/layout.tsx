@@ -2,6 +2,8 @@ import type {Metadata} from 'next'
 import './globals.css'
 import Link from "next/link"
 import {Inter} from 'next/font/google'
+import NavLinks from "./ui/navLinks"
+
 
 const inter = Inter({subsets: ['latin']})
 export const metadata: Metadata = {
@@ -14,6 +16,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
 
+
   return (
     <html lang="en">
       <body className={`${inter.className} antialiased`}>
@@ -22,12 +25,10 @@ export default function RootLayout({
         <div className='flex flex-col min-h-screen'>
           <nav className="bg-gray-800 dark:bg-gray-900 text-white p-4">
             <ul className="flex justify-between">
-              <div className="flex space-x-4">
-                {/* Navigation Links */}
-                <li><Link href="/main-resume" className="hover:text-gray-300 dark:hover:text-gray-400">Main Resume</Link></li>
-                <li><Link href="/saved-jobs" className="hover:text-gray-300 dark:hover:text-gray-400">Saved Jobs</Link></li>
-                <li><Link href="/saved-resumes" className="hover:text-gray-300 dark:hover:text-gray-400">Saved Resumes</Link></li>
-              </div>
+              
+                <NavLinks />
+
+              
 
             </ul>
           </nav>
