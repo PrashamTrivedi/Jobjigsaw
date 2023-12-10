@@ -1,4 +1,4 @@
-'use client'
+
 import {inferJob, inferJobMatch} from "./lib/actions/jobInferrence"
 
 export default function Home() {
