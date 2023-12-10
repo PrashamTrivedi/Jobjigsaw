@@ -18,7 +18,7 @@ export default function RootLayout({
 }) {
 
   return (
-    <div className={`flex flex-col min-h-screen`}>
+    <div className='flex flex-col min-h-screen'>
       <nav className="bg-gray-800 dark:bg-gray-900 text-white p-4">
         <ul className="flex justify-between">
           <div className="flex space-x-4">
