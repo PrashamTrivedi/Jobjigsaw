@@ -7,6 +7,10 @@
 	"features": {
 		"ghcr.io/devcontainers/features/git:1": {}
 	},
+	"forwardPorts": [
+		3000,
+		3001
+	],
 	"appPort": [
 		"3000:3000",
 		"3001:3001"
@@ -15,6 +19,7 @@
 		"3000": {
 			"label": "Backend",
 			"autoForward": true,
+			"elevateIfNeeded": true,
 			"onAutoForward": "openBrowser"
 		},
 		"3001": {
@@ -32,8 +37,8 @@
 	// "forwardPorts": [],
 	// Use 'postCreateCommand' to run commands after the container is created.
 	"postStartCommand": {
-		"backend": "cd ${containerWorkspaceFolder}/backend && npm install && npm run dev",
-		"frontend": "cd ${containerWorkspaceFolder}/frontend && npm install && npm run dev"
+		"backend": "cd ${containerWorkspaceFolder}/backend && npm install",
+		"frontend": "cd ${containerWorkspaceFolder}/frontend && npm install"
 	},
 	// Configure tool-specific properties.
 	"customizations": {

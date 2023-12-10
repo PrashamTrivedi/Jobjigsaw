@@ -114,6 +114,7 @@
       "_build"
     ],
     "excludeFiles": [
+      "dist/swagger.json",
       "build/fileWhichChangesOften.ts"
     ]
   }

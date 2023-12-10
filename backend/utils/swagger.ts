@@ -1,4 +1,5 @@
 import swaggerJSDoc from "swagger-jsdoc"
+import fs from "fs"
 
 const options = {
     swaggerDefinition: {
@@ -18,5 +19,7 @@ const options = {
 }
 
 const openApiSpecification = swaggerJSDoc(options)
+console.log("Writing spec")
+fs.writeFileSync("./dist/swagger.json", JSON.stringify(openApiSpecification, null, 2))
 
 export default openApiSpecification
