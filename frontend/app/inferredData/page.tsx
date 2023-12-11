@@ -33,7 +33,19 @@ export default function Page() {
                     </form >
                 ) :
 
-                    <>
+                    <div className="mt-4">
+                        <h3 className="text-2xl mt-2 font-bold dark:text-white">
+                            Company name
+                        </h3>
+                        <p className="text-lg mt-2 dark:text-gray-300">
+                            {inferredJob.inferredDescription.companyName}
+                        </p>
+                        <h3 className="text-2xl font-bold dark:text-white">
+                            Job Title
+                        </h3>
+                        <p className="text-lg  dark:text-gray-300">
+                            {inferredJob.inferredDescription.jobTitle}
+                        </p>
                         {Object.entries(inferredJob.inferredDescription).map(([key, value]) => {
                             return (
                                 <div key={key} className="mt-4">
@@ -51,7 +63,7 @@ export default function Page() {
 
                             <InferJobButton defaultText="Re-Infer Job" />
                         </form >
-                    </>
+                    </div>
             }
             <h2 className="text-3xl font-bold mt-8 dark:text-white">
                 Inferred Job Match

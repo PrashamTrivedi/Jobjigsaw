@@ -33,15 +33,15 @@ export async function inferJobDescription(description: string, additionalFields:
     const originalPrompt = `I am a developer with 14+ years of experience. 
     You will assess a Job description and infer and extract following fields in JSON. 
 
-- Company Name
-- Job Title
-- Type Of Job: Full time, part time or contract
-- isRemote: Is the Job Remote?
-- location: Leave blank if the job is remote. Or mention it in LOCATION NAME/HYBRID or FULL TIME format
-- technicalSkills
-- softSkills
-- sugercoatingRating: Rate the following job according to how much it is sugar-coated. 1 if it isn't sugar-coated, 5 if it's full of sugar-coating. Focus only on soft skills and not on technical skills
-- sugercoatingRatingReason: Give the reason for the bullshit rating. Also site the relevant text that helped you to calculate the rating`
+- Company Name: Always use 'companyName' as key
+- Job Title: Always use 'jobTitle' as key
+- Type Of Job: Full time, part time or contract, always use 'typeOfJob' as key
+- isRemote: Is the Job Remote?, always use 'isRemote' as key
+- location: Leave blank if the job is remote. Or mention it in LOCATION NAME/HYBRID or FULL TIME format, always use 'location' as key
+- technicalSkills, always use 'technicalSkills' as key
+- softSkills, always use 'softSkills' as key
+- sugercoatingRating: Rate the following job according to how much it is sugar-coated just to attract anyone and everyone. 1 if it isn't sugar-coated, 5 if it's full of sugar-coating. Focus only on soft skills and not on technical skills, always use 'sugercoatingRating' as key
+- sugercoatingRatingReason: Give the reason for the bullshit rating. Also site the relevant text that helped you to calculate the rating. always use 'sugercoatingRatingReason' as key`
     const prompt = additionalFields?.length ?? 0 > 0 ? `${originalPrompt}
     Also check for following data points: ${additionalFields.join(', ')}` : originalPrompt
 
