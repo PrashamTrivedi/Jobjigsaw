@@ -23,14 +23,8 @@ export default function RootLayout({
 
 
         <div className='flex flex-col min-h-screen'>
-          <nav className="bg-gray-800 dark:bg-gray-900 text-white p-4">
-            <ul className="flex justify-between">
-              
-                <NavLinks />
-
-              
-
-            </ul>
+          <nav className="bg-gray-800 dark:bg-gray-900 text-white p-4 lg:flex lg:justify-between">
+              <NavLinks />
           </nav>
           <main className="flex-grow p-4">
             {children}
