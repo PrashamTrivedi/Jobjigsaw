@@ -169,7 +169,7 @@ export class MainResumeController {
             const resumeJson = await generateJsonFromResume(resumeText)
             console.log(resumeJson)
             // Write resumeJson to mainResume.json file
-            fs.writeFileSync('mainResume.json', JSON.stringify(resumeJson))
+            fs.writeFileSync('mainResume_parsed.json', JSON.stringify(resumeJson))
             res.json(resumeJson)
         } catch (error) {
             res.status(400).send('Error parsing resume.')
