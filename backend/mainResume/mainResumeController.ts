@@ -167,6 +167,7 @@ export class MainResumeController {
             const data = await pdf(dataBuffer)
             const resumeText = data.text
             const resumeJson = await generateJsonFromResume(resumeText)
+            console.log(resumeJson)
             // Write resumeJson to mainResume.json file
             fs.writeFileSync('mainResume.json', JSON.stringify(resumeJson))
             res.json(resumeJson)
