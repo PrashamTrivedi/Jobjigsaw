@@ -5,7 +5,7 @@ const options = {
     swaggerDefinition: {
         info: {
             title: 'Jobjigsaw API',
-            version: '1.0.0',
+            version: `1.0.1-${Date.now()}`,
             description: 'Jobjigsaw API',
 
         },
