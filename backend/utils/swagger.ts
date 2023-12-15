@@ -22,7 +22,7 @@ const options = {
 }
 0
 const openApiSpecification = swaggerJSDoc(options)
-console.log("Writing spec ")
+console.log("Writing spec")
 fs.writeFileSync("./dist/swagger.json", JSON.stringify(openApiSpecification, null, 2))
 
 export default openApiSpecification

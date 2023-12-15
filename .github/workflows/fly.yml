@@ -16,6 +16,9 @@ jobs:
       run:
         working-directory: backend
     steps:
+      - name: Create Main resume
+        run: |
+          echo "${{ secrets.MAIN_RESUME }}" | base64 -d > mainResume.json
       - uses: actions/checkout@v4
       - uses: superfly/flyctl-actions/setup-flyctl@master
       - run: flyctl deploy --remote-only
