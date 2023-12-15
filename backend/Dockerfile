@@ -14,7 +14,7 @@ WORKDIR /app
 COPY package*.json ./
 
 RUN npm ci
-COPY mainResume.json .
+# COPY mainResume.json .
 
 # Bundle app source
 COPY . .

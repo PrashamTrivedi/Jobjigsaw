@@ -14,4 +14,9 @@ mainResumeRouter.put('/addWorkExperience', mainResumeController.updateWorkExperi
 mainResumeRouter.put('/addProject', mainResumeController.updateProjects)
 
 
-export default mainResumeRouter
+import multer from 'multer';
+const upload = multer({ dest: 'uploads/' });
+
+mainResumeRouter.post('/uploadResume', upload.single('resume'), mainResumeController.uploadResume);
+
+export default mainResumeRouter;

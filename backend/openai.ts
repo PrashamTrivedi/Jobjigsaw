@@ -4,12 +4,23 @@ import {ChatCompletionMessageParam} from "openai/resources"
 import {get_encoding, encoding_for_model} from "tiktoken"
 import Logger from "./utils/logger"
 
+// Ensure this function is exported
 export async function generateJsonFromResume(resumeText: string): Promise<string | undefined> {
     const openai = new OpenAI({apiKey: process.env.OPENAI_API_KEY, timeout: 60000})
     const resumeMessages: ChatCompletionMessageParam[] = [{
         role: "system",
         content: `You are a programmatic resume parser who can parse the resume and create the JSON output from it. 
-        You don't lose any information from original text. You will only receive resume text and respond with JSON and nothing else`
+        You don't lose any information from original text. You will only receive resume text and respond with JSON and nothing else. You will provide following fields from the resume.
+        - contactDetails: {name, email, phone, address, linkedin, github, website}
+        - about: {summary, highlights}
+        - skills: Which is an array with following fields: name and items which shoud be array of strings
+        - certifications: Array of name and lin
+        - education: {degree, institution, location, duration}
+        - workExperience: {role, company, location, duration, responsibilities}
+        - projects: {name, description, duration, techStack, responsibilities, link}
+
+        If you don't find any of the above fields, remove it from the JSON.
+        `
     }, {
         role: "user",
         content: resumeText

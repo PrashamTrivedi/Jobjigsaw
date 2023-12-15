@@ -1,5 +1,8 @@
 import {Request, Response} from "express"
 import {MainResumeModel} from "./mainResumeModel"
+import {generateJsonFromResume} from "../openai"
+import fs from 'fs'
+import pdf from 'pdf-parse'
 
 export class MainResumeController {
     private mainResumeModel: MainResumeModel
@@ -133,4 +136,46 @@ export class MainResumeController {
     }
 
 
-}
+
+    /**
+     * @swagger
+     * /mainResume/uploadResume:
+     *   post:
+     *     tags:
+     *       - Main Resume
+     *     description: Upload a resume PDF and parse it to JSON
+     *     consumes:
+     *       - multipart/form-data
+     *     parameters:
+     *       - in: formData
+     *         name: resume
+     *         type: file
+     *         description: The resume PDF to upload.
+     *     responses:
+     *       200:
+     *         description: Resume parsed to JSON successfully.
+     *       400:
+     *         description: Error parsing resume.
+     */
+    public uploadResume = async (req: Request, res: Response) => {
+        if (!req.file) {
+            return res.status(400).send('No file uploaded.')
+        }
+
+        try {
+            const dataBuffer = fs.readFileSync(req.file.path)
+            const data = await pdf(dataBuffer)
+            const resumeText = data.text
+            const resumeJson = await generateJsonFromResume(resumeText)
+            // Write resumeJson to mainResume.json file
+            fs.writeFileSync('mainResume.json', JSON.stringify(resumeJson))
+            res.json(resumeJson)
+        } catch (error) {
+            res.status(400).send('Error parsing resume.')
+        } finally {
+            // Clean up uploaded file
+            if (req.file) {
+                fs.unlinkSync(req.file.path)
+            }
+        }
+    }
