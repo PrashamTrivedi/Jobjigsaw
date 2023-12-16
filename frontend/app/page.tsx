@@ -10,7 +10,7 @@ export default function Page() {
 
 
       <textarea
-        className="w-full p-2 border border-gray-300 dark:border-gray-700 dark:bg-gray-600 rounded"
+        className="w-full p-2 border border-gray-300 dark:border-gray-700 dark:bg-black rounded"
         rows={10}
         placeholder="Enter Job Description"
         id="jobDescription"
