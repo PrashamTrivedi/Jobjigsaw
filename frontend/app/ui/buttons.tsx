@@ -1,6 +1,6 @@
 'use client'
 import {useFormStatus} from "react-dom"
-import {inferJob, inferJobMatch} from "../lib/actions/jobInferrence"
+import {inferJob, inferJobMatch} from "@/app/lib/actions/jobInferrence"
 import {SparklesIcon} from "@heroicons/react/20/solid"
 
 export interface InferJobButtonProps {

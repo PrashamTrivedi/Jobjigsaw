@@ -1,6 +1,6 @@
 import {cookies} from "next/headers"
-import {inferJob, inferJobMatch} from "../lib/actions/jobInferrence"
-import {InferJobButton, InferJobMatchButton} from "../ui/buttons"
+import {inferJob, inferJobMatch} from "@/app/lib/actions/jobInferrence"
+import {InferJobButton, InferJobMatchButton} from "@/app/ui/buttons"
 
 export default function Page() {
 

@@ -23,13 +23,13 @@ export default function RootLayout({
 
 
         <div className='flex flex-col min-h-screen'>
-          <nav className="bg-gray-800 dark:bg-gray-900 text-white p-4 lg:flex lg:justify-between">
+          <nav className=" text-white p-4 lg:flex lg:justify-between">
               <NavLinks />
           </nav>
           <main className="flex-grow p-4">
             {children}
           </main>
-          <footer className="bg-gray-700 dark:bg-gray-800 text-white p-4 text-center">
+          <footer className=" text-white p-4 text-start text-sm">
             © 2023 Jobjigsaw
           </footer>
         </div>
