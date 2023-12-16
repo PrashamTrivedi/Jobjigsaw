@@ -83,14 +83,6 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(apiSpec))
 // The error handler must be registered before any other error middleware and after all controllers
 app.use(Sentry.Handlers.errorHandler())
 
-// Optional fallthrough error handler
-app.use(function onError(err: Error, req: Request, res: Response, next: any) {
-    // The error id is attached to `res.sentry` to be returned
-    // and optionally displayed to the user for support.
-    res.statusCode = 500
-    res.end(res.sentry + "\n")
-})
-
 const server = createServer(app)
 
 
