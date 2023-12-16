@@ -1,8 +1,8 @@
 import {getMainResume} from "@/app/lib/actions/mainResume"
 import {AtSymbolIcon, DevicePhoneMobileIcon, GlobeAltIcon} from "@heroicons/react/20/solid"
 import Link from "next/link"
-import {ReactElement, JSXElementConstructor, ReactNode, ReactPortal, PromiseLikeOfReactNode, Key} from "react"
-import {CopyButton} from "@/app/ui/copyButton"
+import {CopyButton} from "@/app/ui/buttons"
+
 
 export default async function Page() {
     const mainResume = await getMainResume()
@@ -31,14 +31,14 @@ export default async function Page() {
                 <p>{mainResume.about.summary}</p>
                 <h3><strong>Highlights</strong></h3>
                 <ul>
-                    {mainResume.about.highlights.map((highlight: string, index: Key) => (
+                    {mainResume.about.highlights.map((highlight: string, index: number) => (
                         <li key={index}>- {highlight}</li>
                     ))}
                 </ul>
             </section>
             <section className="mt-4">
                 <h2><strong>Skills</strong></h2>
-                {mainResume.skills.map((skill: {name: string; items: string[]}, index: Key) => (
+                {mainResume.skills.map((skill: {name: string; items: string[]}, index: number) => (
                     <div key={index}>
                         <strong>{skill.name}</strong>: {skill.items.join(", ")}
                     </div>
@@ -47,14 +47,14 @@ export default async function Page() {
             <section className="mt-4">
                 <h2><strong>Certifications</strong></h2>
                 <ul>
-                    {mainResume.certifications.map((certification: string, index: Key) => (
+                    {mainResume.certifications.map((certification: string, index: number) => (
                         <li key={index}>{certification}</li>
                     ))}
                 </ul>
             </section>
             <section className="mt-4">
                 <h2><strong>Education</strong></h2>
-                {mainResume.education.map((education: {degree: string; institution: string; location: string; duration: string}, index: Key) => (
+                {mainResume.education.map((education: {degree: string; institution: string; location: string; duration: string}, index: number) => (
                     <div key={index}>
                         <h3>{education.degree}</h3>
                         <p className="text-sm text-slate-400">{education.duration}</p>
