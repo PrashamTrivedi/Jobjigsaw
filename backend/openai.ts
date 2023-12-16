@@ -43,15 +43,16 @@ export async function inferJobDescription(description: string, additionalFields:
     const openai = new OpenAI({apiKey: process.env.OPENAI_API_KEY, timeout: 60000})
     const originalPrompt = `I am a developer with 14+ years of experience. 
     You will assess a Job description and infer and extract following fields in JSON. 
+    Unless specified otherwise, all fields should be string
 
 - Company Name: Always use 'companyName' as key
 - Job Title: Always use 'jobTitle' as key
 - Type Of Job: Full time, part time or contract, always use 'typeOfJob' as key
-- isRemote: Is the Job Remote?, always use 'isRemote' as key
+- isRemote: Is the Job Remote?, always use 'isRemote' as key. This should be a boolean
 - location: Leave blank if the job is remote. Or mention it in LOCATION NAME/HYBRID or FULL TIME format, always use 'location' as key
-- technicalSkills, always use 'technicalSkills' as key
-- softSkills, always use 'softSkills' as key
-- sugercoatingRating: Rate the following job according to how much it is sugar-coated just to attract anyone and everyone. 1 if it isn't sugar-coated, 5 if it's full of sugar-coating. Focus only on soft skills and not on technical skills, always use 'sugercoatingRating' as key
+- technicalSkills, always use 'technicalSkills' as key. This should be a string array
+- softSkills, always use 'softSkills' as key. This should be a string array
+- sugercoatingRating: Rate the following job according to how much it is sugar-coated just to attract anyone and everyone. 1 if it isn't sugar-coated, 5 if it's full of sugar-coating. Focus only on soft skills and not on technical skills, always use 'sugercoatingRating' as key. This should be a number.
 - sugercoatingRatingReason: Give the reason for the bullshit rating. Also site the relevant text that helped you to calculate the rating. always use 'sugercoatingRatingReason' as key`
     const prompt = additionalFields?.length ?? 0 > 0 ? `${originalPrompt}
     Also check for following data points: ${additionalFields.join(', ')}` : originalPrompt
@@ -96,12 +97,12 @@ export async function checkCompatiblity(description: string, mainResume: string)
     const compatibilityMessage: ChatCompletionMessageParam[] = [{
         role: "system",
         content: `You have my resume in JSON format.And you will be given a JD.
-        You need to check if I am a good fit for the job or not. 
-        You will extract following fields in JSON.
-        - matchPercentage: How much % is the match between my profile and the JD.
-        - matchReason: State the reasons for your answer.
-        - requiredSkills.softSkills: List of soft skills required in the JD that matches with my resume
-        - requiredSkills.techSkills: List of tech skills required in the JD that matches with my resume
+        You need to check if I am a good fit for the job or not.
+        You will extract following fields in JSON. All fields should be string unless specified otherwise.
+        - matchPercentage: How much % is the match between my profile and the JD. This should be a number.
+        - matchReason: State the reasons for your answer. This should be a string.
+        - requiredSkills.softSkills: List of soft skills required in the JD that matches with my resume. This should be a string array.
+        - requiredSkills.techSkills: List of tech skills required in the JD that matches with my resume. This should be a string array.
         Resume: ${mainResume}`
     }, {
         role: "user",
