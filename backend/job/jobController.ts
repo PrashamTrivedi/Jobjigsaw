@@ -139,6 +139,7 @@ class JobController {
             const db = await getDb()
             const jobModel = new JobModel(db)
             const {text, url, companyName, post, type, location, technicalSkills, softSkills, inferredJob, inferredJobMatch} = req.body
+            console.log({inferredJob, inferredJobMatch})
             let skillsStr = ""
             if (Array.isArray(technicalSkills)) {
                 skillsStr = technicalSkills.join(",")

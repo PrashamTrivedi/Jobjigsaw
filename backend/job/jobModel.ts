@@ -22,7 +22,9 @@ export default class JobModel {
     }
 
     async addJob(text: string, url: string, companyName: string, post: string, type: string, location: string, date: string, skills: string, softSkills: string, inferredJob: string, inferredJobMatch: string): Promise<number | bigint> {
-        const insert = this.db.prepare('INSERT INTO JD (text, url, companyName, post, type, skills, softSkills, location, date) VALUES (?, ?, ?, ?, ?, ?, ?,?,?)').run(text, url, companyName, post, type, skills, softSkills, location, date)
+        const insert = this.db.prepare('INSERT INTO JD (text, url, companyName, post, type, skills, softSkills, location, date, inferredJob, inferredJobMatch) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)').
+            run(text, url, companyName, post, type, skills, softSkills,
+                location, date, inferredJob, inferredJobMatch)
         return insert.lastInsertRowid
     }
 
