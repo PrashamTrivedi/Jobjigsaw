@@ -10,7 +10,7 @@ export default async function JobsList() {
                 <div className="space-y-2 mt-2">
                     <div className="text-lg"><strong>No Jobs Found</strong></div>
                     <div className="text-sm">
-                        <strong>Try adding a job with the form above!</strong>
+                        <strong>Try adding a job by tapping <span className="font-mono font-semibold"> Add New Job </span> above</strong>
                     </div>
                 </div>
             </div>

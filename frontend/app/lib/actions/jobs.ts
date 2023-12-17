@@ -42,7 +42,6 @@ export async function addJob(formData: FormData) {
         inferredJob: formData.get('inferredJob') as string,
         inferredJobMatch: formData.get('inferredJobMatch') as string,
     }
-
     console.log(job)
     const response = await fetch(`${process.env.BACKEND_API_HOST}/jobs`, {
         method: 'POST',
@@ -53,9 +52,9 @@ export async function addJob(formData: FormData) {
     })
     const data = await response.json()
     console.log(data)
-    kv.del('inferredJob')
-    kv.del('inferredJobMatch')
-    kv.del('jobDescription')
+    await kv.del('inferredJob')
+    await kv.del('inferredJobMatch')
+    await kv.del('jobDescription')
     revalidatePath('/saved-jobs')
     redirect('/saved-jobs')
 }

@@ -45,8 +45,8 @@ export default async function Page({
         jobData.technicalSkills = inferredJob.inferredDescription.technicalSkills
         jobData.softSkills = inferredJob.inferredDescription.softSkills
         jobData.location = location
-        jobData.inferredJob = inferredJobString
-        jobData.inferredJobMatch = inferredJobMatchString
+        jobData.inferredJob = JSON.stringify(inferredJobString)
+        jobData.inferredJobMatch = JSON.stringify(inferredJobMatchString)
     }
 
     // const addJobFunction = addJob.bind(null, jobData)
