@@ -1,9 +1,14 @@
 import {cookies} from 'next/headers'
 import {inferJob, inferJobMatch} from '@/app/lib/actions/jobInferrence'
-import {InferJobButton, InferJobMatchButton} from '@/app/ui/buttons'
+import {AddJobButton, InferJobButton, InferJobMatchButton} from '@/app/ui/buttons'
 import kv from '@vercel/kv'
 import Link from "next/link"
 import InferredData from "../ui/inferredData"
+import {Metadata} from "next"
+
+export const metadata: Metadata = {
+    title: 'Inferred Job',
+}
 export default async function Page() {
 
     const jobDescription = await kv.get<string>('jobDescription') ?? ''
@@ -40,17 +45,22 @@ export default async function Page() {
 
             {
                 Object.keys(inferredJob).length === 0 ? (
-                    <form action={inferJob} className='mt-4'>
-                        <input type='hidden' value={jobDescription} name='jobDescription' />
+                    <>
+                        <form action={inferJob} className='mt-4'>
+                            <input type='hidden' value={jobDescription} name='jobDescription' />
 
-                        <InferJobButton />
-                    </form >
+                            <InferJobButton />
+                        </form >
+                        <div className="mt-5">
+                            <span className="text-md">Or go to <Link className="border-b-2" href='/'>Home</Link> to enter a new job description.</span>
+                        </div>
+                    </>
                 ) :
 
                     <div className='mt-4'>
                         <InferredData keyName='Company Name' value={inferredJob.inferredDescription.companyName} />
                         <InferredData keyName='Job Title' value={inferredJob.inferredDescription.jobTitle} />
-                        <InferredData keyName='Is Remote?' value={inferredJob.inferredDescription.isRemote ? '✅' : '❌'} />
+                        <InferredData keyName='Full Remote?' value={inferredJob.inferredDescription.isRemote ? '✅' : '❌'} />
                         {!inferredJob.inferredDescription.isRemote &&
                             <InferredData keyName='Job Location' value={inferredJob.inferredDescription.location} />
 
@@ -63,9 +73,11 @@ export default async function Page() {
 
                         <form action={inferJob} className='mt-4'>
                             <input type='hidden' value={jobDescription} name='jobDescription' />
-
                             <InferJobButton defaultText='Re-Infer Job' />
                         </form >
+                        <div className="mt-5">
+                            <span className="text-md">Want to infer another job? Go to <Link className="border-b-2" href='/'>Home</Link> to enter a new job description.</span>
+                        </div>
                     </div>
             }
             <h2 className='text-3xl font-bold mt-8 dark:text-white'>
@@ -74,11 +86,17 @@ export default async function Page() {
             {
 
                 Object.keys(inferredJobMatch).length === 0 ? (
-                    <form action={inferJobMatch} className='mt-4'>
-                        <input type='hidden' value={jobDescription} name='jobDescription' />
+                    <>
+                        <form action={inferJobMatch} className='mt-4'>
+                            <input type='hidden' value={jobDescription} name='jobDescription' />
 
-                        <InferJobMatchButton />
-                    </form >
+                            <InferJobMatchButton />
+                        </form >
+                        <div className="mt-5">
+                            <span className="text-md">Go to<Link className="border-b-2" href='/'>Home</Link> to enter a new job description.</span>
+                        </div>
+                    </>
+
                 ) :
                     <div className='mt-4'>
                         <InferredData keyName='Match Percentage' value={`${inferredJobMatch.compatibilityMatrix.matchPercentage}%`} />
@@ -88,11 +106,18 @@ export default async function Page() {
                         <InferredData keyName='Technical Skills' value={inferredJobMatch.compatibilityMatrix.requiredSkills.techSkills.join(", ")} />
                         <InferredData keyName='Soft Skills' value={inferredJobMatch.compatibilityMatrix.requiredSkills.softSkills.join(", ")} />
 
-                        
-                            <form action={inferJobMatch} className='mt-4'>
-                                <input type='hidden' value={jobDescription} name='jobDescription' />
 
-                                <InferJobMatchButton defaultText='Re-Infer Match' />                        </form >
+                        <form action={inferJobMatch} className='mt-4'>
+                            <input type='hidden' value={jobDescription} name='jobDescription' />
+
+                            <InferJobMatchButton defaultText='Re-Infer Match' />
+                        </form >
+                        <div className="mt-5">
+                            <span className="text-md">Want to infer another job? Go to <Link className="border-b-2" href='/'>Home</Link> to enter a new job description.</span>
+                            <p></p>
+                            <p>Or</p>
+                            <AddJobButton />    
+                        </div>
 
                     </div>
             }

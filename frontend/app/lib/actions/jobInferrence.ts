@@ -1,7 +1,7 @@
 'use server'
 import {revalidatePath} from "next/cache"
 import {redirect} from "next/navigation"
-import kv from '@vercel/kv'
+import {kv} from '@vercel/kv'
 
 export async function inferJob(formData: FormData): Promise<any> {
 
@@ -15,9 +15,9 @@ export async function inferJob(formData: FormData): Promise<any> {
     console.log({jobDescriptionFromCookie})
     if (jobDescriptionFromCookie !== jobDescription) {
         console.log('Job description from cookie is different from the one in form, Need to re infer the job match')
-        await kv.unlink('inferredJobMatch')
+        await kv.del('inferredJobMatch')
     }
-    await kv.set('jobDescription', jobDescription)
+    await kv.set('jobDescription', jobDescription, {ex: 60})
     const response = await fetch(`${process.env.BACKEND_API_HOST}/jobs/infer`, {
         method: 'POST',
         body: JSON.stringify({description: jobDescription}),
@@ -27,7 +27,7 @@ export async function inferJob(formData: FormData): Promise<any> {
     })
     const data = await response.json()
     console.log(data)
-    await kv.set('inferredJob', JSON.stringify(data))
+    await kv.set('inferredJob', JSON.stringify(data), {ex: 60})
 
     revalidatePath('/inferredData')
     redirect('/inferredData')
@@ -45,7 +45,7 @@ export async function inferJobMatch(formData: FormData): Promise<any> {
     const jobDescriptionFromCookie = await kv.get('jobDescription')
     if (jobDescriptionFromCookie !== jobDescription) {
         console.log('Job description from cookie is different from the one in form, Need to re infer the job')
-        await kv.unlink('inferredJob')
+        await kv.del('inferredJob')
     }
     await kv.set('jobDescription', jobDescription)
     const response = await fetch(`${process.env.BACKEND_API_HOST}/jobs/infer-match`, {
@@ -57,7 +57,7 @@ export async function inferJobMatch(formData: FormData): Promise<any> {
     })
     const data = await response.json()
     console.log(data)
-    await kv.set('inferredJobMatch', JSON.stringify(data))
+    await kv.set('inferredJobMatch', JSON.stringify(data), {ex: 60})
     revalidatePath('/inferredData')
     redirect('/inferredData')
 }

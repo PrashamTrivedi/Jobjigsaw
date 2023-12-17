@@ -1,5 +1,6 @@
-'use client'
-import {InferJobButton, InferJobMatchButton} from "./ui/buttons"
+
+import {InferJobButton, InferJobMatchButton} from "@/app/ui/buttons"
+
 
 export default function Page() {
 

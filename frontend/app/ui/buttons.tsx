@@ -1,7 +1,7 @@
 'use client'
 import {useFormStatus} from "react-dom"
 import {inferJob, inferJobMatch} from "@/app/lib/actions/jobInferrence"
-import {DocumentDuplicateIcon, SparklesIcon, TrashIcon} from "@heroicons/react/20/solid"
+import {DocumentDuplicateIcon, PlusIcon, SparklesIcon, TrashIcon} from "@heroicons/react/20/solid"
 import clsx from "clsx"
 import {useState} from "react"
 
@@ -55,5 +55,18 @@ export function CopyButton({text}: {text: string}) {
                     "text-green-400": copied,
                 })
             } /></button>
+    )
+}
+
+
+export function AddJobButton() {
+    return (
+        <button
+            onClick={() => {
+                window.location.href = '/create-job?fromInferred';
+            }}
+            className="mt-3 bg-indigo-500 text-white active:bg-indigo-900 px-4 py-2 rounded flex items-center" >
+            <PlusIcon className="ml-auto h-5 w-5 mx-2"></PlusIcon>Add This Job
+        </button>
     )
 }

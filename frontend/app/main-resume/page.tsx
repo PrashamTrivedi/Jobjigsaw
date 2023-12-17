@@ -2,7 +2,11 @@ import {getMainResume} from "@/app/lib/actions/mainResume"
 import {AtSymbolIcon, DevicePhoneMobileIcon, GlobeAltIcon} from "@heroicons/react/20/solid"
 import Link from "next/link"
 import {CopyButton} from "@/app/ui/buttons"
+import {Metadata} from "next"
 
+export const metadata: Metadata = {
+    title: 'Main Resume',
+}
 
 export default async function Page() {
     const mainResume = await getMainResume()
