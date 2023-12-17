@@ -1,4 +1,5 @@
 import betterSqlite3 from "better-sqlite3"
+import {inferJobDescription} from "../openai"
 interface Job {
     id: number
     text: string
@@ -8,6 +9,10 @@ interface Job {
     type: string
     location: string
     date: string
+    inferJobDescription: string
+    inferJobMatch: string
+    skills: string
+    softSkills: string
 }
 export default class JobModel {
     private readonly db: betterSqlite3.Database
@@ -16,7 +21,7 @@ export default class JobModel {
         this.db = db
     }
 
-    async addJob(text: string, url: string, companyName: string, post: string, type: string, location: string, date: string, skills: string, softSkills: string): Promise<number | bigint> {
+    async addJob(text: string, url: string, companyName: string, post: string, type: string, location: string, date: string, skills: string, softSkills: string, inferredJob: string, inferredJobMatch: string): Promise<number | bigint> {
         const insert = this.db.prepare('INSERT INTO JD (text, url, companyName, post, type, skills, softSkills, location, date) VALUES (?, ?, ?, ?, ?, ?, ?,?,?)').run(text, url, companyName, post, type, skills, softSkills, location, date)
         return insert.lastInsertRowid
     }

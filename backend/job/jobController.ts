@@ -120,6 +120,14 @@ class JobController {
      *               type: string
      *             date:
      *               type: string
+     *             technicalSkills:
+     *              type: string
+     *             softSkills:
+     *              type: string
+     *             inferredJob:
+     *              type: string
+     *             inferredJobMatch:
+     *              type: string
      *     responses:
      *       200:
      *         description: Job added successfully
@@ -130,7 +138,7 @@ class JobController {
         try {
             const db = await getDb()
             const jobModel = new JobModel(db)
-            const {text, url, companyName, post, type, location, technicalSkills, softSkills} = req.body
+            const {text, url, companyName, post, type, location, technicalSkills, softSkills, inferredJob, inferredJobMatch} = req.body
             let skillsStr = ""
             if (Array.isArray(technicalSkills)) {
                 skillsStr = technicalSkills.join(",")
@@ -144,7 +152,7 @@ class JobController {
             } else {
                 softSkillsStr = JSON.stringify(softSkills)
             }
-            const jobId = await jobModel.addJob(text, url, companyName, post, type, location, Date.now().toString(), skillsStr, softSkillsStr)
+            const jobId = await jobModel.addJob(text, url, companyName, post, type, location, Date.now().toString(), skillsStr, softSkillsStr, inferredJob, inferredJobMatch)
             res.status(200).json({jobId})
         } catch (err) {
             Logger.error(err)
