@@ -3,7 +3,8 @@ import {JobsCard} from "./jobsCard"
 
 export default async function JobsList() {
     const jobs = await getJobs()
-    if(jobs.length === 0) return (
+    console.log(jobs)
+    if (jobs.length === 0) return (
         <div className="mt-5 mh-8">
             <div className="bg-gray-800 rounded-lg p-4 space-y-4">
                 <div className="space-y-2 mt-2">

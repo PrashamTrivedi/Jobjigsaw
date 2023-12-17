@@ -1,4 +1,5 @@
 'use server'
+import {kv} from "@vercel/kv"
 import {revalidatePath} from "next/cache"
 import {redirect} from "next/navigation"
 
@@ -24,6 +25,8 @@ export interface Job {
     date?: string
     technicalSkills: string[]
     softSkills: string[]
+    inferredJob?: string
+    inferredJobMatch?: string
 }
 
 export async function addJob(formData: FormData) {
@@ -36,6 +39,8 @@ export async function addJob(formData: FormData) {
         location: formData.get('location') as string,
         technicalSkills: formData.getAll('technicalSkills') as string[],
         softSkills: formData.getAll('softSkills') as string[],
+        inferredJob: formData.get('inferredJob') as string,
+        inferredJobMatch: formData.get('inferredJobMatch') as string,
     }
 
     console.log(job)
@@ -48,6 +53,9 @@ export async function addJob(formData: FormData) {
     })
     const data = await response.json()
     console.log(data)
+    kv.del('inferredJob')
+    kv.del('inferredJobMatch')
+    kv.del('jobDescription')
     revalidatePath('/saved-jobs')
     redirect('/saved-jobs')
 }

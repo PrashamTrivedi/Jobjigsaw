@@ -93,7 +93,7 @@ export default async function Page() {
                             <InferJobMatchButton />
                         </form >
                         <div className="mt-5">
-                            <span className="text-md">Go to<Link className="border-b-2" href='/'>Home</Link> to enter a new job description.</span>
+                            <span className="text-md">Go to <Link className="border-b-2" href='/'>Home</Link> to enter a new job description.</span>
                         </div>
                     </>
 

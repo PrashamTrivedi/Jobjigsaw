@@ -15,7 +15,7 @@ export default async function Page() {
             <div className="flex items-center w-full justify-center">
                 <h1 className="text-4xl text-center mr-4">Saved Jobs</h1>
                 <Link href='/create-job'
-                    className="mt-3 text-center text-indigo-500 px-4 py-2 rounded" >
+                    className="mt-3 text-center hover:border-b-4 hover:border-indigo-500 text-indigo-500 px-4 py-2 rounded" >
                     Add New Job
                 </Link>
             </div>

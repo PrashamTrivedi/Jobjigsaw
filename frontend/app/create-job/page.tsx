@@ -26,6 +26,8 @@ export default async function Page({
         location: '',
         technicalSkills: [],
         softSkills: [],
+        inferredJob: '',
+        inferredJobMatch: ''
     }
     if (isFromInferred) {
         const jobDescription = await kv.get<string>('jobDescription') ?? ''
@@ -43,6 +45,8 @@ export default async function Page({
         jobData.technicalSkills = inferredJob.inferredDescription.technicalSkills
         jobData.softSkills = inferredJob.inferredDescription.softSkills
         jobData.location = location
+        jobData.inferredJob = inferredJobString
+        jobData.inferredJobMatch = inferredJobMatchString
     }
 
     // const addJobFunction = addJob.bind(null, jobData)
@@ -93,6 +97,9 @@ export default async function Page({
                     <label htmlFor="city" className="block text-sm font-medium text-gray-700 dark:text-gray-200">Location</label>
                     <input type="text" id="location" name="location" defaultValue={jobData.location} className="mt-1 block w-full py-2 px-3  border border-gray-300 dark:border-gray-700 dark:bg-black  bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
                 </div>
+
+                <input type="hidden" id="inferredJob" name="inferredJob" defaultValue={jobData.inferredJob} />
+                <input type="hidden" id="inferredJobMatch" name="inferredJobMatch" defaultValue={jobData.inferredJobMatch} />
 
                 <button type="submit" className="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                     Add Job
