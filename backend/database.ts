@@ -1,6 +1,14 @@
 
 import betterSqlite3 from "better-sqlite3"
 
+interface TableColumn {
+    cid: number
+    name: string
+    type: string
+    notnull: number
+    dflt_value: any
+    pk: number
+}
 
 export async function getDb(): Promise<betterSqlite3.Database> {
     const db = betterSqlite3('./database.db')
@@ -19,7 +27,7 @@ export async function getDb(): Promise<betterSqlite3.Database> {
         softSkills TEXT, 
         date TEXT)`).run()
 
-    const columns = db.prepare(`PRAGMA table_info(JD)`).all()
+    const columns = db.prepare<TableColumn[]>(`PRAGMA table_info(JD)`).all() as TableColumn[]
     if (!columns.find((column) => column.name === 'inferredJob')) {
         db.prepare(`ALTER TABLE JD ADD COLUMN inferredJob TEXT DEFAULT ''`).run()
     }
