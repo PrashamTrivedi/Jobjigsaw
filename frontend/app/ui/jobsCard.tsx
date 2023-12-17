@@ -11,7 +11,7 @@ export function JobsCard({job}: {job: Job, i: number}) {
     const [isExpanded, setExpanded] = useState(false)
     const deleteJobWithId = deleteJob.bind(null, `${job.id}`)
     return (
-        <div key={job.id} className=" bg-gray-800 rounded-lg p-4 space-y-4">
+        <div key={job.id} className=" bg-gray-800 rounded-lg p-4 my-4 space-y-4">
             <div className="space-y-2 mt-2">
                 <div className="text-lg"><BriefcaseIcon className="inline-block h-5 w-5 ms-1 me-1"></BriefcaseIcon><strong>{job.companyName}</strong></div>
 

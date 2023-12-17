@@ -14,17 +14,31 @@ import {redirect} from "next/navigation"
 }
  */
 export interface Job {
-    id: number
+    id?: number
     text: string
     url: string
     companyName: string
     post: string
     type: string
     location: string
-    date: string
+    date?: string
+    technicalSkills: string[]
+    softSkills: string[]
 }
 
-export async function addJob(job: Job) {
+export async function addJob(formData: FormData) {
+    const job: Job = {
+        text: formData.get('text') as string,
+        url: formData.get('url') as string,
+        companyName: formData.get('companyName') as string,
+        post: formData.get('post') as string,
+        type: formData.get('type') as string,
+        location: formData.get('location') as string,
+        technicalSkills: formData.getAll('technicalSkills') as string[],
+        softSkills: formData.getAll('softSkills') as string[],
+    }
+
+    console.log(job)
     const response = await fetch(`${process.env.BACKEND_API_HOST}/jobs`, {
         method: 'POST',
         body: JSON.stringify(job),
