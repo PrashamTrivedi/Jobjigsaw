@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - 'backend/**'
+      - '.github/workflows/fly.yml'
 
 
 jobs:
@@ -21,12 +22,10 @@ jobs:
         run: |
           echo "${{ secrets.MAIN_RESUME }}" | base64 -d > ./mainResume.json
       - uses: superfly/flyctl-actions/setup-flyctl@master
-      - name: Setup flyctl environment
-        with:
-          version: latest
         run: flyctl secrets set OPENAI_API_KEY=$(echo ${{ secrets.OPENAI_API_KEY }})
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+      - uses: superfly/flyctl-actions/setup-flyctl@master
       - run: flyctl deploy --remote-only
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
