@@ -26,7 +26,9 @@ export async function generateJsonFromResume(resumeText: string): Promise<string
         content: resumeText
     }]
     const resumeJson = await openai.chat.completions.create({
-        model: 'gpt-4',
+        model: 'gpt-4-1106-preview',
+        response_format: {type: "json_object"},
+        temperature: 0,
         messages: resumeMessages,
 
 
