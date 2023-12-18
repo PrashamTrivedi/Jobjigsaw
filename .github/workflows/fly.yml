@@ -18,13 +18,15 @@ jobs:
         working-directory: backend
     steps:
       - uses: actions/checkout@v4
+      - uses: superfly/flyctl-actions/setup-flyctl@master
       - name: Create Main resume
         run: |
           echo "${{ secrets.MAIN_RESUME }}" | base64 -d > ./mainResume.json
-      - uses: superfly/flyctl-actions/setup-flyctl@master
-      - run: flyctl secrets set OPENAI_API_KEY=$(echo ${{ secrets.OPENAI_API_KEY }})
+      - name: Set secrets
+        run: flyctl secrets set OPENAI_API_KEY=$(echo ${{ secrets.OPENAI_API_KEY }})
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
-      - run: flyctl deploy --remote-only
+      - name: Deploy app
+        run: flyctl deploy --remote-only
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
