@@ -11,10 +11,12 @@ import 'source-map-support/register'
 import router from "./routes"
 import * as Sentry from "@sentry/node"
 import {ProfilingIntegration} from "@sentry/profiling-node"
+import cors from "cors"
 dotenv.config()
 
 
 const app = express()
+
 
 Sentry.init({
     dsn: "https://c8ff5d6d59483306a571fd7d9b4f1425@o4506404751867904.ingest.sentry.io/4506404757700608",
@@ -39,7 +41,10 @@ app.use(Sentry.Handlers.tracingHandler())
 // parse application/json
 app.use(express.json())
 
+app.use(cors())
+
 app.use(morganMiddleware)
+
 
 
 /**
