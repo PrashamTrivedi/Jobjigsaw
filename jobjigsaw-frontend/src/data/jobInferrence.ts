@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from 'axios'
 
 export async function inferJob(jobDescription: string): Promise<any> {
 
@@ -7,8 +7,9 @@ export async function inferJob(jobDescription: string): Promise<any> {
     if (!jobDescription || jobDescription === '') {
         return {error: 'Job description is empty'}
     }
+    console.log(`${import.meta.env.VITE_BACKEND_API_HOST}/jobs/infer`)
 
-    const response = await axios.post(`${process.env.BACKEND_API_HOST}/jobs/infer`, {
+    const response = await axios.post(`${import.meta.env.VITE_BACKEND_API_HOST}/jobs/infer`, {
         description: jobDescription
     })
     const data = response.data
@@ -25,7 +26,7 @@ export async function inferJobMatch(jobDescription: string): Promise<any> {
         return {error: 'Job description is empty'}
     }
 
-    const response = await axios.post(`${process.env.BACKEND_API_HOST}/jobs/infer-match`, {
+    const response = await axios.post(`${import.meta.env.VITE_BACKEND_API_HOST}/jobs/infer-match`, {
         description: jobDescription
     })
     const data = response.data

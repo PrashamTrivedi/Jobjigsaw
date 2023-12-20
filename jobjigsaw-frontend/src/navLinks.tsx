@@ -14,8 +14,9 @@ export default function NavLinks() {
         {path: '/saved-resumes', label: 'Saved Resumes', icon: DocumentIcon},
 
     ]
+    console.log(window.location.pathname)
     const [isNavOpen, setIsNavOpen] = useState(false)
-    const pathName = ""
+    const pathName = window.location.pathname
     return (
 
         <div className='flex flex-col lg:flex-row items-start lg:items-center  lg:block justify-between'>

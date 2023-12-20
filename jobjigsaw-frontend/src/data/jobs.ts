@@ -17,23 +17,23 @@ export interface Job {
 
 export async function addJob(job: Job) {
     console.log(job)
-    const response = await axios.post(`${process.env.BACKEND_API_HOST}/jobs`, job)
+    const response = await axios.post(`${import.meta.env.VITE_BACKEND_API_HOST}/jobs`, job)
     console.log(response.data)
 }
 
 export async function getJobs() {
-    const response = await axios.get(`${process.env.BACKEND_API_HOST}/jobs`)
+    const response = await axios.get(`${import.meta.env.VITE_BACKEND_API_HOST}/jobs`)
     return response.data
 }
 
 export async function getJob(id: string) {
-    const response = await axios.get(`${process.env.BACKEND_API_HOST}/jobs/${id}`)
+    const response = await axios.get(`${import.meta.env.VITE_BACKEND_API_HOST}/jobs/${id}`)
     return response.data
 }
 
 export async function deleteJob(id: string) {
     console.log('deleteJob')
     console.log(id)
-    const response = await axios.delete(`${process.env.BACKEND_API_HOST}/jobs/${id}`)
+    const response = await axios.delete(`${import.meta.env.VITE_BACKEND_API_HOST}/jobs/${id}`)
     console.log(response.data)
 }
