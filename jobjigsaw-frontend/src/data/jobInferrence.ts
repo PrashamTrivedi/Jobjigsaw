@@ -7,7 +7,7 @@ export async function inferJob(jobDescription: string): Promise<any> {
     if (!jobDescription || jobDescription === '') {
         return {error: 'Job description is empty'}
     }
-    console.log(`${import.meta.env.VITE_BACKEND_API_HOST}/jobs/infer`)
+    console.log(`${import.meta.env.VITE_BACKEND_API_HOST}/jobs/infer: API`)
 
     const response = await axios.post(`${import.meta.env.VITE_BACKEND_API_HOST}/jobs/infer`, {
         description: jobDescription
