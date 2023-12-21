@@ -1,6 +1,5 @@
 import {useState} from 'react'
 import './App.css'
-import NavLinks from "./navLinks"
 import {InferJobButton, InferJobMatchButton} from "./buttons"
 import {inferJob, inferJobMatch} from "./data/jobInferrence"
 import MainContent from "./mainContent"
