@@ -2,10 +2,11 @@ import {useState} from "react"
 import {Job} from "./data/jobs"
 import MainContent from "./mainContent"
 import './createJob.css'
+import {useLocation} from "react-router-dom"
 
-export default function CreateJob({jobDescription, inferredJob, inferredJobMatch}: {jobDescription?: string, inferredJob?: string, inferredJobMatch?: string}) {
-
-
+export default function CreateJob() {
+    const {state} = useLocation()
+    const {jobDescription, inferredJob, inferredJobMatch} = state
     const jobData: Job = {
         text: '',
         url: '',
@@ -23,17 +24,19 @@ export default function CreateJob({jobDescription, inferredJob, inferredJobMatch
 
     if (jobDescription && jobDescription !== '') {
         const location = inferredJobJson.inferredDescription.isRemote ? 'Remote' : inferredJobJson.inferredDescription.location
-
-        jobData.text = jobDescription
-        jobData.companyName = inferredJobJson.inferredDescription.companyName
-        jobData.post = inferredJobJson.inferredDescription.jobTitle
-        jobData.type = inferredJobJson.inferredDescription.type
-        jobData.technicalSkills = inferredJobJson.inferredDescription.technicalSkills
-        jobData.softSkills = inferredJobJson.inferredDescription.softSkills
-        jobData.location = location
-        jobData.inferredJob = inferredJob
-        jobData.inferredJobMatch = inferredJobMatch
-        setJob(jobData)
+        const parsedJob: Job = {
+            text: jobDescription,
+            url: '',
+            companyName: inferredJobJson.inferredDescription.companyName,
+            post: inferredJobJson.inferredDescription.jobTitle,
+            type: inferredJobJson.inferredDescription.type,
+            location,
+            technicalSkills: inferredJobJson.inferredDescription.technicalSkills,
+            softSkills: inferredJobJson.inferredDescription.softSkills,
+            inferredJob,
+            inferredJobMatch
+        }
+        setJob(parsedJob)
     }
     return (
         <MainContent>
@@ -48,7 +51,7 @@ export default function CreateJob({jobDescription, inferredJob, inferredJobMatch
                         className="block text-sm font-medium text-gray-700 dark:text-gray-200">Job Description</label>
                     <textarea id="text"
                         name="text"
-                        value={jobData.text}
+                        value={job.text}
                         onChange={(e) => setJob({...job, text: e.target.value})}
                         className="inputBox" />
                 </div>
@@ -58,7 +61,7 @@ export default function CreateJob({jobDescription, inferredJob, inferredJobMatch
                         className="block text-sm font-medium text-gray-700 dark:text-gray-200">Job URL</label>
                     <input type="text"
                         id="url" name="url"
-                        value={jobData.url}
+                        value={job.url}
                         onChange={(e) => setJob({...job, url: e.target.value})}
                         className="inputBox" />
                 </div>
@@ -67,7 +70,7 @@ export default function CreateJob({jobDescription, inferredJob, inferredJobMatch
                     <label htmlFor="companyName" className="block text-sm font-medium text-gray-700 dark:text-gray-200">Company Name</label>
                     <input type="text"
                         id="companyName" name="companyName"
-                        value={jobData.companyName}
+                        value={job.companyName}
                         onChange={(e) => setJob({...job, companyName: e.target.value})}
                         className="inputBox" />
                 </div>
@@ -76,7 +79,7 @@ export default function CreateJob({jobDescription, inferredJob, inferredJobMatch
                     <label htmlFor="post" className="block text-sm font-medium text-gray-700 dark:text-gray-200">Job Post</label>
                     <input type="text"
                         id="post" name="post"
-                        value={jobData.post}
+                        value={job.post}
                         onChange={(e) => setJob({...job, post: e.target.value})}
                         className="inputBox" />
                 </div>
@@ -84,7 +87,7 @@ export default function CreateJob({jobDescription, inferredJob, inferredJobMatch
                 <div>
                     <label htmlFor="type" className="block text-sm font-medium text-gray-700 dark:text-gray-200">Job Type</label>
                     <input type="text" id="type" name="type"
-                        value={jobData.type}
+                        value={job.type}
                         onChange={(e) => setJob({...job, type: e.target.value})}
                         className="inputBox" />
                 </div>
@@ -92,7 +95,7 @@ export default function CreateJob({jobDescription, inferredJob, inferredJobMatch
                     <label htmlFor="type" className="block text-sm font-medium text-gray-700 dark:text-gray-200">Technical Skills</label>
                     <input type="text"
                         id="technicalSkills" name="technicalSkills"
-                        value={jobData.technicalSkills.join(", ")}
+                        value={job.technicalSkills.join(", ")}
                         onChange={(e) => setJob({...job, technicalSkills: e.target.value.split(", ")})}
                         className="inputBox" />
                 </div>
@@ -100,7 +103,7 @@ export default function CreateJob({jobDescription, inferredJob, inferredJobMatch
                     <label htmlFor="type" className="block text-sm font-medium text-gray-700 dark:text-gray-200">Soft Skills</label>
                     <input type="text"
                         id="softSkills" name="softSkills"
-                        value={jobData.softSkills.join(", ")}
+                        value={job.softSkills.join(", ")}
                         onChange={(e) => setJob({...job, softSkills: e.target.value.split(", ")})}
                         className="inputBox" />
                 </div>
@@ -110,7 +113,7 @@ export default function CreateJob({jobDescription, inferredJob, inferredJobMatch
                     <label htmlFor="city" className="block text-sm font-medium text-gray-700 dark:text-gray-200">Location</label>
                     <input type="text"
                         id="location" name="location"
-                        value={jobData.location}
+                        value={job.location}
                         onChange={(e) => setJob({...job, location: e.target.value})}
                         className="inputBox" />
                 </div>

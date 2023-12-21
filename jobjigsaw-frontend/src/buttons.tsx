@@ -3,6 +3,7 @@
 import {DocumentDuplicateIcon, PlusIcon, SparklesIcon, TrashIcon} from "@heroicons/react/20/solid"
 import clsx from "clsx"
 import {useState} from "react"
+import {Link} from "react-router-dom"
 // import {inferJob, inferJobMatch} from "./data/jobInferrence"
 
 export interface ButtonTextProps {
@@ -13,7 +14,7 @@ export function InferJobButton({defaultText, pending, onClick}: {defaultText?: s
     const buttonText = !defaultText || defaultText === '' ? 'Infer Job' : defaultText
     return (
         <button onClick={onClick} className="bg-blue-500 text-white active:bg-blue-900 px-4 py-2 rounded flex items-center">
-            <SparklesIcon className="ml-auto h-5 w-5 mx-2" />{pending ? 'Loading...' : buttonText}  </button>
+            <SparklesIcon className="ml-auto h-5 w-5 mx-2" />{pending ? 'Inferring Job...' : buttonText}  </button>
     )
 }
 
@@ -23,7 +24,7 @@ export function InferJobMatchButton({defaultText, pending, onClick}: {defaultTex
     const buttonText = !defaultText || defaultText === '' ? 'Infer Job Match' : defaultText
     return (
         <button onClick={onClick} className="bg-green-500 text-white active:bg-green-900 px-4 py-2 rounded flex items-center">
-            <SparklesIcon className="ml-auto h-5 w-5 mx-2" />{pending ? 'Loading...' : buttonText}</button>
+            <SparklesIcon className="ml-auto h-5 w-5 mx-2" />{pending ? 'Infering Match...' : buttonText}</button>
     )
 }
 
@@ -58,14 +59,17 @@ export function CopyButton({text}: {text: string}) {
 }
 
 
-export function AddJobButton() {
+export function AddJobButton({jobDescription, job, match}:
+    {
+        jobDescription: string,
+        job: any,
+        match: any
+    }) {
     return (
-        <button
-            onClick={() => {
-                window.location.href = '/create-job?fromInferred'
-            }}
+        <Link to="/create-job?fromInferred"
+            state={{jobDescription, job, match}}
             className="mt-3 bg-indigo-500 text-white active:bg-indigo-900 px-4 py-2 rounded flex items-center" >
             <PlusIcon className="ml-auto h-5 w-5 mx-2"></PlusIcon>Add This Job
-        </button>
+        </Link>
     )
 }

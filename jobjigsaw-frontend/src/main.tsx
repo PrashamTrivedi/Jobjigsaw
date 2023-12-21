@@ -6,11 +6,13 @@ import {RouterProvider, createBrowserRouter} from "react-router-dom"
 import MainResume from "./mainResume.tsx"
 import SavedJobs from "./savedJobs.tsx"
 import CreateJob from "./createJob.tsx"
+import ErrorPage from "./errorPage.tsx"
 
 const router = createBrowserRouter([
   {
     path: '/',
     element: <App />,
+    errorElement: <ErrorPage />,
   },
   {
     path: '/main-resume',

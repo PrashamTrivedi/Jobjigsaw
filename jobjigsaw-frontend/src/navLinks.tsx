@@ -14,7 +14,6 @@ export default function NavLinks() {
         {path: '/saved-resumes', label: 'Saved Resumes', icon: DocumentIcon},
 
     ]
-    console.log(window.location.pathname)
     const [isNavOpen, setIsNavOpen] = useState(false)
     const pathName = window.location.pathname
     return (

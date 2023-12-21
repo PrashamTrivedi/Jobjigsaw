@@ -13,7 +13,8 @@ export async function inferJob(jobDescription: string): Promise<any> {
         description: jobDescription
     })
     const data = response.data
-    console.log(data)
+    console.log({data})
+    return data
 
 }
 
@@ -30,7 +31,8 @@ export async function inferJobMatch(jobDescription: string): Promise<any> {
         description: jobDescription
     })
     const data = response.data
-    console.log(data)
+    console.log({data})
+    return data
     // await kv.set('inferredJobMatch', JSON.stringify(data), {ex: 60})
     // revalidatePath('/inferredData')
     // redirect('/inferredData')
