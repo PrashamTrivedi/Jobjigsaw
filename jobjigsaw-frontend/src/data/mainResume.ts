@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from 'axios'
 
 export async function getMainResume() {
     const response = await axios.get(`${import.meta.env.VITE_BACKEND_API_HOST}/mainResume/getMainResume`, {
@@ -34,4 +34,58 @@ export async function addProject(body: {name: string, description: string, url: 
         },
     })
     return response.data
+}
+
+
+export interface Resume {
+
+    contactDetails: ContactDetails
+    about: About
+    skills: Skills[]
+    certifications: string[]
+    education: Education[]
+    workExperience: WorkExperience[]
+    projects: Project[]
+}
+
+export interface ContactDetails {
+    name: string
+    email: string
+    phone: string
+    website: string
+    github: string
+    linkedin: string
+}
+
+export interface About {
+    summary: string
+    highlights: string[]
+}
+export interface Skills {
+    name: string
+    items: string[]
+}
+
+
+export interface Education {
+    degree: string
+    institution: string
+    location: string
+    duration: string
+}
+
+export interface WorkExperience {
+    company: string
+    role: string
+    duration: string
+    responsibilities: string[]
+}
+
+export interface Project {
+    name: string
+    duration: string
+    description: string
+    techStack: string[]
+    url?: string
+    responsibilities?: string[]
 }
