@@ -1,14 +1,18 @@
 import {useState} from "react"
-import {Job} from "./data/jobs"
+import {Job, addJob} from "./data/jobs"
 import MainContent from "./mainContent"
 import './createJob.css'
 import {useLocation} from "react-router-dom"
 
+
 export default function CreateJob() {
     const {state} = useLocation()
     const {jobDescription, inferredJob, inferredJobMatch} = state
-    const jobData: Job = {
-        text: '',
+
+
+    const inferredJobJson = inferredJob
+    let parsedJob: Job = {
+        text: jobDescription,
         url: '',
         companyName: '',
         post: '',
@@ -19,25 +23,34 @@ export default function CreateJob() {
         inferredJob: '',
         inferredJobMatch: ''
     }
-    const [job, setJob] = useState(jobData)
-    const inferredJobJson = (typeof inferredJob === 'object') ? inferredJob : ((inferredJob && inferredJob !== '') ? JSON.parse(inferredJob) : {})
-
     if (jobDescription && jobDescription !== '') {
-        const location = inferredJobJson.inferredDescription.isRemote ? 'Remote' : inferredJobJson.inferredDescription.location
-        const parsedJob: Job = {
+        const location = (inferredJobJson?.inferredDescription?.isRemote ?? false) ? 'Remote' : inferredJobJson?.inferredDescription?.location
+
+        parsedJob = {
             text: jobDescription,
             url: '',
-            companyName: inferredJobJson.inferredDescription.companyName,
-            post: inferredJobJson.inferredDescription.jobTitle,
-            type: inferredJobJson.inferredDescription.type,
+            companyName: inferredJobJson?.inferredDescription?.companyName,
+            post: inferredJobJson?.inferredDescription?.jobTitle,
+            type: inferredJobJson?.inferredDescription?.type,
             location,
-            technicalSkills: inferredJobJson.inferredDescription.technicalSkills,
-            softSkills: inferredJobJson.inferredDescription.softSkills,
-            inferredJob,
-            inferredJobMatch
+            technicalSkills: inferredJobJson?.inferredDescription?.technicalSkills ?? [],
+            softSkills: inferredJobJson?.inferredDescription?.softSkills ?? [],
+            inferredJob: JSON.stringify(inferredJob),
+            inferredJobMatch: JSON.stringify(inferredJobMatch)
         }
-        setJob(parsedJob)
+
     }
+    const [job, setJob] = useState(parsedJob)
+    const [isAdding, setIsAdding] = useState(false)
+
+    async function handleAddJob() {
+        setIsAdding(true)
+        const data = await addJob(job)
+        console.log({data})
+        setIsAdding(false)
+        window.location.href = '/saved-jobs'
+    }
+
     return (
         <MainContent>
             <h1 className='text-4xl font-bold text-center'>
@@ -49,7 +62,9 @@ export default function CreateJob() {
                 <div>
                     <label htmlFor="text"
                         className="block text-sm font-medium text-gray-700 dark:text-gray-200">Job Description</label>
-                    <textarea id="text"
+                    <textarea id="text" disabled
+                        rows={30}
+
                         name="text"
                         value={job.text}
                         onChange={(e) => setJob({...job, text: e.target.value})}
@@ -119,11 +134,9 @@ export default function CreateJob() {
                 </div>
 
 
-                <button onClick={() => {
-                }
-                }
+                <button onClick={handleAddJob}
                     className="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                    Add Job
+                    {isAdding ? 'Adding Job...' : 'Add Job'}
                 </button>
             </div>
 
