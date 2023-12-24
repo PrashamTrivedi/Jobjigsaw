@@ -91,15 +91,15 @@ function ResumeWithCoverLetterComponent({jobId, resumeId}: {jobId: string | null
         <>
             <ResumeComponent resume={resume} />
 
-            <div className="bg-gray-800 rounded-lg p-4 my-4 space-y-4">
+            <div className="dark:bg-gray-800 rounded-lg p-4 my-4 space-y-4">
                 <div className="space-y-2 mt-2">
                     <div className="text-lg"><strong>Cover Letter</strong>
                         <CopyButton text={coverLetter} />
                     </div>
                     
-                    <div className="text-sm text-gray-400">This is a generated cover letter based on the job description.</div>
+                    <div className="text-sm dark:text-gray-400">This is a generated cover letter based on the job description.</div>
                 </div>
-                <div className="text-sm text-gray-400">
+                <div className="text-sm dark:text-gray-400">
                     {coverLetter}
                 </div>
             </div>

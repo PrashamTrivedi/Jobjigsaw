@@ -48,9 +48,9 @@ export function CopyButton({text}: {text: string}) {
         setTimeout(() => setCopied(false), 1000)
     }
     return (
-        <button className="text-center" onClick={copy}>
+        <button className="text-center bg-transparent" onClick={copy}>
             <DocumentDuplicateIcon className={
-                clsx("w-5 h-5 mr-2 hover:text-white", {
+                clsx("w-5 h-5 mr-2  dark:hover:text-white hover:text-gray-700", {
                     "text-gray-400": !copied,
                     "text-green-400": copied,
                 })

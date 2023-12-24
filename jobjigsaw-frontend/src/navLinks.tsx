@@ -26,8 +26,8 @@ export default function NavLinks() {
             <ul className={`flex flex-col lg:flex-row items-start lg:items-center lg:flex justify-between transition-max-height duration-500 ease-in-out overflow-hidden ${isNavOpen ? 'max-h-screen' : 'max-h-0'} lg:max-h-screen`}>
                 {
                     links.map(({path, label, icon: Icon}) => (
-                        <li key={path} className={clsx("px-5 py-2 flex", {" border-b-2 border-current": path === pathName})}>
-                            <Link to={path} className="flex hover:text-gray-300 dark:hover:text-gray-400">
+                        <li key={path} className={clsx("px-5 py-2 flex", {" border-b-2 border-current border-gray-600 dark:border-gray-50": path === pathName})}>
+                            <Link to={path} className="flex dark:text-gray-300 text-gray-950 hover:text-gray-600 dark:hover:text-gray-400">
                                 <Icon className="w-5 h-5 mr-2" /> {label}
                             </Link>
                         </li>
