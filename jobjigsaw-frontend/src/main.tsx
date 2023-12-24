@@ -7,6 +7,7 @@ import MainResume from "./mainResume.tsx"
 import SavedJobs from "./savedJobs.tsx"
 import CreateJob from "./createJob.tsx"
 import ErrorPage from "./errorPage.tsx"
+import Resumes from "./resumes.tsx"
 
 const router = createBrowserRouter([
   {
@@ -17,12 +18,28 @@ const router = createBrowserRouter([
   {
     path: '/main-resume',
     element: <MainResume />,
+    errorElement: <ErrorPage />,
   },
   {
     path: '/saved-jobs', element: <SavedJobs />,
+    errorElement: <ErrorPage />,
 
   },
-  {path: '/create-job', element: <CreateJob />},
+  {
+    path: '/create-job', element: <CreateJob />,
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: '/saved-resumes', element: <MainResume />,
+    errorElement: <ErrorPage />,
+
+  },
+  {
+    path: '/saved-resumes/resume',
+    element: <Resumes />,
+    errorElement: <ErrorPage />,
+  }
+
 ])
 
 ReactDOM.createRoot(document.getElementById('root')!).render(

@@ -21,12 +21,12 @@ export async function addJob(job: Job) {
     console.log(response.data)
 }
 
-export async function getJobs() {
+export async function getJobs(): Promise<Job[]> {
     const response = await axios.get(`${import.meta.env.VITE_BACKEND_API_HOST}/jobs`)
     return response.data
 }
 
-export async function getJob(id: string) {
+export async function getJob(id: string): Promise<Job> {
     const response = await axios.get(`${import.meta.env.VITE_BACKEND_API_HOST}/jobs/${id}`)
     return response.data
 }
