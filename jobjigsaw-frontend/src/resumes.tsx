@@ -1,14 +1,14 @@
 import {Suspense, useEffect, useState} from "react"
 import MainContent from "./mainContent"
 import ResumeComponent from "./resume"
-import {useParams, useSearchParams} from "react-router-dom"
+import {useSearchParams} from "react-router-dom"
 import {Resume} from "./data/mainResume"
 import {generateResume, getResumeById} from "./data/resumes"
 import {getJob} from "./data/jobs"
 import {CopyButton} from "./buttons"
 
 export default function Resumes() {
-    const [searchParams, setSearchParams] = useSearchParams()
+    const [searchParams, _] = useSearchParams()
     const jobId = searchParams.get("jobId")
     const resumeId = searchParams.get("resumeId")
 
@@ -90,13 +90,13 @@ function ResumeWithCoverLetterComponent({jobId, resumeId}: {jobId: string | null
     return (
         <>
             <ResumeComponent resume={resume} />
-
+            <button>Print Resume</button>
             <div className="dark:bg-gray-800 rounded-lg p-4 my-4 space-y-4">
                 <div className="space-y-2 mt-2">
                     <div className="text-lg"><strong>Cover Letter</strong>
                         <CopyButton text={coverLetter} />
                     </div>
-                    
+
                     <div className="text-sm dark:text-gray-400">This is a generated cover letter based on the job description.</div>
                 </div>
                 <div className="text-sm dark:text-gray-400">
