@@ -172,9 +172,23 @@ class ResumeController {
             if (typeof generateCoverLetter !== 'boolean') {
                 return res.status(400).json({error: 'Invalid input data'})
             }
-            const generatedResume = await generateResume(JSON.stringify(mainResume), jobCompatibilityDataString, generateCoverLetter)
-
-            res.status(200).json({generatedResume: JSON.parse(generatedResume ?? "")})
+            const modifiedResume = {
+                skills: mainResume.skills,
+                workExperience: mainResume.workExperience,
+                projects: mainResume.projects,
+            }
+            const generatedResume = await generateResume(JSON.stringify(modifiedResume), jobCompatibilityDataString, generateCoverLetter)
+            const resumeJson = JSON.parse(generatedResume ?? "")
+            const resumeToReturn = {
+                generatedResume: {
+                    ...mainResume,
+                    projects: resumeJson.projects,
+                    skills: resumeJson.skills,
+                    workExperience: resumeJson.workExperience,
+                },
+                coverLetter: resumeJson.coverLetter
+            }
+            res.status(200).json({resumeDetails: resumeToReturn})
         } catch (error) {
             Logger.error(error)
             res.status(500).json({error: 'Server error'})

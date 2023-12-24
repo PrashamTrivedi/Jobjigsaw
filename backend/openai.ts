@@ -157,21 +157,22 @@ const modelLimits = [
 ]
 
 export async function generateResume(mainResume: string, jobCompatibilityData: string, generateCoverLetter: boolean): Promise<string | undefined> {
-    const openai = new OpenAI({apiKey: process.env.OPENAI_API_KEY, timeout: 60000})
+    const openai = new OpenAI({apiKey: process.env.OPENAI_API_KEY, timeout: 100000})
     // The prompt logic will be added later, for now it's an empty string
-    const prompt = `You are a resume generator. You a have my resume in JSON format, and you will be given the job title, required tech skills and required soft skills in JSON format. You will modify the resume according to the data given to you. Your modification includes following things.
-    - Change about section
-    - Make required skills priority in the resume.
-    - If a skill required is not there in resume, highlight adjacent skills which are there in the resume. for example when required skills have MySQL, highlight Postgres. When required skills have Google Cloud, highlight AWS. 
-    - Do not add new skill in the resume at all.
-    - Drop any skills from resume which are not in the required skills and may actually hurt my job application
-    -  Each item in work experience must include 3-5 responsibilities and each responsibility should be 150-300 words long.
-    - When altering the work experience, take care of the role and original responsibilities. You can alter some words that highlight the skills, but can't change meaning entirely, e.g. Can not add any AWS skills when my title involved Android. 
-    - If a responsibility doesn't highlight required skill, leave it as it is.
-    ${generateCoverLetter ? `- I need a cover letter for this job. I came to know about this job from LinkedIn, add this as coverLetter key in JSON` : ``} 
-
-    Do not lie, when you add a new skill which is not in resume or change the meaning of responsibility heavily, that will be lying. 
-    Give the output in JSON format
+    const prompt = `You are a resume generator. You will have my resume, required tech skills, and required soft skills in JSON format. Optionally you have match percentage, match reason and job title. 
+    Your job is to create a customised resume from my main resume that will help me to move past Application Tracking System. 
+    When customising resume, make sure you follow these points.
+    - If a required tech skill is in the resume, move it first in its relevant section.
+    - When a required skill isn't present in resume, move adjacent skills after required skills, like showcasing Postgres for MySQL or AWS for Google or Azure is required.
+    - Do not add new skills to the resume.
+    - Remove any skill that might hurt my job application
+    - Ensuring each work experience item has 3-5 responsibilities, each detailed in 150-300 words, framed as achievements or tasks benefited business directly.
+    - If a responsibility doesn't highlight a required skill, leave it as it is.
+    - Strictly avoid any fabrication or exaggeration.
+    - Give the output in JSON format.
+    - Keep the skills, workExperience and Projects in the same shape as in the main resume.
+    ${generateCoverLetter ? `-Generate a cover letter for this Job, use coverLetter key in the response
+Resume:, add this as coverLetter key in JSON` : ``} 
     Resume: ${mainResume}`
 
     const resumeMessages: ChatCompletionMessageParam[] = [{

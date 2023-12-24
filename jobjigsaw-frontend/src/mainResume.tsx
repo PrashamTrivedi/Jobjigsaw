@@ -7,6 +7,16 @@ import ResumeComponent from "./resume"
 
 export default function MainResume() {
 
+    
+    useEffect(() => {
+        // console.log("Calling API")
+        (async () => {
+            const mainResume = await getMainResume()
+            console.log(`mainResume: ${JSON.stringify(mainResume)}`)
+            setMainResume(mainResume)
+        })()
+
+    }, [])
     const [mainResume, setMainResume] = useState<Resume>({
         about: {
             summary: "",
@@ -27,15 +37,6 @@ export default function MainResume() {
         workExperience: []
     })
 
-    useEffect(() => {
-        // console.log("Calling API")
-        (async () => {
-            const mainResume = await getMainResume()
-            console.log(`mainResume: ${JSON.stringify(mainResume)}`)
-            setMainResume(mainResume)
-        })()
-
-    }, [])
     return (
 
         <MainContent>

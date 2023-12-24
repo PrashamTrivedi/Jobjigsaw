@@ -30,6 +30,7 @@ export function JobsCard({job}: {job: Job, i: number}) {
                 <div ><Link to={job.url} target="_blank"><LinkIcon className="inline-block h-5 w-5 ms-1 me-1"></LinkIcon> Job URL</Link></div>
                 <div className="flex justify-between">
                     <button className="text-slate-500 hover:text-slate-300 active:text-slate-100 px-2 py-1 rounded-md" onClick={() => setExpanded(!isExpanded)}>{isExpanded ? 'Show Less' : 'Show More'}</button>
+                    <Link to={`/saved-resumes/resume?jobId=${job.id}`} className="text-indigo-500 hover:text-indigo-300 active:text-indigo-100 px-2 py-1 rounded-md">View Resume</Link>
                     <div className="flex flex-row space-x-2" >
                         <DeleteJobButton pending={isPending} onClick={handleJobDeletion} />
                     </div>

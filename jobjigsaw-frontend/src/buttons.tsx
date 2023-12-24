@@ -66,10 +66,12 @@ export function AddJobButton({jobDescription, job, match}:
         match: any
     }) {
     return (
-        <Link to="/create-job"
-            state={{jobDescription, inferredJob: job, inferredJobMatch: match}}
-            className="mt-3 bg-indigo-500 text-white active:bg-indigo-900 px-4 py-2 rounded flex items-center" >
-            <PlusIcon className="ml-auto h-5 w-5 mx-2"></PlusIcon>Add This Job
-        </Link>
+        <div className="mt-3">
+            <Link to="/create-job"
+                state={{jobDescription, inferredJob: job, inferredJobMatch: match}}
+                className="inline-flex bg-indigo-500 text-white active:bg-indigo-900 px-4 py-2 rounded items-center" >
+                <PlusIcon className="h-5 w-5 me-2"></PlusIcon>Add This Job
+            </Link>
+        </div>
     )
 }

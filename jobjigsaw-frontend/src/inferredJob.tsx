@@ -111,7 +111,7 @@ export default function InferredJob(
                             <span className="text-md">Want to infer another job? Go to <a className="border-b-2" href='/'>Home</a> to enter a new job description.</span>
                             <p></p>
                             <p>Or</p>
-                            <AddJobButton job={job} jobDescription={jobDescription} match={match} />
+                            <AddJobButton job={inferredJob} jobDescription={jobDescription} match={inferredJobMatch} />
                         </div>
 
                     </div>
