@@ -1,6 +1,7 @@
 import axios from 'axios'
 
 export async function getMainResume() {
+    console.log(`${import.meta.env.VITE_BACKEND_API_HOST}/mainResume/getMainResume`)
     const response = await axios.get(`${import.meta.env.VITE_BACKEND_API_HOST}/mainResume/getMainResume`, {
         headers: {
             'Content-Type': 'application/json',
