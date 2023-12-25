@@ -1,11 +1,12 @@
-import {Suspense, useEffect, useState} from "react"
+import {Suspense, useEffect, useRef, useState} from "react"
 import MainContent from "./mainContent"
 import ResumeComponent from "./resume"
 import {useSearchParams} from "react-router-dom"
 import {Resume} from "./data/mainResume"
-import {generateResume, getResumeById} from "./data/resumes"
+import {generateResume, getResumeById, printResume} from "./data/resumes"
 import {getJob} from "./data/jobs"
 import {CopyButton} from "./buttons"
+
 
 export default function Resumes() {
     const [searchParams, _] = useSearchParams()
@@ -58,6 +59,8 @@ function ResumeWithCoverLetterComponent({jobId, resumeId}: {jobId: string | null
 
     const [coverLetter, setCoverLetter] = useState<string>("")
 
+    const resumeRef = useRef(null)
+
     useEffect(() => {
         (async () => {
             if (resumeId) {
@@ -87,10 +90,25 @@ function ResumeWithCoverLetterComponent({jobId, resumeId}: {jobId: string | null
 
         })()
     })
+    async function printPdf() {
+        const resumeName = `resume-${resume.contactDetails.name}-${new Date().toISOString()}.pdf`
+        const printedResume = await printResume({resumeJson: resume, resumeName})
+        // Download the file
+        const url = window.URL.createObjectURL(new Blob([printedResume]))
+        const link = document.createElement('a')
+        link.href = url
+        link.setAttribute('download', resumeName)
+        document.body.appendChild(link)
+        link.click()
+
+    }
     return (
         <>
-            <ResumeComponent resume={resume} />
-            <button>Print Resume</button>
+            <div ref={resumeRef}>
+
+                <ResumeComponent resume={resume} />
+            </div>
+            <button onClick={printPdf}>Print Resume</button>
             <div className="dark:bg-gray-800 rounded-lg p-4 my-4 space-y-4">
                 <div className="space-y-2 mt-2">
                     <div className="text-lg"><strong>Cover Letter</strong>

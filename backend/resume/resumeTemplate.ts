@@ -125,8 +125,8 @@ class ResumeTemplate {
             <script src="https://cdn.tailwindcss.com"></script>
             <!-- Add any additional head content such as stylesheets here -->
         </head>
-        <body class="bg-gray-100 p-5">
-            <div class="bg-white p-8 rounded-lg shadow-md max-w-4xl mx-auto">
+        <body>
+            <div class="bg-white p-8 rounded-lg max-w-4xl mx-auto">
                 ${this.renderContactDetails()}
                 ${this.renderAboutMe()}
                 ${this.renderSkills()}
@@ -139,6 +139,7 @@ class ResumeTemplate {
         </html>
         `.trim()
     }
+
 }
 
 export default ResumeTemplate

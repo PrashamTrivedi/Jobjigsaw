@@ -1,8 +1,9 @@
 import OpenAI from 'openai'
-import {ChatCompletionMessageParam} from "openai/resources"
+import {ChatCompletion, ChatCompletionChunk, ChatCompletionMessageParam} from "openai/resources"
 
 import {get_encoding, encoding_for_model} from "tiktoken"
 import Logger from "./utils/logger"
+import {Stream} from "openai/streaming"
 
 // Ensure this function is exported
 export async function generateJsonFromResume(resumeText: string): Promise<string | undefined> {
@@ -156,7 +157,7 @@ const modelLimits = [
     {name: 'gpt-3.5-turbo-16k', limit: 16000}
 ]
 
-export async function generateResume(mainResume: string, jobCompatibilityData: string, generateCoverLetter: boolean): Promise<string | undefined> {
+export async function generateResume(mainResume: string, jobCompatibilityData: string, generateCoverLetter: boolean, isStreaming: boolean): Promise<string | undefined | Stream<ChatCompletionChunk>> {
     const openai = new OpenAI({apiKey: process.env.OPENAI_API_KEY, timeout: 100000})
     // The prompt logic will be added later, for now it's an empty string
     const prompt = `You are a resume generator. You will have my resume, required tech skills, and required soft skills in JSON format. Optionally you have match percentage, match reason and job title. 
@@ -195,8 +196,13 @@ Resume:, add this as coverLetter key in JSON` : ``}
         messages: resumeMessages,
         response_format: {type: "json_object"},
         temperature: 0,
+        stream: isStreaming
     })
 
-    // Handle the JSON response from the API
-    return resumeJson.choices[0].message.content || undefined
+    if (!isStreaming) {
+        // Handle the JSON response from the API
+        return (resumeJson as ChatCompletion).choices[0].message.content || undefined
+    } else {
+        return resumeJson as Stream<ChatCompletionChunk>
+    }
 }

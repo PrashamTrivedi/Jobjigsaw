@@ -55,3 +55,13 @@ export async function generateResume(jobCompatibilityData: any, generateCoverLet
     })
     return response.data
 }
+
+
+export async function printResume({resumeId, resumeJson, resumeName}: {resumeId?: string, resumeJson?: any, resumeName: string}) {
+    const response = await axios.post(`${import.meta.env.VITE_BACKEND_API_HOST}/resumes/printResume`, {resumeId, resumeJson, resumeName}, {
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    })
+    return response.data
+}

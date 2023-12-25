@@ -5,6 +5,10 @@ import {getDb} from "../database"
 import {mainResume} from "../mainResume"
 import ResumeTemplate from "./resumeTemplate"
 import {generateResume} from "../openai"
+import puppeteer from "puppeteer"
+import {Stream} from "openai/streaming"
+import {ChatCompletionChunk} from "openai/resources"
+import jsPDF from "jspdf"
 
 class ResumeController {
     constructor() {
@@ -167,6 +171,8 @@ class ResumeController {
      */
     public generateResume = async (req: Request, res: Response) => {
         try {
+
+            const isStream = req.headers['streaming'] === 'true'
             const {jobCompatibilityData, generateCoverLetter} = req.body
             const jobCompatibilityDataString = JSON.stringify(jobCompatibilityData)
             if (typeof generateCoverLetter !== 'boolean') {
@@ -177,23 +183,33 @@ class ResumeController {
                 workExperience: mainResume.workExperience,
                 projects: mainResume.projects,
             }
-            const generatedResume = await generateResume(JSON.stringify(modifiedResume), jobCompatibilityDataString, generateCoverLetter)
-            const resumeJson = JSON.parse(generatedResume ?? "")
-            const resumeToReturn = {
-                generatedResume: {
-                    ...mainResume,
-                    projects: resumeJson.projects,
-                    skills: resumeJson.skills,
-                    workExperience: resumeJson.workExperience,
-                },
-                coverLetter: resumeJson.coverLetter
+            const generatedResume = await generateResume(JSON.stringify(modifiedResume), jobCompatibilityDataString, generateCoverLetter, isStream)
+            if (!isStream) {
+                const resumeJson = JSON.parse(generatedResume as string ?? "")
+                const resumeToReturn = {
+                    generatedResume: {
+                        ...mainResume,
+                        projects: resumeJson.projects,
+                        skills: resumeJson.skills,
+                        workExperience: resumeJson.workExperience,
+                    },
+                    coverLetter: resumeJson.coverLetter
+                }
+                res.status(200).json({resumeDetails: resumeToReturn})
+            } else {
+                const generatedResumeStream = generatedResume as Stream<ChatCompletionChunk>
+                for await (const chunk of generatedResumeStream) {
+                    res.write(chunk.choices[0]?.delta.content || "")
+                }
+                res.end()
             }
-            res.status(200).json({resumeDetails: resumeToReturn})
         } catch (error) {
             Logger.error(error)
             res.status(500).json({error: 'Server error'})
         }
     }
+
+
 
     /**
      * @swagger
@@ -234,7 +250,78 @@ class ResumeController {
             }
             const resumeTemplate = new ResumeTemplate(resumeData)
             const html = resumeTemplate.renderCompleteResume()
+
             res.status(200).send(html)
+        } catch (error) {
+            Logger.error(error)
+            res.status(500).json({error: 'Server error'})
+        }
+    }
+
+    /**
+     * @swagger
+     *
+     * /resumes/printResume:
+     *   post:
+     *     tags:
+     *       - Resumes
+     *     description: Print a resume
+     *     produces:
+     *       - application/json
+     *     parameters:
+     *       - name: body
+     *         description: JobId or ResumeJson
+     *         in: body
+     *         required: true
+     *         schema:
+     *           type: object
+     *           properties:
+     *             jobId:
+     *               type: number
+     *             resumeJson:
+     *               type: object
+     *     responses:
+     *       200:
+     *         description: Resume printed successfully
+     *       500:
+     *         description: Server error
+     */
+    async printResume(req: Request, res: Response) {
+        try {
+            let resumeData
+            const {jobId, resumeJson, resumeName} = req.body
+
+            if (jobId) {
+                const db = await getDb()
+                const resumeModel = new ResumeModel(db)
+                const savedResume = await resumeModel.getResume(Number(jobId))
+                if (savedResume) {
+                    resumeData = JSON.parse(savedResume.updated_resume)
+                }
+            } else if (resumeJson) {
+                resumeData = resumeJson
+            }
+
+            if (!resumeData) {
+                return res.status(400).json({error: 'Invalid input'})
+            }
+
+            const resumeTemplate = new ResumeTemplate(resumeData)
+            const html = resumeTemplate.renderCompleteResume()
+            const browser = await puppeteer.launch({headless: 'new', args: ['--no-sandbox', '--disable-setuid-sandbox'], })
+            const page = await browser.newPage()
+            await page.setViewport({width: 1240, height: 1754})
+            await page.setContent(html, {waitUntil: 'networkidle0'})
+            await page.evaluate(() => document.fonts.ready);
+            await page.waitForTimeout(5000) // wait for 5 seconds
+            const pdfBuffer = await page.pdf({
+                printBackground: true,
+                format: 'A4',
+            })
+            res.setHeader('Content-Type', 'application/pdf')
+            res.setHeader('Content-Disposition', 'attachment; filename=resume.pdf')
+            res.send(pdfBuffer)
+
         } catch (error) {
             Logger.error(error)
             res.status(500).json({error: 'Server error'})
