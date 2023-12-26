@@ -62,6 +62,7 @@ export async function printResume({resumeId, resumeJson, resumeName}: {resumeId?
         headers: {
             'Content-Type': 'application/json',
         },
+        responseType: 'blob',
     })
     return response.data
 }

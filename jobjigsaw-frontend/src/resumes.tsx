@@ -3,9 +3,10 @@ import MainContent from "./mainContent"
 import ResumeComponent from "./resume"
 import {useSearchParams} from "react-router-dom"
 import {Resume} from "./data/mainResume"
-import {generateResume, getResumeById, printResume} from "./data/resumes"
+import {createResume, generateResume, getResumeById, printResume} from "./data/resumes"
 import {getJob} from "./data/jobs"
 import {CopyButton} from "./buttons"
+import {json} from "stream/consumers"
 
 
 export default function Resumes() {
@@ -58,7 +59,8 @@ function ResumeWithCoverLetterComponent({jobId, resumeId}: {jobId: string | null
     })
 
     const [coverLetter, setCoverLetter] = useState<string>("")
-
+    const [isPrinting, setIsPrinting] = useState<boolean>(false)
+    const [isAdding, setIsAdding] = useState<boolean>(false)
     const resumeRef = useRef(null)
 
     useEffect(() => {
@@ -91,7 +93,8 @@ function ResumeWithCoverLetterComponent({jobId, resumeId}: {jobId: string | null
         })()
     })
     async function printPdf() {
-        const resumeName = `resume-${resume.contactDetails.name}-${new Date().toISOString()}.pdf`
+        setIsPrinting(true)
+        const resumeName = `resume-${resume.contactDetails.name}.pdf`
         const printedResume = await printResume({resumeJson: resume, resumeName})
         // Download the file
         const url = window.URL.createObjectURL(new Blob([printedResume]))
@@ -100,7 +103,27 @@ function ResumeWithCoverLetterComponent({jobId, resumeId}: {jobId: string | null
         link.setAttribute('download', resumeName)
         document.body.appendChild(link)
         link.click()
+        setIsPrinting(false)
 
+    }
+
+    async function addResume() {
+        if (jobId) {
+            setIsAdding(true)
+            const jobData = await getJob(jobId)
+            const compatibilityData = jobData.inferredJobMatch ?? "{}"
+
+            const compatibilityJson = JSON.parse(compatibilityData)
+            const resumeData = {
+                jobId: jobId,
+                updatedResume: resume,
+                coverLetter: coverLetter,
+                technicalSkills: JSON.stringify(compatibilityJson.compatibilityMatrix.requiredSkills.techSkills),
+                softSkills: JSON.stringify(compatibilityJson.compatibilityMatrix.requiredSkills.softSkills)
+            }
+            await createResume(resumeData)
+            setIsAdding(false)
+        }
     }
     return (
         <>
@@ -108,7 +131,12 @@ function ResumeWithCoverLetterComponent({jobId, resumeId}: {jobId: string | null
 
                 <ResumeComponent resume={resume} />
             </div>
-            <button onClick={printPdf}>Print Resume</button>
+            <button className="dark:border dark:border-white dark:hover:bg-gray-900 dark:text-white px-4 py-2 mt-2 rounded-md" onClick={printPdf}>
+                {isPrinting ? 'Printing Resume' : 'Print Resume'}
+            </button>
+            <button className="dark:border dark:border-white dark:hover:bg-gray-900 dark:text-white px-4 py-2 mt-2 mx-2 rounded-md" onClick={addResume}>
+                {isAdding ? 'Adding Resume' : 'Add Resume'}
+            </button>
             <div className="dark:bg-gray-800 rounded-lg p-4 my-4 space-y-4">
                 <div className="space-y-2 mt-2">
                     <div className="text-lg"><strong>Cover Letter</strong>
