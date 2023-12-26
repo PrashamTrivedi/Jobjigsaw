@@ -1,11 +1,15 @@
-import {AtSymbolIcon, DevicePhoneMobileIcon, GlobeAltIcon} from "@heroicons/react/20/solid"
+import {AtSymbolIcon, CheckIcon, DevicePhoneMobileIcon, GlobeAltIcon, PencilIcon} from "@heroicons/react/20/solid"
 import {Resume} from "./data/mainResume"
 import {Link} from "react-router-dom"
 import {CopyButton} from "./buttons"
 import clsx from "clsx"
+import {useState} from "react"
 
 export default function ResumeComponent({resume}: {resume: Resume}) {
     console.log(resume)
+    const [isEditingSKills, setIsEditingSkills] = useState<boolean>(false)
+    const [isEditingWorkExperience, setIsEditingWorkExperience] = useState<boolean>(false)
+    const [isEditingProjects, setIsEditingProjects] = useState<boolean>(false)
     const isLoading = resume.contactDetails.name === ""
     return (
         <>
@@ -37,10 +41,24 @@ export default function ResumeComponent({resume}: {resume: Resume}) {
                 </ul>
             </section>
             <section className={clsx("mt-4", {"animate-pulse": isLoading})}>
-                <h2><strong>Skills</strong></h2>
+                <h2><strong>Skills</strong>
+                    <button className=" p-2 rounded-md" onClick={() => setIsEditingSkills(!isEditingSKills)}>
+                        {
+                            isEditingSKills ?
+                                <CheckIcon className="w-3 h-3" /> : <PencilIcon className="w-3 h-3" />
+                        }
+                    </button>
+                </h2>
                 {resume.skills.map((skill: {name: string; items: string[]}, index: number) => (
+
                     <div key={index}>
-                        <strong>{skill.name}</strong>: {skill.items.join(", ")}
+                        <strong>{skill.name}</strong>: {isEditingSKills ?
+                            <input type="text" className="border border-white p-2 rounded-md" value={skill.items.join(", ")} onChange={(e) => {
+                                const newSkills = [...resume.skills]
+                                newSkills[index].items = e.target.value.split(",")
+                                resume.skills = newSkills
+                            }} /> :
+                            skill.items.join(", ")}
                     </div>
                 ))}
             </section>
@@ -63,12 +81,20 @@ export default function ResumeComponent({resume}: {resume: Resume}) {
                 ))}
             </section>
             <section className={clsx("mt-4", {"animate-pulse": isLoading})}>
-                <h2><strong>Work Experience</strong></h2>
+                <h2><strong>Work Experience</strong>
+                    <button className=" p-2 rounded-md" onClick={() => setIsEditingWorkExperience(!isEditingWorkExperience)}>
+                        {
+                            isEditingWorkExperience ?
+                                <CheckIcon className="w-3 h-3" /> : <PencilIcon className="w-3 h-3" />
+                        }
+                    </button></h2>
                 {resume.workExperience.map((experience: {company: string; role: string; duration: string; responsibilities: string[]}, index: number) => (
                     <div key={index} className={clsx("mb-4", {"animate-pulse": isLoading})}>
                         <h3><strong>Company: </strong>{experience.company}</h3>
                         <p><strong>Role: </strong>{experience.role}</p>
-                        <p className={clsx("text-sm text-slate-400", {"animate-pulse": isLoading})} >{experience.duration}</p>
+                        <p className={clsx("text-sm text-slate-400", {"animate-pulse": isLoading})} >
+                            {experience.duration}
+                        </p>
                         <ul>
                             {experience.responsibilities.map((responsibility, index) => (
                                 <li key={index}>{responsibility}</li>
