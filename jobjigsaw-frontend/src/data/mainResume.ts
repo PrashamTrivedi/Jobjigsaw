@@ -90,3 +90,12 @@ export interface Project {
     url?: string
     responsibilities?: string[]
 }
+
+export interface ResumeResponse extends Resume {
+    id: string
+    cover_letter: string
+    job_id: string
+    soft_skills: string
+    technical_skills: string
+    updated_resume: string
+}

@@ -6,7 +6,6 @@ import {Resume} from "./data/mainResume"
 import {createResume, generateResume, getResumeById, printResume} from "./data/resumes"
 import {getJob} from "./data/jobs"
 import {CopyButton} from "./buttons"
-import {json} from "stream/consumers"
 
 
 export default function Resumes() {

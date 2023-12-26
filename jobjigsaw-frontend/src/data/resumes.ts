@@ -1,6 +1,7 @@
 import axios from "axios"
+import {ResumeResponse} from "./mainResume"
 
-export async function getResumeById(id: string) {
+export async function getResumeById(id: string): Promise<ResumeResponse> {
     const response = await axios.get(`${import.meta.env.VITE_BACKEND_API_HOST}/resumes/${id}`, {
         headers: {
             'Content-Type': 'application/json',
@@ -9,7 +10,7 @@ export async function getResumeById(id: string) {
     return response.data
 }
 
-export async function getResumes() {
+export async function getResumes(): Promise<ResumeResponse[]> {
     const response = await axios.get(`${import.meta.env.VITE_BACKEND_API_HOST}/resumes`, {
         headers: {
             'Content-Type': 'application/json',
