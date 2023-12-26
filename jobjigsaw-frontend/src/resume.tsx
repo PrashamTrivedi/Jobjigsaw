@@ -104,7 +104,13 @@ export default function ResumeComponent({resume}: {resume: Resume}) {
                 ))}
             </section>
             <section className={clsx("mt-4", {"animate-pulse": isLoading})}>
-                <h2><strong>Projects</strong></h2>
+                <h2><strong>Projects</strong>
+                    <button className=" p-2 rounded-md" onClick={() => setIsEditingProjects(!isEditingProjects)}>
+                        {
+                            isEditingProjects ?
+                                <CheckIcon className="w-3 h-3" /> : <PencilIcon className="w-3 h-3" />
+                        }
+                    </button></h2>
                 {resume.projects.map((project: {name: string, duration: string, description: string, techStack?: string[], responsibilities?: string[], url?: string}, index: number) => (
                     <div key={index} className={clsx("mb-4", {"animate-pulse": isLoading})}>
                         <h3><strong>{project.name}</strong></h3>
