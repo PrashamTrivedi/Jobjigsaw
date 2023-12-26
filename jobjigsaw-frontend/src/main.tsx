@@ -8,7 +8,6 @@ import SavedJobs from "./savedJobs.tsx"
 import CreateJob from "./createJob.tsx"
 import ErrorPage from "./errorPage.tsx"
 import Resumes from "./resumes.tsx"
-import ResumesList from "./resumesList.tsx"
 import SavedResumes from "./savedResumes.tsx"
 
 const router = createBrowserRouter([
