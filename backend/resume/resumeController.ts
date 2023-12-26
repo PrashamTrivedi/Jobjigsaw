@@ -8,7 +8,7 @@ import {generateResume} from "../openai"
 import puppeteer from "puppeteer"
 import {Stream} from "openai/streaming"
 import {ChatCompletionChunk} from "openai/resources"
-import jsPDF from "jspdf"
+
 
 class ResumeController {
     constructor() {
@@ -310,17 +310,17 @@ class ResumeController {
             const html = resumeTemplate.renderCompleteResume()
             const browser = await puppeteer.launch({headless: 'new', args: ['--no-sandbox', '--disable-setuid-sandbox'], })
             const page = await browser.newPage()
-            await page.setViewport({width: 1240, height: 1754})
-            await page.setContent(html, {waitUntil: 'networkidle0'})
-            await page.evaluate(() => document.fonts.ready);
-            await page.waitForTimeout(5000) // wait for 5 seconds
-            const pdfBuffer = await page.pdf({
-                printBackground: true,
+            await page.setContent(html)
+
+            const header = '<div class="header" style="padding: 0 !important; margin: 0; -webkit-print-color-adjust: exact; background-color: red; color: white; width: 100%; text-align: left; font-size: 12px;">header of Juan<br /> Page <span class="pageNumber"></span> of <span class="totalPages"></span></div>'
+            const footer = '<div class="footer" style="padding: 0 !important; margin: 0; -webkit-print-color-adjust: exact; background-color: blue; color: white; width: 100%; text-align: right; font-size: 12px;">footer of Juan<br /> Page <span class="pageNumber"></span> of <span class="totalPages"></span></div>'
+
+            await page.pdf({
+                path: `./resumes/${resumeName}`,
                 format: 'A4',
             })
-            res.setHeader('Content-Type', 'application/pdf')
-            res.setHeader('Content-Disposition', 'attachment; filename=resume.pdf')
-            res.send(pdfBuffer)
+            await browser.close()
+            res.status(200).download(`./resumes/${resumeName}`)
 
         } catch (error) {
             Logger.error(error)

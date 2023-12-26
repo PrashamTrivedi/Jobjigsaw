@@ -162,11 +162,13 @@ export async function generateResume(mainResume: string, jobCompatibilityData: s
     // The prompt logic will be added later, for now it's an empty string
     const prompt = `You are a resume generator. You will have my resume, required tech skills, and required soft skills in JSON format. Optionally you have match percentage, match reason and job title. 
     Your job is to create a customised resume from my main resume that will help me to move past Application Tracking System. 
+    Here you will modify skills, workExperience and Projects sections of the resume.
     When customising resume, make sure you follow these points.
     - If a required tech skill is in the resume, move it first in its relevant section.
     - When a required skill isn't present in resume, move adjacent skills after required skills, like showcasing Postgres for MySQL or AWS for Google or Azure is required.
     - Do not add new skills to the resume.
-    - Remove any skill that might hurt my job application
+    - Remove any skill that might hurt my job application.
+    - Don't include any project where I have worked on a skill that is not required for the job.
     - Ensuring each work experience item has 3-5 responsibilities, each detailed in 150-300 words, framed as achievements or tasks benefited business directly.
     - If a responsibility doesn't highlight a required skill, leave it as it is.
     - Strictly avoid any fabrication or exaggeration.

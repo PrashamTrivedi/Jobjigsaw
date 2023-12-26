@@ -10,7 +10,7 @@ class ResumeTemplate {
     public renderContactDetails(): string {
         const {name, email, phone, website, github, linkedin} = this.resumeData.contactDetails
         return `
-        <section class="text-center mb-6 py-2">
+        <section class="text-center py-2">
             <h2 class="text-3xl font-bold">${name}</h2>
             <div class="flex justify-center space-x-4 mt-2">
                 <span>Phone: ${phone}</span>
@@ -28,8 +28,8 @@ class ResumeTemplate {
 
     public renderEducation(): string {
         return `
-        <section class="mb-6 py-2">
-            <h2 class="text-xl font-semibold mb-2">Education</h2>
+        <section class=" py-2">
+            <h2 class="text-lg font-semibold">Education</h2>
             ${this.resumeData.education.map(edu => `
                 
                 <strong>${edu.degree}</strong>, ${edu.institution}
@@ -41,8 +41,8 @@ class ResumeTemplate {
 
     public renderCertifications(): string {
         return `
-        <section class="mb-6 py-2">
-            <h2 class="text-xl font-semibold mb-2">Certifications</h2>
+        <section class=" py-2">
+            <h2 class="text-lg font-semibold">Certifications</h2>
             <ul class="list-disc pl-5">
                 ${this.resumeData.certifications.map(cert => `<li class="ml-5">${cert}</li>`).join('')}
             </ul>
@@ -52,8 +52,8 @@ class ResumeTemplate {
 
     public renderSkills(): string {
         return `
-        <section class="mb-6 py-2">
-            <h2 class="text-xl font-semibold mb-2">Skills</h2>
+        <section class="py-2">
+            <h2 class="text-lg font-semibold">Skills</h2>
             <ul class="list-disc pl-5">
             ${this.resumeData.skills.map(skill => `
                 <li class="ml-5">
@@ -68,10 +68,10 @@ class ResumeTemplate {
 
     public renderWorkExperience(): string {
         return `
-        <section class="mb-6 py-2">
-            <h2 class="text-xl font-semibold mb-2">Work Experience</h2>
+        <section class="py-2">
+            <h2 class="text-lg font-semibold">Work Experience</h2>
             ${this.resumeData.workExperience.map(exp => `
-                <div class="py-2">
+                <div class="py-4 break-inside-avoid ">
                     <h3>${exp.role} - <strong>${exp.company}</strong></h3>
                     <p class="text-slate-700 text-sm">Duration: ${exp.duration}</p>
                     <ul class="list-disc pl-5">
@@ -85,10 +85,10 @@ class ResumeTemplate {
 
     public renderProjects(): string {
         return `
-        <section class="mb-6 py-2">
-            <h2 class="text-xl font-semibold mb-2">Projects</h2>
+        <section class="py-2">
+            <h2 class="text-lg font-semibold">Projects</h2>
             ${this.resumeData.projects.map(project => `
-                <div class="py-2">
+                <div class="py-1 break-inside-avoid ">
                     <h3><strong>${project.name}</strong></h3>
                     <p class="text-slate-700 text-sm">${project.duration}</p>
                     <p><strong>Description</strong>: ${project.description}</p>
@@ -97,6 +97,7 @@ class ResumeTemplate {
                     ${project.responsibilities ? `<ul class="list-disc pl-5">${project.responsibilities.map(responsibility => `<li class="ml-5">${responsibility}</li>`).join('')}</ul>` : ''}
                 </div>
             `).join('')}
+            <a class="text-blue-600 my-3" href="https://prashamhtrivedi.in/projects/">View all projects...</a>
         </section>
         `.trim()
     }
@@ -104,8 +105,8 @@ class ResumeTemplate {
     public renderAboutMe(): string {
         const {summary} = this.resumeData.about
         return `
-        <section class="mb-6 py-2">
-            <h2 class="text-xl font-semibold mb-2">About Me</h2>
+        <section class="mb-2 py-2">
+            <h2 class="text-lg font-semibold">About Me</h2>
             <p>${summary}</p>
         </section>
         `.trim()
