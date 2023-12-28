@@ -10,6 +10,7 @@ import {Stream} from "openai/streaming"
 import {ChatCompletionChunk} from "openai/resources"
 
 
+
 class ResumeController {
     constructor() {
         // Constructor content if needed
@@ -290,6 +291,13 @@ class ResumeController {
         try {
             let resumeData
             const {jobId, resumeJson, resumeName} = req.body
+            if(!resumeName || resumeName===''){
+                return res.status(400).json({error: 'Invalid resumeName'})
+            }
+            let resumeNameForGeneration = resumeName
+            if(!resumeName.endsWith('.pdf')){
+                resumeNameForGeneration = `${resumeName}.pdf`
+            }
 
             if (jobId) {
                 const db = await getDb()
@@ -316,11 +324,11 @@ class ResumeController {
             const footer = '<div class="footer" style="padding: 0 !important; margin: 0; -webkit-print-color-adjust: exact; background-color: blue; color: white; width: 100%; text-align: right; font-size: 12px;">footer of Juan<br /> Page <span class="pageNumber"></span> of <span class="totalPages"></span></div>'
 
             await page.pdf({
-                path: `./resumes/${resumeName}`,
+                path: `./resumes/${resumeNameForGeneration}`,
                 format: 'A4',
             })
             await browser.close()
-            res.status(200).download(`./resumes/${resumeName}`)
+            res.status(200).download(`./resumes/${resumeNameForGeneration}`)
 
         } catch (error) {
             Logger.error(error)
