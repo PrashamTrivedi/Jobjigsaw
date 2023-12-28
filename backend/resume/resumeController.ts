@@ -9,7 +9,7 @@ import puppeteer from "puppeteer"
 import {Stream} from "openai/streaming"
 import {ChatCompletionChunk} from "openai/resources"
 
-
+import fs from "fs"
 
 class ResumeController {
     constructor() {
@@ -277,6 +277,8 @@ class ResumeController {
      *         schema:
      *           type: object
      *           properties:
+     *             resumeName:
+     *              type: string
      *             jobId:
      *               type: number
      *             resumeJson:
@@ -291,11 +293,11 @@ class ResumeController {
         try {
             let resumeData
             const {jobId, resumeJson, resumeName} = req.body
-            if(!resumeName || resumeName===''){
+            if (!resumeName || resumeName === '') {
                 return res.status(400).json({error: 'Invalid resumeName'})
             }
             let resumeNameForGeneration = resumeName
-            if(!resumeName.endsWith('.pdf')){
+            if (!resumeName.endsWith('.pdf')) {
                 resumeNameForGeneration = `${resumeName}.pdf`
             }
 
@@ -314,14 +316,27 @@ class ResumeController {
                 return res.status(400).json({error: 'Invalid input'})
             }
 
-            const resumeTemplate = new ResumeTemplate(resumeData)
+            const resumeToPass = {
+                contactDetails: resumeJson.contactDetails || mainResume.contactDetails,
+                about: resumeJson.about || mainResume.about,
+                skills: resumeJson.skills,
+                certifications: resumeJson.certifications || mainResume.certifications,
+                education: resumeJson.education || mainResume.education,
+                workExperience: resumeJson.workExperience,
+                projects: resumeJson.projects,
+
+            }
+
+            // if resumes folder does not exist, create it
+            if (!fs.existsSync('./resumes')) {
+                fs.mkdirSync('./resumes')
+            }
+            const resumeTemplate = new ResumeTemplate(resumeToPass)
             const html = resumeTemplate.renderCompleteResume()
             const browser = await puppeteer.launch({headless: 'new', args: ['--no-sandbox', '--disable-setuid-sandbox'], })
             const page = await browser.newPage()
             await page.setContent(html)
 
-            const header = '<div class="header" style="padding: 0 !important; margin: 0; -webkit-print-color-adjust: exact; background-color: red; color: white; width: 100%; text-align: left; font-size: 12px;">header of Juan<br /> Page <span class="pageNumber"></span> of <span class="totalPages"></span></div>'
-            const footer = '<div class="footer" style="padding: 0 !important; margin: 0; -webkit-print-color-adjust: exact; background-color: blue; color: white; width: 100%; text-align: right; font-size: 12px;">footer of Juan<br /> Page <span class="pageNumber"></span> of <span class="totalPages"></span></div>'
 
             await page.pdf({
                 path: `./resumes/${resumeNameForGeneration}`,
@@ -329,6 +344,7 @@ class ResumeController {
             })
             await browser.close()
             res.status(200).download(`./resumes/${resumeNameForGeneration}`)
+
 
         } catch (error) {
             Logger.error(error)
