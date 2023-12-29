@@ -1,5 +1,4 @@
 import betterSqlite3 from "better-sqlite3"
-import {inferJobDescription} from "../openai"
 interface Job {
     id: number
     text: string

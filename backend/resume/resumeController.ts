@@ -184,7 +184,9 @@ class ResumeController {
                 workExperience: mainResume.workExperience,
                 projects: mainResume.projects,
             }
-            const generatedResume = await generateResume(JSON.stringify(modifiedResume), jobCompatibilityDataString, generateCoverLetter, isStream)
+            const useOpenAi = req.headers['x-cost-saving-mode'] ? true : false
+
+            const generatedResume = await generateResume(JSON.stringify(modifiedResume), jobCompatibilityDataString, generateCoverLetter, isStream, useOpenAi)
             if (!isStream) {
                 const resumeJson = JSON.parse(generatedResume as string ?? "")
                 const resumeToReturn = {

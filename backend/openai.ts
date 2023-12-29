@@ -1,13 +1,13 @@
 import OpenAI from 'openai'
 import {ChatCompletion, ChatCompletionChunk, ChatCompletionMessageParam} from "openai/resources"
 
-import {get_encoding, encoding_for_model} from "tiktoken"
-import Logger from "./utils/logger"
+import {get_encoding} from "tiktoken"
+
 import {Stream} from "openai/streaming"
 
 // Ensure this function is exported
-export async function generateJsonFromResume(resumeText: string): Promise<string | undefined> {
-    const openai = new OpenAI({apiKey: process.env.OPENAI_API_KEY, timeout: 60000})
+export async function generateJsonFromResume(resumeText: string, useOpenAi: boolean = true): Promise<string | undefined> {
+    const openai = getOpenAiClient(useOpenAi)
     const resumeMessages: ChatCompletionMessageParam[] = [{
         role: "system",
         content: `You are a programmatic resume parser who can parse the resume and create the JSON output from it. 
@@ -26,8 +26,9 @@ export async function generateJsonFromResume(resumeText: string): Promise<string
         role: "user",
         content: resumeText
     }]
+    const model = await getModel(useOpenAi)
     const resumeJson = await openai.chat.completions.create({
-        model: 'gpt-4-1106-preview',
+        model,
         response_format: {type: "json_object"},
         temperature: 0,
         messages: resumeMessages,
@@ -41,9 +42,37 @@ export async function generateJsonFromResume(resumeText: string): Promise<string
 
 }
 
+async function getModel(useOpenAi: boolean = true): Promise<string> {
+    const openai = getOpenAiClient(useOpenAi)
+    if (useOpenAi) {
+        const models = await openai.models.list()
+        const gpt4 = models.data.find(model => model.id === process.env.DEFAULT_OPENAI_MODEL ?? 'gpt-4-1106-preview')
+        if (gpt4) {
+            return gpt4.id
+        } else {
+            return models.data.find(model => model.id === 'gpt-3.5-turbo')?.id ?? 'gpt-3.5-turbo'
+        }
+    } else {
+        return Promise.resolve(process.env.OPTIONAL_MODEL ?? "meta-llama/llama-2-13b-chat")
+    }
+}
 
-export async function inferJobDescription(description: string, additionalFields: string[]): Promise<string | undefined> {
-    const openai = new OpenAI({apiKey: process.env.OPENAI_API_KEY, timeout: 60000})
+
+function getOpenAiClient(useOpenAi: boolean = true): OpenAI {
+
+    if (!useOpenAi) {
+
+        return new OpenAI({
+            apiKey: process.env.OPENROUTER_API_KEY,
+            baseURL: process.env.OPENROUTER_API_URL,
+            timeout: 60000,
+        })
+    }
+    return new OpenAI({apiKey: process.env.OPENAI_API_KEY, timeout: 60000})
+}
+
+export async function inferJobDescription(description: string, additionalFields: string[], useOpenAi: boolean = true): Promise<string | undefined> {
+    const openai = getOpenAiClient(useOpenAi)
     const originalPrompt = `I am a developer with 14+ years of experience. 
     You will assess a Job description and infer and extract following fields in JSON. 
     Unless specified otherwise, all fields should be string
@@ -75,9 +104,9 @@ export async function inferJobDescription(description: string, additionalFields:
     if (modelLimitTokens < tokens) {
         throw new Error(`Job description is too long. It has ${tokens} tokens, but the limit is ${modelLimit?.limit}`)
     }
-
+    const model = await getModel(useOpenAi)
     const jobDescriptionJson = await openai.chat.completions.create({
-        model: 'gpt-4-1106-preview',
+        model,
         messages: jobDescriptionMessages,
         response_format: {type: "json_object"},
         temperature: 0,
@@ -95,8 +124,8 @@ export async function inferJobDescription(description: string, additionalFields:
     }
 }
 
-export async function checkCompatiblity(description: string, mainResume: string): Promise<string | undefined> {
-    const openai = new OpenAI({apiKey: process.env.OPENAI_API_KEY, timeout: 60000})
+export async function checkCompatiblity(description: string, mainResume: string, useOpenAi: boolean = true): Promise<string | undefined> {
+    const openai = getOpenAiClient(useOpenAi)
     const compatibilityMessage: ChatCompletionMessageParam[] = [{
         role: "system",
         content: `You have my resume in JSON format.And you will be given a JD.
@@ -120,9 +149,9 @@ export async function checkCompatiblity(description: string, mainResume: string)
     if (modelLimitTokens < tokens) {
         throw new Error(`Job description is too long. It has ${tokens} tokens, but the limit is ${modelLimit?.limit}`)
     }
-
+    const model = await getModel(useOpenAi)
     const matchJson = await openai.chat.completions.create({
-        model: 'gpt-4-1106-preview',
+        model,
         messages: compatibilityMessage,
         response_format: {type: "json_object"},
         temperature: 0,
@@ -157,8 +186,8 @@ const modelLimits = [
     {name: 'gpt-3.5-turbo-16k', limit: 16000}
 ]
 
-export async function generateResume(mainResume: string, jobCompatibilityData: string, generateCoverLetter: boolean, isStreaming: boolean): Promise<string | undefined | Stream<ChatCompletionChunk>> {
-    const openai = new OpenAI({apiKey: process.env.OPENAI_API_KEY, timeout: 100000})
+export async function generateResume(mainResume: string, jobCompatibilityData: string, generateCoverLetter: boolean, isStreaming: boolean, useOpenAi: boolean = true): Promise<string | undefined | Stream<ChatCompletionChunk>> {
+    const openai = getOpenAiClient(useOpenAi)
     // The prompt logic will be added later, for now it's an empty string
     const prompt = `You are a resume generator. You will have my resume, required tech skills, and required soft skills in JSON format. Optionally you have match percentage, match reason and job title. 
     Your job is to create a customised resume from my main resume that will help me to move past Application Tracking System. 
@@ -192,9 +221,9 @@ Resume:, add this as coverLetter key in JSON` : ``}
         throw new Error(`Job description is too long. It has ${tokens} tokens, but the limit is ${modelLimit?.limit}`)
     }
     // Additional logic for generating a cover letter can be added here based on the generateCoverLetter parameter
-
+    const model = await getModel(useOpenAi)
     const resumeJson = await openai.chat.completions.create({
-        model: 'gpt-4-1106-preview',
+        model,
         messages: resumeMessages,
         response_format: {type: "json_object"},
         temperature: 0,

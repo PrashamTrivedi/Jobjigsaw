@@ -166,7 +166,9 @@ export class MainResumeController {
             const dataBuffer = fs.readFileSync(req.file.path)
             const data = await pdf(dataBuffer)
             const resumeText = data.text
-            const resumeJson = await generateJsonFromResume(resumeText)
+            const useOpenAi = req.headers['x-cost-saving-mode'] ? true : false
+
+            const resumeJson = await generateJsonFromResume(resumeText, useOpenAi)
             console.log(resumeJson)
             // Write resumeJson to mainResume.json file
             fs.writeFileSync('mainResume_parsed.json', JSON.stringify(resumeJson))
