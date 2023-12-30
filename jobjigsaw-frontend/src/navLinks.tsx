@@ -8,7 +8,7 @@ import {Link} from "react-router-dom"
 
 export default function NavLinks() {
     const links = [
-        {path: '/', label: 'Home', icon: HomeIcon},
+        {path: '/home', label: 'Home', icon: HomeIcon},
         {path: '/main-resume', label: 'Main Resume', icon: DocumentIcon},
         {path: '/saved-jobs', label: 'Saved Jobs', icon: BriefcaseIcon},
         {path: '/saved-resumes', label: 'Saved Resumes', icon: DocumentIcon},

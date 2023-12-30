@@ -1,13 +1,12 @@
 import {Resume, getMainResume} from "./data/mainResume"
 
-import MainContent from "./mainContent"
 import {Suspense, useEffect, useState} from "react"
 import ResumeComponent from "./resume"
 
 
 export default function MainResume() {
 
-    
+
     useEffect(() => {
         // console.log("Calling API")
         (async () => {
@@ -39,10 +38,8 @@ export default function MainResume() {
 
     return (
 
-        <MainContent>
-            <Suspense fallback={<div>Loading...</div>}>
-                <ResumeComponent resume={mainResume} />
-            </Suspense>
-        </MainContent>
+        <Suspense fallback={<div>Loading...</div>}>
+            <ResumeComponent resume={mainResume} />
+        </Suspense>
     )
 }

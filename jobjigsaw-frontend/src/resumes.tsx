@@ -1,5 +1,4 @@
 import {Suspense, useEffect, useRef, useState} from "react"
-import MainContent from "./mainContent"
 import ResumeComponent from "./resume"
 import {useSearchParams} from "react-router-dom"
 import {Resume} from "./data/mainResume"
@@ -14,25 +13,24 @@ export default function Resumes() {
     const resumeId = searchParams.get("resumeId")
 
 
+    if ((!jobId && !resumeId) || (jobId === '' && resumeId === '')) {
+        return (
 
+            <div className="bg-gray-800 rounded-lg p-4 my-4 space-y-4">
+                <div className="space-y-2 mt-2">
+                    <div className="text-lg"><strong>No Job ID or resumeID provided</strong></div>
+                </div>
+            </div>
 
+        )
+    } else {
+        return (
+            <Suspense fallback={<div>Loading...</div>}>
+                <ResumeWithCoverLetterComponent jobId={jobId} resumeId={resumeId} />
+            </Suspense>
+        )
+    }
 
-    return (
-        <MainContent>
-            {
-                ((!jobId && !resumeId) || (jobId === '' && resumeId === '')) ?
-                    <div className="bg-gray-800 rounded-lg p-4 my-4 space-y-4">
-                        <div className="space-y-2 mt-2">
-                            <div className="text-lg"><strong>No Job ID or resumeID provided</strong></div>
-                        </div>
-                    </div>
-                    :
-
-                    <Suspense fallback={<div>Loading...</div>}>
-                        <ResumeWithCoverLetterComponent jobId={jobId} resumeId={resumeId} />
-                    </Suspense>}
-        </MainContent>
-    )
 }
 
 

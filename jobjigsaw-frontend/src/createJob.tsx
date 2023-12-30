@@ -1,6 +1,5 @@
 import {useState} from "react"
 import {Job, addJob} from "./data/jobs"
-import MainContent from "./mainContent"
 import './createJob.css'
 import {useLocation} from "react-router-dom"
 
@@ -52,7 +51,7 @@ export default function CreateJob() {
     }
 
     return (
-        <MainContent>
+        <>
             <h1 className='text-4xl font-bold text-center'>
                 Add Job
             </h1>
@@ -140,6 +139,6 @@ export default function CreateJob() {
                 </button>
             </div>
 
-        </MainContent>
+        </>
     )
 }

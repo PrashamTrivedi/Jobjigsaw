@@ -2,7 +2,6 @@ import {useState} from 'react'
 import './App.css'
 import {InferJobButton, InferJobMatchButton} from "./buttons"
 import {inferJob, inferJobMatch} from "./data/jobInferrence"
-import MainContent from "./mainContent"
 import InferredJob from "./inferredJob"
 
 function App() {
@@ -46,40 +45,36 @@ function App() {
     }
 
   }
-  return (
+  if (viewName === 'form') {
+    return (
+      <div className="p-4">
 
-    <MainContent>
-      {
-        viewName === 'form' &&
-        <div className="p-4">
+        <textarea
+          className="w-full p-2 border border-gray-300 dark:border-gray-700 dark:bg-black rounded"
+          rows={10}
+          placeholder="Enter Job Description"
+          id="jobDescription"
+          name="jobDescription"
+          value={jobDescription}
+          onChange={(e) => setJobDescription(e.target.value)}
+          disabled={inferPending || inferMatchPending}
+        />
 
-          <textarea
-            className="w-full p-2 border border-gray-300 dark:border-gray-700 dark:bg-black rounded"
-            rows={10}
-            placeholder="Enter Job Description"
-            id="jobDescription"
-            name="jobDescription"
-            value={jobDescription}
-            onChange={(e) => setJobDescription(e.target.value)}
-            disabled={inferPending || inferMatchPending}
-          />
+        <div className="flex space-x-4 mt-4">
+          <InferJobButton pending={inferPending} onClick={handleInferJob} />
+          <InferJobMatchButton pending={inferMatchPending} onClick={handleInferJobMatch} />
+        </div>
+      </div>
+    )
+  } else if (viewName === 'inferrence') {
+    return (
+      <InferredJob
+        jobDescription={jobDescription}
+        job={inferredJob}
+        match={inferredJobMatch} />
+    )
+  }
 
-          <div className="flex space-x-4 mt-4">
-            <InferJobButton pending={inferPending} onClick={handleInferJob} />
-            <InferJobMatchButton pending={inferMatchPending} onClick={handleInferJobMatch} />
-          </div>
-        </div>}
-      {viewName === 'inferrence' &&
-        <InferredJob
-          jobDescription={jobDescription}
-          job={inferredJob}
-          match={inferredJobMatch} />
-      }
-
-
-    </MainContent>
-
-  )
 }
 
 

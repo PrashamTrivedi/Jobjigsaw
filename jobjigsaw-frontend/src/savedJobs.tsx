@@ -1,5 +1,4 @@
 import {Link} from "react-router-dom"
-import MainContent from "./mainContent"
 import {Suspense} from "react"
 import JobLoadingSkeleton from "./JobLoadingSkeleton"
 import JobsList from "./jobsList"
@@ -7,7 +6,7 @@ import JobsList from "./jobsList"
 export default function SavedJobs() {
 
     return (
-        <MainContent>
+      <>
             <div className="flex items-center w-full justify-center">
                 <h1 className="text-4xl text-center mr-4">Saved Jobs</h1>
                 <Link to='/'
@@ -18,6 +17,6 @@ export default function SavedJobs() {
             <Suspense fallback={<JobLoadingSkeleton />}>
                 <JobsList />
             </Suspense >
-        </MainContent>
+      </>
     )
 }
