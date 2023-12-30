@@ -39,9 +39,9 @@ class JobController {
     public inferJobDescription = async (req: Request, res: Response) => {
         try {
             const {description, additionalFields} = req.body
-            const useOpenAi = req.headers['x-cost-saving-mode'] ? true : false;
+            const useCostSavingMode = req.headers['x-cost-saving-mode'] ? true : false;
 
-            const inferredDescription = await inferJobDescription(description, additionalFields, useOpenAi)
+            const inferredDescription = await inferJobDescription(description, additionalFields, !useCostSavingMode)
             res.status(200).json({inferredDescription: JSON.parse(inferredDescription ?? "")})
         } catch (error) {
             Logger.error(error)
@@ -77,8 +77,8 @@ class JobController {
             const {description} = req.body
             const mainResumeModel = new MainResumeModel()
             const mainResume = await mainResumeModel.getMainResume()
-            const useOpenAi = req.headers['x-cost-saving-mode'] ? true : false;
-            const compatibilityMatrix = await checkCompatiblity(JSON.stringify(description), JSON.stringify(mainResume), useOpenAi)
+            const useCostSavingMode = req.headers['x-cost-saving-mode'] ? true : false;
+            const compatibilityMatrix = await checkCompatiblity(JSON.stringify(description), JSON.stringify(mainResume), !useCostSavingMode)
             res.status(200).json({compatibilityMatrix: JSON.parse(compatibilityMatrix ?? "")})
         } catch (error) {
             Logger.error(error)
