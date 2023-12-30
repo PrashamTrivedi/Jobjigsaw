@@ -47,10 +47,11 @@ export async function createResume(body: {jobId: string, updatedResume: any, tec
 }
 
 export async function generateResume(jobCompatibilityData: any, generateCoverLetter: boolean) {
+    const headers = import.meta.env.VITE_COST_SAVING_MODE !== "" ? {
+        'x-cost-saving-mode': 'true'
+    } : {}
     const response = await axios.post(`${import.meta.env.VITE_BACKEND_API_HOST}/resumes/generate`, {jobCompatibilityData, generateCoverLetter}, {
-        headers: {
-            'Content-Type': 'application/json',
-        },
+        headers,
         timeout: 100000,
         timeoutErrorMessage: 'Resume generation timed out. Please try again.'
     })

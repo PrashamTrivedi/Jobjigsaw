@@ -7,9 +7,14 @@ export async function inferJob(jobDescription: string): Promise<any> {
     if (!jobDescription || jobDescription === '') {
         return {error: 'Job description is empty'}
     }
+    const headers = import.meta.env.VITE_COST_SAVING_MODE !== "" ? {
+        'x-cost-saving-mode': 'true'
+    } : {}
 
     const response = await axios.post(`${import.meta.env.VITE_BACKEND_API_HOST}/jobs/infer`, {
         description: jobDescription
+    }, {
+        headers
     })
     const data = response.data
     console.log({data})
@@ -26,8 +31,15 @@ export async function inferJobMatch(jobDescription: string): Promise<any> {
         return {error: 'Job description is empty'}
     }
 
+    const headers = import.meta.env.VITE_COST_SAVING_MODE !== "" ? {
+        'x-cost-saving-mode': 'true'
+    } : {}
+
     const response = await axios.post(`${import.meta.env.VITE_BACKEND_API_HOST}/jobs/infer-match`, {
         description: jobDescription
+    }, {
+        headers
+
     })
     const data = response.data
     console.log({data})
