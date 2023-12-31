@@ -1,4 +1,4 @@
-import {Link} from "react-router-dom"
+
 import {Suspense} from "react"
 import ResumesList from "./resumesList"
 import JobLoadingSkeleton from "./JobLoadingSkeleton"

@@ -1,10 +1,7 @@
 
 import {Bars3BottomLeftIcon, BriefcaseIcon, DocumentIcon, HomeIcon} from "@heroicons/react/20/solid"
 import clsx from "clsx"
-// import Link from "next/link"
-// import {usePathname} from "next/navigation"
 import {useState} from "react"
-import {Link} from "react-router-dom"
 
 export default function NavLinks() {
     const links = [
@@ -15,9 +12,8 @@ export default function NavLinks() {
 
     ]
     const [isNavOpen, setIsNavOpen] = useState(false)
-    // const locationPathName = window.location.pathname
     const pathName = window.location.pathname
-    console.log({pathName,location:window.location})
+    console.log({pathName, location: window.location})
     return (
 
         <div className='flex flex-col lg:flex-row items-start lg:items-center  lg:block justify-between'>
