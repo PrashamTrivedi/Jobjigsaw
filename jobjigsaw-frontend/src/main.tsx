@@ -10,6 +10,7 @@ import ErrorPage from "./errorPage.tsx"
 import Resumes from "./resumes.tsx"
 import SavedResumes from "./savedResumes.tsx"
 import MainContent from "./mainContent.tsx"
+import PrintResumeComponent from "./printResume.tsx"
 
 const router = createBrowserRouter([
   {
@@ -45,6 +46,11 @@ const router = createBrowserRouter([
         path: '/saved-resumes/resume',
         element: <Resumes />,
         errorElement: <ErrorPage />,
+      }, {
+        path: '/saved-resumes/resume/print',
+        element: <PrintResumeComponent />,
+        errorElement: <ErrorPage />,
+
       }
     ]
   },
