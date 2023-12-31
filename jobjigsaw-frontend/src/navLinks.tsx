@@ -15,7 +15,9 @@ export default function NavLinks() {
 
     ]
     const [isNavOpen, setIsNavOpen] = useState(false)
+    // const locationPathName = window.location.pathname
     const pathName = window.location.pathname
+    console.log({pathName,location:window.location})
     return (
 
         <div className='flex flex-col lg:flex-row items-start lg:items-center  lg:block justify-between'>
@@ -27,9 +29,9 @@ export default function NavLinks() {
                 {
                     links.map(({path, label, icon: Icon}) => (
                         <li key={path} className={clsx("px-5 py-2 flex", {" border-b-2 border-current border-gray-600 dark:border-gray-50": path === pathName})}>
-                            <Link to={path} className="flex dark:text-gray-300 text-gray-950 hover:text-gray-600 dark:hover:text-gray-400">
+                            <a href={path} className="flex dark:text-gray-300 text-gray-950 hover:text-gray-600 dark:hover:text-gray-400">
                                 <Icon className="w-5 h-5 mr-2" /> {label}
-                            </Link>
+                            </a>
                         </li>
                     ))
                 }
