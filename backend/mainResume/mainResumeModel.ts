@@ -17,10 +17,14 @@ export class MainResumeModel {
     async updateSkills(skills: Skills[]): Promise<void> {
         for (const skill of skills) {
             const index = this.mainResumeData.skills.findIndex((p) => p.name === skill.name)
-            if (index !== -1) {
-                this.mainResumeData.skills[index].items.push(...skill.items)
-            } else {
+            const items = skill.items.filter((item) => item !== '')
+            skill.items = items
+            if (index === -1) {
                 this.mainResumeData.skills.push(skill)
+            } else if (skill.items.length > 0) {
+                this.mainResumeData.skills[index].items = skill.items
+            } else {
+                this.mainResumeData.skills.splice(index, 1)
             }
         }
         // Write main resume to ../mainResume.json
