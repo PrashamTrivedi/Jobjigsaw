@@ -108,7 +108,7 @@ export default function InferredJob(
                             <InferJobMatchButton pending={inferMatchPending} onClick={handleInferJobMatch} defaultText='Re-Infer Match' />
                         </div >
                         <div className="mt-5">
-                            <span className="text-md">Want to infer another job? Go to <a className="border-b-2" href='/'>Home</a> to enter a new job description.</span>
+                            <span className="text-md">Want to infer another job? Go to <a className="border-b-2" href='/home'>Home</a> to enter a new job description.</span>
                             <p></p>
                             <p>Or</p>
                             <AddJobButton job={inferredJob} jobDescription={jobDescription} match={inferredJobMatch} />
@@ -116,7 +116,8 @@ export default function InferredJob(
 
                     </div>
             }
-            <span className="text-md">Want to infer another job? Go to <a className="border-b-2" href='/'>Home</a> to enter a new job description.</span>
+
+            <span className="text-md">Want to infer another job? Go to <a className="border-b-2" href='/home'>Home</a> to enter a new job description.</span>
 
         </>
 
