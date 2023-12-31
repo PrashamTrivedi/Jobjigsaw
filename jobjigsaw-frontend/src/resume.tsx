@@ -36,7 +36,6 @@ export default function ResumeComponent({initialResume, onResumeUpdated}: {initi
 
     function handleEditingToggle() {
         setIsEditingSkills(!isEditingSkills)
-
         handleResumeChange()
     }
 
@@ -141,7 +140,7 @@ export default function ResumeComponent({initialResume, onResumeUpdated}: {initi
             </section>
             <section className={clsx("mt-4", {"animate-pulse": isLoading})}>
                 <h2><strong>Projects</strong>
-                    <button className=" p-2 rounded-md" onClick={handleWorkExperienceEditingToggle}>
+                    <button className=" p-2 rounded-md" onClick={handleProjectsEditingToggle}>
                         {
                             isEditingProjects ?
                                 <CheckIcon className="w-3 h-3" /> : <PencilIcon className="w-3 h-3" />
@@ -150,20 +149,69 @@ export default function ResumeComponent({initialResume, onResumeUpdated}: {initi
                 {resume.projects.map((project: {name: string, duration: string, description: string, techStack?: string[], responsibilities?: string[], url?: string}, index: number) => (
                     <div key={index} className={clsx("mb-4", {"animate-pulse": isLoading})}>
                         <h3><strong>{project.name}</strong></h3>
-                        <p className={clsx("text-sm text-slate-400", {"animate-pulse": isLoading})}>{project.duration}</p>
-                        <p>{project.description}</p>
-                        <p><strong>Tech Stack: </strong>{project.techStack?.join(", ")}</p>
+                        <p className={clsx("text-sm text-slate-400", {"animate-pulse": isLoading})}>{
+                            isEditingProjects ?
+                                <input type="text" className="border border-white p-2 rounded-md" value={project.duration} onChange={(e) => {
+                                    setResume(prevResume => {
+                                        const newResume = {...prevResume}
+                                        newResume.projects[index].duration = e.target.value
+                                        return newResume
+                                    })
+                                }} /> :
 
-                        {project.url && <p><strong>URL: </strong><Link target="_blank" to={project.url} >{project.url}</Link></p>}
-                        {project.responsibilities &&
-                            <>
-                                <strong>Responsibilities:</strong>
-                                <ul>
-                                    {project.responsibilities?.map((responsibility: string, index: number) => (
-                                        <li key={index}>{responsibility}</li>
-                                    ))}
-                                </ul>
-                            </>
+                                project.duration}</p>
+                        <p>{
+                            isEditingProjects ? <textarea className="border border-white p-2 rounded-md" value={project.description} onChange={(e) => {
+                                setResume(prevResume => {
+                                    const newResume = {...prevResume}
+                                    newResume.projects[index].description = e.target.value
+                                    return newResume
+                                })
+                            }
+                            } /> :
+                                project.description}</p>
+                        <p><strong>Tech Stack: </strong>{
+                            isEditingProjects ?
+                                <input type="text" className="border border-white p-2 rounded-md" value={project.techStack?.join(", ")} onChange={(e) => {
+                                    setResume(prevResume => {
+                                        const newResume = {...prevResume}
+                                        newResume.projects[index].techStack = e.target.value.split(", ")
+                                        return newResume
+                                    })
+                                }} /> :
+
+                                project.techStack?.join(", ")}</p>
+
+                        {
+                            isEditingProjects ?
+                                <input type="text" className="border border-white p-2 rounded-md" value={project.responsibilities?.join(", ")} onChange={(e) => {
+                                    setResume(prevResume => {
+                                        const newResume = {...prevResume}
+                                        newResume.projects[index].url = e.target.value
+                                        return newResume
+                                    })
+                                }} /> :
+
+                                project.url && <p><strong>URL: </strong><Link target="_blank" to={project.url} >{project.url}</Link></p>}
+                        {
+                            isEditingProjects ?
+                                <input type="text" className="border border-white p-2 rounded-md" value={project.responsibilities?.join(", ")} onChange={(e) => {
+                                    setResume(prevResume => {
+                                        const newResume = {...prevResume}
+                                        newResume.projects[index].responsibilities = e.target.value.split(", ")
+                                        return newResume
+                                    })
+                                }} /> :
+
+                                project.responsibilities &&
+                                <>
+                                    <strong>Responsibilities:</strong>
+                                    <ul>
+                                        {project.responsibilities?.map((responsibility: string, index: number) => (
+                                            <li key={index}>{responsibility}</li>
+                                        ))}
+                                    </ul>
+                                </>
                         }
                     </div>
                 ))}

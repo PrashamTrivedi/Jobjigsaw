@@ -54,19 +54,41 @@ export default function MainResume() {
         // setMainResume(updatedResume)
     }
 
+    function compareObjects(object1: any, object2: any) {
+        const keys = Object.keys(object1)
+        console.log(`comparing ${JSON.stringify(object1)} and ${JSON.stringify(object2)}`)
+        for (const key of keys) {
+            if (Array.isArray(object1[key])) {
+                if (object1[key].length !== object2[key].length || !object1[key].every((val: any, index: number) => val === object2[key][index])) {
+                    console.log(`Comparison failed on ${key}`)
+                    return false
+                }
+            } else if (typeof object1[key] === "object") {
+                if (!compareObjects(object1[key], object2[key])) {
+                    console.log(`Comparison failed on ${key}`)
+                    return false
+                }
+            } else if (object1[key] !== object2[key]) {
+                console.log(`Comparison failed on ${key}`)
+                return false
+            }
+        }
+        return true
+    }
+
     async function handleResumeUpdated(resume: Resume) {
         console.log(`resume: ${JSON.stringify(resume)}`)
         console.log(`mainResume: ${JSON.stringify(mainResume)}`)
-        if (resume.skills !== mainResume.skills) {
+        if (!compareObjects(resume.skills, mainResume.skills)) {
             console.log("Skills changed")
             await updateSkillsFromResume(resume.skills)
-        } else if (resume.workExperience !== mainResume.workExperience) {
+        } else if (!compareObjects(resume.workExperience, mainResume.workExperience)) {
             console.log("Experience changed")
             const workExperiencePromises = resume.workExperience.map((experience) => {
                 return updateExperienceFromResume(experience)
             })
             await Promise.all(workExperiencePromises)
-        } else if (resume.projects !== mainResume.projects) {
+        } else if (!compareObjects(resume.projects, mainResume.projects)) {
             console.log("Projects changed")
             const projectsPromises = resume.projects.map((project) => {
                 return updateProjectsFromResume(project)
