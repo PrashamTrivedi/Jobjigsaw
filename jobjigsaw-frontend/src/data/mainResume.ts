@@ -10,8 +10,9 @@ export async function getMainResume() {
     return response.data
 }
 
-export async function updateSkills({name, items}: {name: string, items: string[]}) {
-    const response = await axios.post(`${import.meta.env.VITE_BACKEND_API_HOST}/mainResume/updateSkills`, {name, items}, {
+export async function updateSkills({skills}: {skills: Skills[]}) {
+
+    const response = await axios.put(`${import.meta.env.VITE_BACKEND_API_HOST}/mainResume/updateSkills`, skills, {
         headers: {
             'Content-Type': 'application/json',
         },
@@ -19,8 +20,8 @@ export async function updateSkills({name, items}: {name: string, items: string[]
     return response.data
 }
 
-export async function updateExperience(body: {company: string, role: string, duration: string, responsibilities: string[]}) {
-    const response = await axios.post(`${import.meta.env.VITE_BACKEND_API_HOST}/mainResume/addWorkExperience`, body, {
+export async function updateExperience(experience: WorkExperience) {
+    const response = await axios.put(`${import.meta.env.VITE_BACKEND_API_HOST}/mainResume/addWorkExperience`, experience, {
         headers: {
             'Content-Type': 'application/json',
         },
@@ -28,8 +29,8 @@ export async function updateExperience(body: {company: string, role: string, dur
     return response.data
 }
 
-export async function addProject(body: {name: string, description: string, url: string, techStack: string[], responsibilities: string[]}) {
-    const response = await axios.post(`${import.meta.env.VITE_BACKEND_API_HOST}/mainResume/addProject`, body, {
+export async function addProject(project: Project) {
+    const response = await axios.put(`${import.meta.env.VITE_BACKEND_API_HOST}/mainResume/addProject`, project, {
         headers: {
             'Content-Type': 'application/json',
         },

@@ -127,7 +127,7 @@ function ResumeWithCoverLetterComponent({jobId, resumeId}: {jobId: string | null
         <>
             <div ref={resumeRef}>
 
-                <ResumeComponent resume={resume} />
+                <ResumeComponent initialResume={resume} />
             </div>
             <button className="dark:border dark:border-white dark:hover:bg-gray-900 dark:text-white px-4 py-2 mt-2 rounded-md" onClick={printPdf}>
                 {isPrinting ? 'Printing Resume' : 'Print Resume'}

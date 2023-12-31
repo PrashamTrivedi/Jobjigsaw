@@ -3,14 +3,52 @@ import {Resume} from "./data/mainResume"
 import {Link} from "react-router-dom"
 import {CopyButton} from "./buttons"
 import clsx from "clsx"
-import {useState} from "react"
+import {useEffect, useState} from "react"
 
-export default function ResumeComponent({resume}: {resume: Resume}) {
+export default function ResumeComponent({initialResume, onResumeUpdated}: {initialResume: Resume, onResumeUpdated?: (resume: Resume) => void}) {
+    const [resume, setResume] = useState<Resume>(initialResume)
     console.log(resume)
-    const [isEditingSKills, setIsEditingSkills] = useState<boolean>(false)
+
+    const [isEditingSkills, setIsEditingSkills] = useState<boolean>(false)
     const [isEditingWorkExperience, setIsEditingWorkExperience] = useState<boolean>(false)
     const [isEditingProjects, setIsEditingProjects] = useState<boolean>(false)
     const isLoading = resume.contactDetails.name === ""
+    // Update local state when prop changes
+    useEffect(() => {
+        setResume(initialResume)
+    }, [initialResume])
+
+    function handleSkillChange(index: number, newSkillItems: string[]) {
+        setResume(prevResume => {
+            const newResume = {...prevResume}
+            newResume.skills[index].items = newSkillItems
+            return newResume
+        })
+    }
+
+
+    function handleResumeChange() {
+        if (onResumeUpdated) {
+            onResumeUpdated(resume)
+        }
+
+    }
+
+    function handleEditingToggle() {
+        setIsEditingSkills(!isEditingSkills)
+
+        handleResumeChange()
+    }
+
+    function handleWorkExperienceEditingToggle() {
+        setIsEditingWorkExperience(!isEditingWorkExperience)
+        handleResumeChange()
+    }
+
+    function handleProjectsEditingToggle() {
+        setIsEditingProjects(!isEditingProjects)
+        handleResumeChange()
+    }
     return (
         <>
             <header className={clsx("text-center", {"animate-pulse": isLoading})}>
@@ -42,9 +80,9 @@ export default function ResumeComponent({resume}: {resume: Resume}) {
             </section>
             <section className={clsx("mt-4", {"animate-pulse": isLoading})}>
                 <h2><strong>Skills</strong>
-                    <button className=" p-2 rounded-md" onClick={() => setIsEditingSkills(!isEditingSKills)}>
+                    <button className=" p-2 rounded-md" onClick={handleEditingToggle}>
                         {
-                            isEditingSKills ?
+                            isEditingSkills ?
                                 <CheckIcon className="w-3 h-3" /> : <PencilIcon className="w-3 h-3" />
                         }
                     </button>
@@ -52,11 +90,9 @@ export default function ResumeComponent({resume}: {resume: Resume}) {
                 {resume.skills.map((skill: {name: string; items: string[]}, index: number) => (
 
                     <div key={index}>
-                        <strong>{skill.name}</strong>: {isEditingSKills ?
+                        <strong>{skill.name}</strong>: {isEditingSkills ?
                             <input type="text" className="border border-white p-2 rounded-md" value={skill.items.join(", ")} onChange={(e) => {
-                                const newSkills = [...resume.skills]
-                                newSkills[index].items = e.target.value.split(",")
-                                resume.skills = newSkills
+                                handleSkillChange(index, e.target.value.split(", "))
                             }} /> :
                             skill.items.join(", ")}
                     </div>
@@ -82,7 +118,7 @@ export default function ResumeComponent({resume}: {resume: Resume}) {
             </section>
             <section className={clsx("mt-4", {"animate-pulse": isLoading})}>
                 <h2><strong>Work Experience</strong>
-                    <button className=" p-2 rounded-md" onClick={() => setIsEditingWorkExperience(!isEditingWorkExperience)}>
+                    <button className=" p-2 rounded-md" onClick={handleWorkExperienceEditingToggle}>
                         {
                             isEditingWorkExperience ?
                                 <CheckIcon className="w-3 h-3" /> : <PencilIcon className="w-3 h-3" />
@@ -105,7 +141,7 @@ export default function ResumeComponent({resume}: {resume: Resume}) {
             </section>
             <section className={clsx("mt-4", {"animate-pulse": isLoading})}>
                 <h2><strong>Projects</strong>
-                    <button className=" p-2 rounded-md" onClick={() => setIsEditingProjects(!isEditingProjects)}>
+                    <button className=" p-2 rounded-md" onClick={handleWorkExperienceEditingToggle}>
                         {
                             isEditingProjects ?
                                 <CheckIcon className="w-3 h-3" /> : <PencilIcon className="w-3 h-3" />
