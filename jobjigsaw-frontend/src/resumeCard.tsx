@@ -5,6 +5,7 @@ import {DocumentIcon} from "@heroicons/react/20/solid"
 import {CopyButton, DeleteJobButton} from "./buttons"
 import {Resume, ResumeResponse} from "./data/mainResume"
 import {deleteResumeById, printResume} from "./data/resumes"
+import {Link} from "react-router-dom"
 
 
 export function ResumesCard({resume}: {resume: ResumeResponse, i: number}) {
@@ -49,6 +50,7 @@ export function ResumesCard({resume}: {resume: ResumeResponse, i: number}) {
                 </div>
                 <div className="flex justify-between">
                     <button className="dark:text-slate-500 dark:hover:text-slate-300 active:text-slate-100 px-2 py-1 rounded-md" onClick={() => setExpanded(!isExpanded)}>{isExpanded ? 'Hide Cover Letter' : 'Show Cover Letter'}</button>
+                    <Link to={`/saved-resumes/resume?resumeId=${resume.id}`} className="border  dark:border-indigo-500 text-indigo-500 hover:text-indigo-600 hover:border-indigo-600 dark:hover:border-indigo-300 dark:hover:text-indigo-300 active:text-indigo-100 dark: px-2 py-1 rounded-md">Edit Resume</Link>
                     <div className="flex flex-row space-x-2" >
                         <DeleteJobButton pending={isPending} onClick={handleJobDeletion} />
                     </div>

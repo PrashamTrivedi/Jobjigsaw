@@ -65,9 +65,9 @@ function ResumeWithCoverLetterComponent({jobId, resumeId}: {jobId: string | null
             if (resumeId) {
                 console.log("Ignoring JOB ID parameter.")
                 const resume = await getResumeById(resumeId)
-                setResume(resume)
-            }
-            else if (jobId) {
+                setResume(JSON.parse(resume.updated_resume))
+                setCoverLetter(resume.cover_letter)
+            } else if (jobId) {
                 console.log("Parsing from job id means resumeId is not provided.")
                 const jobData = await getJob(jobId)
                 const compatibilityData = jobData.inferredJobMatch
@@ -84,11 +84,12 @@ function ResumeWithCoverLetterComponent({jobId, resumeId}: {jobId: string | null
                     console.log(inferredResume)
                     setResume(inferredResume.resumeDetails.generatedResume)
                     setCoverLetter(inferredResume.resumeDetails.coverLetter)
+
                 }
             }
 
         })()
-    })
+    }, [resumeId, jobId])
     async function printPdf() {
         setIsPrinting(true)
         const resumeName = `resume-${resume.contactDetails.name}.pdf`
@@ -131,9 +132,9 @@ function ResumeWithCoverLetterComponent({jobId, resumeId}: {jobId: string | null
             <button className="dark:border dark:border-white dark:hover:bg-gray-900 dark:text-white px-4 py-2 mt-2 rounded-md" onClick={printPdf}>
                 {isPrinting ? 'Printing Resume' : 'Print Resume'}
             </button>
-            <button className="dark:border dark:border-white dark:hover:bg-gray-900 dark:text-white px-4 py-2 mt-2 mx-2 rounded-md" onClick={addResume}>
+            {!resumeId || resumeId === '' && <button className="dark:border dark:border-white dark:hover:bg-gray-900 dark:text-white px-4 py-2 mt-2 mx-2 rounded-md" onClick={addResume}>
                 {isAdding ? 'Adding Resume' : 'Add Resume'}
-            </button>
+            </button>}
             <div className="dark:bg-gray-800 rounded-lg p-4 my-4 space-y-4">
                 <div className="space-y-2 mt-2">
                     <div className="text-lg"><strong>Cover Letter</strong>
