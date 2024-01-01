@@ -20,6 +20,10 @@ jobs:
         run: |
           echo OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }} >> .env
           echo SERP_API_KEY=${{ secrets.SERP_API_KEY }} >> .env
+          echo DEFAULT_OPENAI_MODEL=${{ secrets.DEFAULT_OPENAI_MODEL }} >> .env
+          echo OPENROUTER_API_KEY=${{ secrets.OPENROUTER_API_KEY }} >> .env
+          echo OPENROUTER_API_URL=${{ secrets.OPENROUTER_API_URL }} >> .env
+          echo OPTIONAL_MODEL=${{ secrets.OPTIONAL_MODEL }} >> .env
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with: 
