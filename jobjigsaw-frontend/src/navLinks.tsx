@@ -9,6 +9,7 @@ export default function NavLinks() {
         {path: '/main-resume', label: 'Main Resume', icon: DocumentIcon},
         {path: '/saved-jobs', label: 'Saved Jobs', icon: BriefcaseIcon},
         {path: '/saved-resumes', label: 'Saved Resumes', icon: DocumentIcon},
+        {path: '/saved-resumes/resume/print', label: 'Generate Resumes On the fly', icon: DocumentIcon},
 
     ]
     const [isNavOpen, setIsNavOpen] = useState(false)
