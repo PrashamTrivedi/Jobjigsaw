@@ -7,7 +7,8 @@ export async function inferJob(jobDescription: string): Promise<any> {
     if (!jobDescription || jobDescription === '') {
         return {error: 'Job description is empty'}
     }
-    const headers = import.meta.env.VITE_COST_SAVING_MODE !== "" ? {
+    const costSavingMode = import.meta.env.VITE_COST_SAVING_MODE ?? ""
+    const headers = costSavingMode !== "" ? {
         'x-cost-saving-mode': 'true'
     } : {}
 
@@ -31,7 +32,8 @@ export async function inferJobMatch(jobDescription: string): Promise<any> {
         return {error: 'Job description is empty'}
     }
 
-    const headers = import.meta.env.VITE_COST_SAVING_MODE !== "" ? {
+    const costSavingMode = import.meta.env.VITE_COST_SAVING_MODE ?? ""
+    const headers = costSavingMode !== "" ? {
         'x-cost-saving-mode': 'true'
     } : {}
 
