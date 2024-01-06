@@ -71,7 +71,7 @@ function getOpenAiClient(useOpenAi: boolean = true): OpenAI {
     return new OpenAI({apiKey: process.env.OPENAI_API_KEY, timeout: 60000})
 }
 
-export async function inferJobDescription(description: string, additionalFields: string[], useOpenAi: boolean = true): Promise<string | undefined> {
+export async function inferJobDescription(description: string, additionalFields: string[], useOpenAi: boolean = true, isStreaming: boolean = false): Promise<string | undefined | Stream<ChatCompletionChunk>> {
     const openai = getOpenAiClient(useOpenAi)
     const originalPrompt = `I am a developer with 14+ years of experience. 
     You will assess a Job description and infer and extract following fields in JSON. 
@@ -110,21 +110,20 @@ export async function inferJobDescription(description: string, additionalFields:
         messages: jobDescriptionMessages,
         response_format: {type: "json_object"},
         temperature: 0,
+        stream: isStreaming
     })
 
-
-    if (jobDescriptionJson.choices[0].finish_reason === 'function_call') {
-        const jobDescriptionFuctionArgs = jobDescriptionJson.choices[0].message.function_call?.arguments
-
-        return jobDescriptionFuctionArgs
-
+    if (!isStreaming) {
+        // Handle the JSON response from the API
+        return (jobDescriptionJson as ChatCompletion).choices[0].message.content || undefined
     } else {
-
-        return jobDescriptionJson.choices[0].message.content || undefined
+        return jobDescriptionJson as Stream<ChatCompletionChunk>
     }
+
+
 }
 
-export async function checkCompatiblity(description: string, mainResume: string, useOpenAi: boolean = true): Promise<string | undefined> {
+export async function checkCompatiblity(description: string, mainResume: string, useOpenAi: boolean = true, isStreaming: boolean = false): Promise<string | undefined | Stream<ChatCompletionChunk>> {
     const openai = getOpenAiClient(useOpenAi)
     const compatibilityMessage: ChatCompletionMessageParam[] = [{
         role: "system",
@@ -155,18 +154,17 @@ export async function checkCompatiblity(description: string, mainResume: string,
         messages: compatibilityMessage,
         response_format: {type: "json_object"},
         temperature: 0,
+        stream: isStreaming
     })
 
 
-    if (matchJson.choices[0].finish_reason === 'function_call') {
-        const matchFunctionArgs = matchJson.choices[0].message.function_call?.arguments
-
-        return matchFunctionArgs
-
+    if (!isStreaming) {
+        // Handle the JSON response from the API
+        return (matchJson as ChatCompletion).choices[0].message.content || undefined
     } else {
-
-        return matchJson.choices[0].message.content || undefined
+        return matchJson as Stream<ChatCompletionChunk>
     }
+
 }
 
 

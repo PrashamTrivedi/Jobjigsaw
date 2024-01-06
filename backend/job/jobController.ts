@@ -4,6 +4,8 @@ import Logger from "../utils/logger"
 import {getDb} from "../database"
 import {checkCompatiblity, inferJobDescription} from "../openai"
 import {MainResumeModel} from "../mainResume/mainResumeModel"
+import {ChatCompletion, ChatCompletionChunk} from "openai/resources"
+import {Stream} from "openai/streaming"
 
 class JobController {
 
@@ -38,11 +40,20 @@ class JobController {
  */
     public inferJobDescription = async (req: Request, res: Response) => {
         try {
+            const isStream = req.headers['streaming'] === 'true'
             const {description, additionalFields} = req.body
-            const useCostSavingMode = req.headers['x-cost-saving-mode'] ? true : false;
+            const useCostSavingMode = req.headers['x-cost-saving-mode'] ? true : false
 
-            const inferredDescription = await inferJobDescription(description, additionalFields, !useCostSavingMode)
-            res.status(200).json({inferredDescription: JSON.parse(inferredDescription ?? "")})
+            const inferredDescription = await inferJobDescription(description, additionalFields, !useCostSavingMode, isStream)
+            if (!isStream) {
+                return res.status(200).json({inferredDescription: JSON.parse(inferredDescription as string ?? "")})
+            }else{
+                const inferredDescriptionStream = inferredDescription as Stream<ChatCompletionChunk>
+                for await (const chunk of inferredDescriptionStream) {
+                    res.write(chunk.choices[0]?.delta.content || "")
+                }
+                res.end()
+            }
         } catch (error) {
             Logger.error(error)
             res.status(500).json({error: error})
@@ -74,12 +85,22 @@ class JobController {
 */
     public inferJobMatch = async (req: Request, res: Response) => {
         try {
+            const isStream = req.headers['streaming'] === 'true'
             const {description} = req.body
             const mainResumeModel = new MainResumeModel()
             const mainResume = await mainResumeModel.getMainResume()
-            const useCostSavingMode = req.headers['x-cost-saving-mode'] ? true : false;
-            const compatibilityMatrix = await checkCompatiblity(JSON.stringify(description), JSON.stringify(mainResume), !useCostSavingMode)
-            res.status(200).json({compatibilityMatrix: JSON.parse(compatibilityMatrix ?? "")})
+            const useCostSavingMode = req.headers['x-cost-saving-mode'] ? true : false
+            const compatibilityMatrix = await checkCompatiblity(JSON.stringify(description), JSON.stringify(mainResume), !useCostSavingMode, isStream)
+            if (!isStream) {
+
+                return res.status(200).json({compatibilityMatrix: JSON.parse(compatibilityMatrix as string ?? "")})
+            } else {
+                const compatibilityMatrixStream = compatibilityMatrix as Stream<ChatCompletionChunk>
+                for await (const chunk of compatibilityMatrixStream) {
+                    res.write(chunk.choices[0]?.delta.content || "")
+                }
+                res.end()
+            }
         } catch (error) {
             Logger.error(error)
             res.status(500).json({error: error})
