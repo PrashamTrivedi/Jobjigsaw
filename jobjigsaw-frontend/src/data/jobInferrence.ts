@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import axios from 'axios'
 
 export async function inferJob(jobDescription: string): Promise<any> {
 
