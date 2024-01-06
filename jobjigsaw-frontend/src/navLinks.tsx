@@ -13,7 +13,10 @@ export default function NavLinks() {
 
     ]
     const [isNavOpen, setIsNavOpen] = useState(false)
-    const pathName = window.location.pathname
+    let pathName = window.location.pathname
+    if (pathName === '/') {
+        pathName = '/home'
+    }
     console.log({pathName, location: window.location})
     return (
 
