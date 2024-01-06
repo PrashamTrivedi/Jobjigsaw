@@ -132,7 +132,7 @@ function ResumeWithCoverLetterComponent({jobId, resumeId}: {jobId: string | null
             <button className="dark:border dark:border-white dark:hover:bg-gray-900 dark:text-white px-4 py-2 mt-2 rounded-md" onClick={printPdf}>
                 {isPrinting ? 'Printing Resume' : 'Print Resume'}
             </button>
-            {!resumeId || resumeId === '' && <button className="dark:border dark:border-white dark:hover:bg-gray-900 dark:text-white px-4 py-2 mt-2 mx-2 rounded-md" onClick={addResume}>
+            {(!resumeId || resumeId === '') && <button className="dark:border dark:border-white dark:hover:bg-gray-900 dark:text-white px-4 py-2 mt-2 mx-2 rounded-md" onClick={addResume}>
                 {isAdding ? 'Adding Resume' : 'Add Resume'}
             </button>}
             <div className="dark:bg-gray-800 rounded-lg p-4 my-4 space-y-4">
