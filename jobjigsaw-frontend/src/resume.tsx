@@ -21,12 +21,12 @@ export default function ResumeComponent({initialResume, onResumeUpdated}: {initi
         url: ""
     })
 
-    const newWorkExperience = {
-        company: "",
-        role: "",
-        duration: "",
-        responsibilities: []
-    }
+    // const newWorkExperience = {
+    //     company: "",
+    //     role: "",
+    //     duration: "",
+    //     responsibilities: []
+    // }
     const isLoading = resume.contactDetails.name === ""
     // Update local state when prop changes
     useEffect(() => {
