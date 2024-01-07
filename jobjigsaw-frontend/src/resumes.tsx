@@ -58,6 +58,7 @@ function ResumeWithCoverLetterComponent({jobId, resumeId}: {jobId: string | null
     const [coverLetter, setCoverLetter] = useState<string>("")
     const [isPrinting, setIsPrinting] = useState<boolean>(false)
     const [isAdding, setIsAdding] = useState<boolean>(false)
+    const [companyName, setCompanyName] = useState<string>("")
     const resumeRef = useRef(null)
 
     useEffect(() => {
@@ -71,6 +72,7 @@ function ResumeWithCoverLetterComponent({jobId, resumeId}: {jobId: string | null
                 console.log("Parsing from job id means resumeId is not provided.")
                 const jobData = await getJob(jobId)
                 const compatibilityData = jobData.inferredJobMatch
+                setCompanyName(jobData.companyName)
                 if (compatibilityData) {
                     const compatibilityJson = JSON.parse(compatibilityData)
                     const jsonData = {
@@ -92,7 +94,8 @@ function ResumeWithCoverLetterComponent({jobId, resumeId}: {jobId: string | null
     }, [resumeId, jobId])
     async function printPdf() {
         setIsPrinting(true)
-        const resumeName = `resume-${resume.contactDetails.name}.pdf`
+
+        const resumeName = `Resume: ${resume.contactDetails.name} - ${companyName}.pdf`
         const printedResume = await printResume({resumeJson: resume, resumeName})
         // Download the file
         const url = window.URL.createObjectURL(new Blob([printedResume]))

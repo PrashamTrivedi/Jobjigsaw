@@ -2,10 +2,11 @@ import {Project, Resume, Skills, WorkExperience, addProject, getMainResume, upda
 
 import {Suspense, useEffect, useState} from "react"
 import ResumeComponent from "./resume"
+import {printResume} from "./data/resumes"
 
 
 export default function MainResume() {
-
+    const [isPrinting, setIsPrinting] = useState<boolean>(false)
 
     useEffect(() => {
         // console.log("Calling API")
@@ -35,6 +36,20 @@ export default function MainResume() {
         skills: [],
         workExperience: []
     })
+    async function printPdf() {
+        setIsPrinting(true)
+        const resumeName = `resume-${mainResume.contactDetails.name}.pdf`
+        const printedResume = await printResume({resumeJson: mainResume, resumeName})
+        // Download the file
+        const url = window.URL.createObjectURL(new Blob([printedResume]))
+        const link = document.createElement('a')
+        link.href = url
+        link.setAttribute('download', resumeName)
+        document.body.appendChild(link)
+        link.click()
+        setIsPrinting(false)
+
+    }
 
     async function updateSkillsFromResume(skills: Skills[]) {
         const updatedResume = await updateSkills({skills})
@@ -104,8 +119,13 @@ export default function MainResume() {
 
     return (
 
-        <Suspense fallback={<div>Loading...</div>}>
-            <ResumeComponent initialResume={JSON.parse(JSON.stringify(mainResume))} onResumeUpdated={handleResumeUpdated} />
-        </Suspense>
+        <>
+            <Suspense fallback={<div>Loading...</div>}>
+                <ResumeComponent initialResume={JSON.parse(JSON.stringify(mainResume))} onResumeUpdated={handleResumeUpdated} />
+            </Suspense>
+            <button className="dark:border dark:border-white dark:hover:bg-gray-900 dark:text-white px-4 py-2 mt-2 rounded-md" onClick={printPdf}>
+                {isPrinting ? 'Printing Resume' : 'Print Resume'}
+            </button>
+        </>
     )
 }
