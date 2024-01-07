@@ -1,5 +1,5 @@
-import {AtSymbolIcon, CheckIcon, DevicePhoneMobileIcon, GlobeAltIcon, PencilIcon} from "@heroicons/react/20/solid"
-import {Resume} from "./data/mainResume"
+import {AtSymbolIcon, CheckIcon, DevicePhoneMobileIcon, GlobeAltIcon, LinkIcon, PencilIcon} from "@heroicons/react/20/solid"
+import {Project, Resume} from "./data/mainResume"
 import {Link} from "react-router-dom"
 import {CopyButton} from "./buttons"
 import clsx from "clsx"
@@ -12,6 +12,21 @@ export default function ResumeComponent({initialResume, onResumeUpdated}: {initi
     const [isEditingSkills, setIsEditingSkills] = useState<boolean>(false)
     const [isEditingWorkExperience, setIsEditingWorkExperience] = useState<boolean>(false)
     const [isEditingProjects, setIsEditingProjects] = useState<boolean>(false)
+    const [newProject, setNewProject] = useState<Project>({
+        name: "",
+        duration: "",
+        description: "",
+        techStack: [],
+        responsibilities: [],
+        url: ""
+    })
+
+    const newWorkExperience = {
+        company: "",
+        role: "",
+        duration: "",
+        responsibilities: []
+    }
     const isLoading = resume.contactDetails.name === ""
     // Update local state when prop changes
     useEffect(() => {
@@ -46,6 +61,8 @@ export default function ResumeComponent({initialResume, onResumeUpdated}: {initi
 
     function handleProjectsEditingToggle() {
         setIsEditingProjects(!isEditingProjects)
+        resume.projects.push(newProject)
+        // setResume(resume)
         handleResumeChange()
     }
     return (
@@ -161,14 +178,21 @@ export default function ResumeComponent({initialResume, onResumeUpdated}: {initi
 
                                 project.duration}</p>
                         <p>{
-                            isEditingProjects ? <textarea className="border border-white p-2 rounded-md" value={project.description} onChange={(e) => {
-                                setResume(prevResume => {
-                                    const newResume = {...prevResume}
-                                    newResume.projects[index].description = e.target.value
-                                    return newResume
-                                })
-                            }
-                            } /> :
+                            isEditingProjects ?
+                                <>
+                                    <strong>Description:</strong>
+                                    <span className="text-xs"> Hint: To delete the project, only type DELETE here. </span>
+                                    <p></p>
+                                    <textarea className="border border-white w-full p-2 rounded-md" value={project.description} onChange={(e) => {
+                                        setResume(prevResume => {
+                                            const newResume = {...prevResume}
+                                            newResume.projects[index].description = e.target.value
+                                            return newResume
+                                        })
+                                    }
+                                    } />
+                                </>
+                                :
                                 project.description}</p>
                         <p><strong>Tech Stack: </strong>{
                             isEditingProjects ?
@@ -182,39 +206,110 @@ export default function ResumeComponent({initialResume, onResumeUpdated}: {initi
 
                                 project.techStack?.join(", ")}</p>
 
-                        {
-                            isEditingProjects ?
-                                <input type="text" className="border border-white p-2 rounded-md" value={project.responsibilities?.join(", ")} onChange={(e) => {
+
+
+                        {isEditingProjects ?
+                            <>
+                                <strong>URL: </strong>
+                                <input type="text" className="border border-white p-2 rounded-md" value={project.url} onChange={(e) => {
                                     setResume(prevResume => {
                                         const newResume = {...prevResume}
                                         newResume.projects[index].url = e.target.value
                                         return newResume
                                     })
-                                }} /> :
+                                }} />
+                                <a target="_blank" href={project.url} rel="noreferrer" className="ms-2"><LinkIcon className="inline-block h-5 w-5 ms-1 me-1" /></a>
+                            </>
 
-                                project.url && <p><strong>URL: </strong><Link target="_blank" to={project.url} >{project.url}</Link></p>}
-                        {
-                            isEditingProjects ?
-                                <input type="text" className="border border-white p-2 rounded-md" value={project.responsibilities?.join(", ")} onChange={(e) => {
-                                    setResume(prevResume => {
-                                        const newResume = {...prevResume}
-                                        newResume.projects[index].responsibilities = e.target.value.split(", ")
-                                        return newResume
-                                    })
-                                }} /> :
+                            :
+                            project.url &&
+                            <p><strong>URL: </strong>
+                                <Link target="_blank" to={project.url} >{project.url}</Link>
+                            </p>
+                        }
 
-                                project.responsibilities &&
-                                <>
-                                    <strong>Responsibilities:</strong>
-                                    <ul>
-                                        {project.responsibilities?.map((responsibility: string, index: number) => (
-                                            <li key={index}>{responsibility}</li>
-                                        ))}
-                                    </ul>
-                                </>
+
+
+
+
+                        {isEditingProjects ?
+                            <p>
+                                <strong>Responsibilities:</strong>
+                                <span className="text-xs"> Hint: Separate one entry per line</span>
+
+                                <textarea rows={20} className="border border-white p-2 w-full rounded-md"
+                                    value={project.responsibilities?.join("\n")} onChange={(e) => {
+                                        setResume(prevResume => {
+                                            const newResume = {...prevResume}
+                                            newResume.projects[index].responsibilities = e.target.value.split("\n")
+                                            return newResume
+                                        })
+                                    }} />
+                            </p>
+                            :
+
+                            project.responsibilities &&
+                            <>
+                                <strong>Responsibilities:</strong>
+                                <ul>
+                                    {project.responsibilities?.map((responsibility: string, index: number) => (
+                                        <li key={index}>{responsibility}</li>
+                                    ))}
+                                </ul>
+                            </>
+
                         }
                     </div>
                 ))}
+                {isEditingProjects &&
+                    <>
+                        <h2><strong>New Project</strong></h2>
+                        <h3><strong>Project Name</strong></h3>
+
+                        <input type="text" className="border border-white p-2 rounded-md"
+                            value={newProject.name}
+                            onChange={(e) => {
+                                setNewProject(prevState => ({...prevState, name: e.target.value}))
+                            }} />
+
+                        <h3><strong>Duration</strong></h3>
+                        <input type="text" className="border border-white p-2 rounded-md"
+                            value={newProject.duration}
+                            onChange={(e) => {
+                                setNewProject(prevState => ({...prevState, duration: e.target.value}))
+                            }} />
+
+                        <h3><strong>Description</strong></h3>
+                        <textarea className="border border-white p-2 rounded-md"
+                            value={newProject.description}
+                            onChange={(e) => {
+                                setNewProject(prevState => ({...prevState, description: e.target.value}))
+                            }} />
+
+                        <h3><strong>Tech Stack</strong></h3>
+                        <input type="text" className="border border-white p-2 rounded-md"
+                            value={newProject.techStack?.join(", ")}
+                            onChange={(e) => {
+                                setNewProject(prevState => ({...prevState, techStack: e.target.value.split(", ")}))
+                            }} />
+
+                        <h3><strong>URL</strong></h3>
+                        <input type="text" className="border border-white p-2 rounded-md"
+                            value={newProject.url}
+                            onChange={(e) => {
+                                setNewProject(prevState => ({...prevState, url: e.target.value}))
+                            }} />
+
+                        <h3><strong>Responsibilities</strong></h3>
+                        <span className="text-xs"> Hint: Separate one entry per line</span>
+                        <textarea rows={20} className="border border-white p-2 w-full rounded-md"
+                            value={newProject.responsibilities?.join("\n")}
+                            onChange={(e) => {
+                                setNewProject(prevState => ({...prevState, responsibilities: e.target.value.split("\n")}))
+                            }} />
+                    </>
+                }
+
             </section>
         </>
     )

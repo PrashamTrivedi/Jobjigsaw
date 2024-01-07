@@ -46,10 +46,16 @@ export class MainResumeModel {
     async addProject(project: Project): Promise<void> {
         const index = this.mainResumeData.projects.findIndex((p) => p.name === project.name)
         if (index !== -1) {
-            this.mainResumeData.projects[index] = project
+            if (project.description === 'DELETE') {
+                this.mainResumeData.projects.splice(index, 1)
+            } else {
+                this.mainResumeData.projects[index] = project
+            }
         } else {
 
-            this.mainResumeData.projects.push(project)
+            if (project.description !== 'DELETE') {
+                this.mainResumeData.projects.push(project)
+            }
         }
         // Write main resume to ../mainResume.json
         fs.writeFileSync('./mainResume.json', JSON.stringify(this.mainResumeData, null, 4))

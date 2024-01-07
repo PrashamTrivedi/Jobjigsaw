@@ -70,7 +70,11 @@ export default function MainResume() {
     }
 
     function compareObjects(object1: any, object2: any) {
+        if (!object1 || !object2) {
+            return false
+        }
         const keys = Object.keys(object1)
+
         console.log(`comparing ${JSON.stringify(object1)} and ${JSON.stringify(object2)}`)
         for (const key of keys) {
             if (Array.isArray(object1[key])) {
@@ -98,14 +102,20 @@ export default function MainResume() {
             console.log("Skills changed")
             await updateSkillsFromResume(resume.skills)
         } else if (!compareObjects(resume.workExperience, mainResume.workExperience)) {
+            const changedExperience = resume.workExperience.filter((experience) => {
+                return !compareObjects(experience, mainResume.workExperience.find((mainExperience) => mainExperience.company === experience.company))
+            })
             console.log("Experience changed")
-            const workExperiencePromises = resume.workExperience.map((experience) => {
+            const workExperiencePromises = changedExperience.map((experience) => {
                 return updateExperienceFromResume(experience)
             })
             await Promise.all(workExperiencePromises)
         } else if (!compareObjects(resume.projects, mainResume.projects)) {
+            const changedProjects = resume.projects.filter((project) => {
+                return !compareObjects(project, mainResume.projects.find((mainProject) => mainProject.name === project.name))
+            })
             console.log("Projects changed")
-            const projectsPromises = resume.projects.map((project) => {
+            const projectsPromises = changedProjects.map((project) => {
                 return updateProjectsFromResume(project)
             })
             await Promise.all(projectsPromises)

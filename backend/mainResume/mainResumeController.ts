@@ -91,7 +91,7 @@ export class MainResumeController {
     public updateWorkExperience = async (req: Request, res: Response) => {
         const workExperience = req.body
         this.mainResumeModel.addWorkExperience(workExperience)
-        res.json({message: 'Work experience updated successfully'})
+        return res.json({message: 'Work experience updated successfully'})
     }
 
     /**
@@ -132,7 +132,7 @@ export class MainResumeController {
         const project = req.body
         // Assuming you have a method to update projects in your model
         this.mainResumeModel.addProject(project)
-        res.json({message: 'Projects updated successfully'})
+       return res.json({message: 'Projects updated successfully'})
     }
 
 
