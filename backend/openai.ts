@@ -286,7 +286,7 @@ export async function inferCompanyDetails(companyName: string, isStreaming: bool
         google_domain: "google.co.in",
         gl: "in",
         hl: "en",
-        num: 3
+        num: 10
     })
 
     const results = await Promise.all([companyProduct, companyFinancials, companyTechStack, companyBlog, companyEmployees])
@@ -303,7 +303,7 @@ export async function inferCompanyDetails(companyName: string, isStreaming: bool
 
     const prompt = `You are a company details summarizer. 
     You will be given company name, product details, financials, tech stack, blog and employees in JSON format.
-    Your job is to summarize the details, and give the output in Markdown. 
+    Your job is to summarize the details and give the proper response along with links. 
     Always link Blog and Employees to their respective links.`
 
     const companyDetailsMessages: ChatCompletionMessageParam[] = [{

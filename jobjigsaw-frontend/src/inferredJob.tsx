@@ -22,7 +22,7 @@ export default function InferredJob(
 
     const updateAboutCompany = useCallback((e: string) => {
         console.log({e})
-        setAboutCompany(prevAboutCompany => `${prevAboutCompany}${e.trim()}`)
+        setAboutCompany(prevAboutCompany => `${prevAboutCompany}${e}`)
     }, [])
 
     const onStreamingEnd = useCallback(() => {
