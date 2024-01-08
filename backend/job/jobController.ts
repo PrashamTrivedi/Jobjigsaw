@@ -2,7 +2,7 @@ import express, {Request, Response} from 'express'
 import JobModel from './jobModel'
 import Logger from "../utils/logger"
 import {getDb} from "../database"
-import {checkCompatiblity, inferJobDescription} from "../openai"
+import {checkCompatiblity, inferCompanyDetails, inferJobDescription} from "../openai"
 import {MainResumeModel} from "../mainResume/mainResumeModel"
 import {ChatCompletion, ChatCompletionChunk} from "openai/resources"
 import {Stream} from "openai/streaming"
@@ -47,7 +47,7 @@ class JobController {
             const inferredDescription = await inferJobDescription(description, additionalFields, !useCostSavingMode, isStream)
             if (!isStream) {
                 return res.status(200).json({inferredDescription: JSON.parse(inferredDescription as string ?? "")})
-            }else{
+            } else {
                 const inferredDescriptionStream = inferredDescription as Stream<ChatCompletionChunk>
                 for await (const chunk of inferredDescriptionStream) {
                     res.write(chunk.choices[0]?.delta.content || "")
@@ -104,6 +104,50 @@ class JobController {
         } catch (error) {
             Logger.error(error)
             res.status(500).json({error: error})
+        }
+    }
+
+    /**
+     * @swagger
+     * /jobs/research-company/{CompanyName}:
+     *   get:
+     *     tags:
+     *     - Jobs
+     *     summary: Research a company
+     *     parameters:
+     *     - in: path
+     *       name: CompanyName
+     *       schema:
+     *         type: string
+     *       required: true
+     *       description: The name of the company to research
+     *     responses:
+     *       200:
+     *         description: Successful operation
+     *       400:
+     *         description: Invalid CompanyName supplied
+     *       404:
+     *         description: Company not found
+     */
+    public researchCompany = async (req: Request, res: Response) => {
+        try {
+            const isStream = req.headers['streaming'] === 'true'
+            const {companyName} = req.params
+            const useCostSavingMode = req.headers['x-cost-saving-mode'] ? true : false
+            const companyResearch = await inferCompanyDetails(companyName, isStream, !useCostSavingMode)
+
+            if (!isStream) {
+                return res.status(200).json({companyResearch: JSON.parse(companyResearch as string ?? "")})
+            } else {
+                const companyResearchStream = companyResearch as Stream<ChatCompletionChunk>
+                for await (const chunk of companyResearchStream) {
+                    res.write(chunk.choices[0]?.delta.content?.trim() || "")
+                }
+                res.end()
+            }
+        } catch (error) {
+            Logger.error(error)
+            return res.status(500).json({error: error})
         }
     }
 

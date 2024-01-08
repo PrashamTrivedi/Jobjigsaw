@@ -4,6 +4,7 @@ import {ChatCompletion, ChatCompletionChunk, ChatCompletionMessageParam} from "o
 import {get_encoding} from "tiktoken"
 
 import {Stream} from "openai/streaming"
+import {getJson} from 'serpapi'
 
 // Ensure this function is exported
 export async function generateJsonFromResume(resumeText: string, useOpenAi: boolean = true): Promise<string | undefined> {
@@ -234,4 +235,106 @@ Resume:, add this as coverLetter key in JSON` : ``}
     } else {
         return resumeJson as Stream<ChatCompletionChunk>
     }
+}
+
+export async function inferCompanyDetails(companyName: string, isStreaming: boolean, useOpenAi: boolean = true) {
+
+    const openai = getOpenAiClient(useOpenAi)
+    const companyProduct = getJson({
+        api_key: process.env.SERP_API_KEY,
+        engine: "google",
+        q: `${companyName} product`,
+        google_domain: "google.co.in",
+        gl: "in",
+        hl: "en",
+        num: 1
+    })
+    const companyFinancials = getJson({
+        api_key: process.env.SERP_API_KEY,
+        engine: "google",
+        q: `${companyName} financials`,
+        google_domain: "google.co.in",
+        gl: "in",
+        hl: "en",
+        num: 1
+    })
+
+    const companyTechStack = getJson({
+        api_key: process.env.SERP_API_KEY,
+        engine: "google",
+        q: `${companyName} tech stack`,
+        google_domain: "google.co.in",
+        gl: "in",
+        hl: "en",
+        num: 2
+    })
+
+    const companyBlog = getJson({
+        api_key: process.env.SERP_API_KEY,
+        engine: "google",
+        q: `${companyName} blog`,
+        google_domain: "google.co.in",
+        gl: "in",
+        hl: "en",
+        num: 2
+    })
+
+    const companyEmployees = getJson({
+        api_key: process.env.SERP_API_KEY,
+        engine: "google",
+        q: `${companyName} people linkedin`,
+        google_domain: "google.co.in",
+        gl: "in",
+        hl: "en",
+        num: 3
+    })
+
+    const results = await Promise.all([companyProduct, companyFinancials, companyTechStack, companyBlog, companyEmployees])
+
+    const mapper: any = result => (`title: ${result.title}, link: ${result.link}, 
+    snippet: ${result.snippet}`)
+    const companyDetails = {
+        companyProduct: results[0].organic_results.map(mapper),
+        companyFinancials: results[1].organic_results.map(mapper),
+        companyTechStack: results[2].organic_results.map(mapper),
+        companyBlog: results[3].organic_results.map(mapper),
+        companyEmployees: results[4].organic_results.map(mapper)
+    }
+
+    const prompt = `You are a company details summarizer. 
+    You will be given company name, product details, financials, tech stack, blog and employees in JSON format.
+    Your job is to summarize the details, and give the output in Markdown. 
+    Always link Blog and Employees to their respective links.`
+
+    const companyDetailsMessages: ChatCompletionMessageParam[] = [{
+        role: "system",
+        content: prompt
+    }, {
+        role: "user",
+        content: `Company Name: ${companyName}, and details in json: ${JSON.stringify(companyDetails)}`
+    }]
+
+    const tokens = await calculateTokens(companyDetailsMessages)
+    const modelLimit = modelLimits.find(modelLimit => modelLimit.name >= 'gpt-4')
+    const modelLimitTokens = modelLimit?.limit ?? 0
+    if (modelLimitTokens < tokens) {
+        throw new Error(`Job description is too long. It has ${tokens} tokens, but the limit is ${modelLimit?.limit}`)
+    }
+    const model = await getModel(useOpenAi)
+    const companyDetailsJson = await openai.chat.completions.create({
+        model,
+        messages: companyDetailsMessages,
+        temperature: 0,
+        stream: isStreaming
+    })
+
+    if (!isStreaming) {
+        // Handle the JSON response from the API
+        return (companyDetailsJson as ChatCompletion).choices[0].message.content || undefined
+    } else {
+        return companyDetailsJson as Stream<ChatCompletionChunk>
+    }
+
+
+
 }
