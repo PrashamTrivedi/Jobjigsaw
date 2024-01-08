@@ -1,8 +1,8 @@
-import {useState} from "react"
+import {useCallback, useEffect, useState} from "react"
 import {AddJobButton, InferJobButton, InferJobMatchButton} from "./buttons"
-import {inferJob, inferJobMatch} from "./data/jobInferrence"
+import {inferJob, inferJobMatch, researchCompany} from "./data/jobInferrence"
 import InferredData from "./inferredData"
-
+import ReactMarkdown from 'react-markdown'
 export default function InferredJob(
     {jobDescription, job, match}:
         {
@@ -18,8 +18,25 @@ export default function InferredJob(
 
     const [inferPending, toggleInferPending] = useState(false)
     const [inferMatchPending, toggleInferMatchPending] = useState(false)
+    const [aboutCompany, setAboutCompany] = useState('')
 
+    const updateAboutCompany = useCallback((e: string) => {
+        console.log({e})
+        setAboutCompany(prevAboutCompany => `${prevAboutCompany} ${e.trim()}`)
+    }, [])
 
+    const onStreamingEnd = useCallback(() => {
+        console.log('streaming ended')
+    }, [])
+    useEffect(() => {
+        (async () => {
+            if (inferredJob?.inferredDescription?.companyName) {
+                await researchCompany(inferredJob?.inferredDescription?.companyName,
+                    updateAboutCompany, onStreamingEnd)
+            }
+        })()
+
+    }, [inferredJob?.inferredDescription?.companyName, updateAboutCompany, onStreamingEnd])
 
     async function handleInferJob() {
         toggleInferPending(true)
@@ -44,6 +61,12 @@ export default function InferredJob(
             </h1>
             <p id='jobDescription' className='text-lg mt-4 dark:text-gray-300'>
                 {jobDescription}
+            </p>
+            <h2 className='text-3xl font-bold mt-8 dark:text-white'>
+                About Company
+            </h2>
+            <p className='text-lg mt-4 dark:text-gray-300'>
+                <ReactMarkdown>{aboutCompany}</ReactMarkdown>
             </p>
             <h2 className='text-3xl font-bold mt-8 dark:text-white'>
                 Inferred Job
