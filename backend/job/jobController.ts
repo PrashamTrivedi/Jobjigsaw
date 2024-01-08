@@ -129,7 +129,7 @@ class JobController {
      *       404:
      *         description: Company not found
      */
-    public researchCompany = async (req: Request, res: Response) => {
+    public researchCompany = async (req: Request, res: Response)=> {
         try {
             const isStream = req.headers['streaming'] === 'true'
             const {companyName} = req.params
@@ -141,7 +141,7 @@ class JobController {
             } else {
                 const companyResearchStream = companyResearch as Stream<ChatCompletionChunk>
                 for await (const chunk of companyResearchStream) {
-                    res.write(chunk.choices[0]?.delta.content?.trim() || "")
+                    res.write(chunk.choices[0]?.delta.content || "")
                 }
                 res.end()
             }
