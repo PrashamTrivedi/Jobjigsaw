@@ -291,7 +291,7 @@ export async function inferCompanyDetails(companyName: string, isStreaming: bool
 
     const results = await Promise.all([companyProduct, companyFinancials, companyTechStack, companyBlog, companyEmployees])
 
-    const mapper: any = result => (`title: ${result.title}, link: ${result.link}, 
+    const mapper: any = (result: {title: any; link: any; snippet: any }) => (`title: ${result.title}, link: ${result.link}, 
     snippet: ${result.snippet}`)
     const companyDetails = {
         companyProduct: results[0].organic_results.map(mapper),
