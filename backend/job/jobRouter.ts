@@ -12,6 +12,7 @@ jobRouter.delete('/:id', jobController.removeJob)
 jobRouter.get('/', jobController.getAllJobs)
 jobRouter.get('/:id', jobController.getJob)
 jobRouter.post('/infer', jobController.inferJobDescription)
+jobRouter.post('/infer-url', jobController.inferJobFromUrl)
 jobRouter.post('/infer-match', jobController.inferJobMatch)
 jobRouter.get('/research-company/:companyName', jobController.researchCompany)
 

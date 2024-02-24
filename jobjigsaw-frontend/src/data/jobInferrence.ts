@@ -16,6 +16,7 @@ export async function inferJob(jobDescription: string): Promise<any> {
         headers['x-cost-saving-mode'] = 'true'
     }
 
+    
     const response = await fetch(`${import.meta.env.VITE_BACKEND_API_HOST}/jobs/infer`, {
         method: 'POST',
         headers,

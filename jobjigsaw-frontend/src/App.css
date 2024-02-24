@@ -18,3 +18,7 @@ body {
       transparent,
       rgb(var(--background-end-rgb))) rgb(var(--background-start-rgb));
 }
+
+main a {
+  @apply underline dark:text-white hover:dark:text-white
+}

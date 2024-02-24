@@ -6,6 +6,7 @@ import {checkCompatiblity, inferCompanyDetails, inferJobDescription} from "../op
 import {MainResumeModel} from "../mainResume/mainResumeModel"
 import {ChatCompletion, ChatCompletionChunk} from "openai/resources"
 import {Stream} from "openai/streaming"
+import axios from "axios"
 
 class JobController {
 
@@ -60,6 +61,51 @@ class JobController {
         }
     }
 
+    /**
+     * @swagger
+     * /jobs/infer-url:
+     *   post:
+     *     tags:
+     *     - Jobs
+     *     summary: Infer job details from a URL
+     *     parameters:
+     *       - in: body
+     *         name: url
+     *         description: The URL to infer job details from.
+     *         schema:
+     *           type: object
+     *           required:
+     *             - url
+     *           properties:
+     *             url:
+     *               type: string
+     *     responses:
+     *       200:
+     *         description: Job details inferred successfully
+     *       500:
+     *         description: Server error
+     */
+    public inferJobFromUrl = async (req: Request, res: Response) => {
+        const url = req.body.url
+        try {
+            const response = await axios.get(url)
+            const isStream = req.headers['streaming'] === 'true'
+            const useCostSavingMode = req.headers['x-cost-saving-mode'] ? true : false
+            const inferredDescription = await inferJobDescription(response.data, [], !useCostSavingMode, isStream)
+            if (!isStream) {
+                return res.status(200).json({inferredDescription: JSON.parse(inferredDescription as string ?? "")})
+            } else {
+                const inferredDescriptionStream = inferredDescription as Stream<ChatCompletionChunk>
+                for await (const chunk of inferredDescriptionStream) {
+                    res.write(chunk.choices[0]?.delta.content || "")
+                }
+                res.end()
+            }
+        } catch (error) {
+            Logger.error(error)
+            res.status(500).json({error: error})
+        }
+    }
     /**
 * @swagger
 * /jobs/infer-match:
@@ -129,7 +175,7 @@ class JobController {
      *       404:
      *         description: Company not found
      */
-    public researchCompany = async (req: Request, res: Response)=> {
+    public researchCompany = async (req: Request, res: Response) => {
         try {
             const isStream = req.headers['streaming'] === 'true'
             const {companyName} = req.params
