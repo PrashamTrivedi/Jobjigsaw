@@ -7,6 +7,7 @@ import {MainResumeModel} from "../mainResume/mainResumeModel"
 import {ChatCompletion, ChatCompletionChunk} from "openai/resources"
 import {Stream} from "openai/streaming"
 import axios from "axios"
+import puppeteer from "puppeteer"
 
 class JobController {
 
@@ -88,10 +89,14 @@ class JobController {
     public inferJobFromUrl = async (req: Request, res: Response) => {
         const url = req.body.url
         try {
-            const response = await axios.get(url)
+            const browser = await puppeteer.launch()
+            const page = await browser.newPage()
+            await page.goto(url)
+            const response = await page.content()
+
             const isStream = req.headers['streaming'] === 'true'
             const useCostSavingMode = req.headers['x-cost-saving-mode'] ? true : false
-            const inferredDescription = await inferJobDescription(response.data, [], !useCostSavingMode, isStream)
+            const inferredDescription = await inferJobDescription(response, [], !useCostSavingMode, isStream)
             if (!isStream) {
                 return res.status(200).json({inferredDescription: JSON.parse(inferredDescription as string ?? "")})
             } else {

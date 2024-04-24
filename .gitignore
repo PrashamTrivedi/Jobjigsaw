@@ -73,3 +73,7 @@ frontend/.DS_Store
 frontend/Thumbs.db
 
 backend/resumes/*
+
+codeSailor/** 
+
+.SourceSailor/analysis

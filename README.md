@@ -1,66 +1,52 @@
 # Jobjigsaw
 
-One Paragraph of project description goes here. Explain the main goal of the project and what problem it solves.
+## About
 
-## Getting Started
+Jobjigsaw is a comprehensive project designed to streamline the job application and resume creation process. It is divided into two main components: a backend system that handles data management, job postings, and resume generation, and a frontend application that provides a user-friendly interface for job seekers and employers. The project leverages modern technologies and frameworks to ensure a seamless experience for users.
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
+## Installation and Usage
 
 ### Prerequisites
 
-What things you need to install the software and how to install them.
+Before you can run Jobjigsaw, you need to have Docker installed on your machine as the project utilizes Docker containers for both the backend and frontend services. This service also uses following keys, make sure you have them all.
 
-```
-Give examples
-```
+- OpenAI API Key (`OPENAI_API_KEY`): To infer Jobdescription and provide a customized resume. [OpenAI API Keys page](https://platform.openai.com/api-keys)
+- SERP API Key (`SERP_API_KEY`): To search the internet and find out about the company. [Serp API Dashboard link](https://serpapi.com/dashboard)
+- OpenRouter API Key (`OPENROUTER_API_KEY`): If you want to use other models apart from GPTs, you can use openrouter. [OpenRouter API Homepage](https://openrouter.ai/)
 
-### Installing
 
-A step by step series of examples that tell you how to get a development environment running.
+### Getting Started
 
-Say what the step will be
+1. Clone the repository to your local machine.
+2. Navigate to the project directory.
 
-```
-Give the example
-```
+For the backend service:
 
-And repeat
+3. Go to the `backend` directory.
+4. Copy the `.env.reference` file to `.env` and adjust the environment variables according to your setup.
+5. Build and run the Docker container using the Dockerfile provided.
 
-```
-until the finished
-```
+For the frontend service:
 
-End with an example of getting some data out of the system or using it for a little demo.
+6. Navigate to the `jobjigsaw-frontend` directory.
+7. Install the dependencies using `npm install`.
+8. Start the development server using `npm start`.
 
-## Running the tests
+### Accessing the Application
 
-Explain how to run the automated tests for this system.
+- The frontend application will be accessible at `http://localhost:3000` by default.
+- The backend services will be accessible on the port specified in your `.env` configuration.
 
-### Break down into end to end tests
+## About the Code
 
-Explain what these tests test and why
+The Jobjigsaw project is structured into several key directories and files, each serving a specific purpose:
 
-```
-Give an example
-```
+- `.devcontainer` and `.dockerignore`: Configuration files for Docker and development containers.
+- `.github/workflows`: Contains GitHub Actions workflows for CI/CD processes.
+- `backend`: The backend directory houses all the server-side code, including database management (`database.ts`, `database.db`), API routes (`routes.ts`), and business logic for jobs and resumes. It also contains Docker configurations for deployment. Read more about the code and workflow [here](./backend/codeInferrence.md).
+- `jobjigsaw-frontend`: This directory contains all frontend-related files, including React components (`src`), styling (`index.css`, `tailwind.config.js`), and configuration files for TypeScript and Vite. Read more about the code and workflow [here](./jobjigsaw-frontend/codeInferrence.md).
 
-### And coding style tests
-
-Explain what these tests test and why
-
-```
-Give an example
-```
-
-## Deployment
-
-Add additional notes about how to deploy this on a live system.
-
-## Built With
-
-* [YourTechStack] - The web framework used
-* [YourDatabase] - Dependency Management
-* [YourTool] - Used to generate RSS Feeds
+The project makes use of TypeScript for both backend and frontend development, ensuring type safety and enhancing code quality. Docker is used to containerize the services, making the application easy to deploy and scale.
 
 ```mermaid
 flowchart TD
@@ -96,26 +82,6 @@ flowchart TD
 
 ```
 
-## Contributing
 
-Please read [CONTRIBUTING.md](http://example.com/) for details on our code of conduct, and the process for submitting pull requests to us.
 
-## Versioning
-
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](http://example.com/).
-
-## Authors
-
-* **Your Name** - *Initial work* - [YourProfile](http://example.com/)
-
-See also the list of [contributors](http://example.com/) who participated in this project.
-
-## License
-
-This project is licensed under the [Your License] License - see the [LICENSE.md](LICENSE.md) file for details
-
-## Acknowledgments
-
-* Hat tip to anyone whose code was used
-* Inspiration
-* etc
+Document Generated with Thanks to [SourceSailor-CLI](https://www.npmjs.com/package/sourcesailor). [SourceSailor Github](https://github.com/PrashamTrivedi/SourceSailor-CLI)
