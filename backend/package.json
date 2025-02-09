@@ -11,8 +11,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@sentry/node": "^8.0.0",
-    "@sentry/profiling-node": "^8.0.0",
+    "@sentry/node": "^8.54.0",
+    "@sentry/profiling-node": "^8.54.0",
     "axios": "^1.6.7",
     "better-sqlite3": "^11.0.0",
     "cors": "^2.8.5",
