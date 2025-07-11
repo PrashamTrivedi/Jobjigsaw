@@ -1,110 +1,142 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import axios from "axios"
-import {ResumeResponse, getMainResume} from "./mainResume"
 
-export async function getResumeById(id: string): Promise<ResumeResponse> {
-    const response = await axios.get(`${import.meta.env.VITE_BACKEND_API_HOST}/resumes/${id}`, {
-        headers: {
-            'Content-Type': 'application/json',
-        },
-    })
-    return response.data
+const API_BASE_URL = import.meta.env.VITE_BACKEND_API_HOST || "http://localhost:8787";
+
+export async function getResumeById(id: string): Promise<any> {
+    try {
+        const response = await fetch(`${API_BASE_URL}/resume/${id}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to fetch resume by ID');
+        }
+
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error("Error getting resume by ID:", error);
+        throw error;
+    }
 }
 
-export async function getResumes(): Promise<ResumeResponse[]> {
-    const response = await axios.get(`${import.meta.env.VITE_BACKEND_API_HOST}/resumes`, {
-        headers: {
-            'Content-Type': 'application/json',
-        },
-    })
-    return response.data
+export async function getResumes(): Promise<any[]> {
+    try {
+        const response = await fetch(`${API_BASE_URL}/resume`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to fetch resumes');
+        }
+
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error("Error getting resumes:", error);
+        throw error;
+    }
 }
 
-export async function updateResumeById(id: string, body: {updatedResume: any, technicalSkills: string, softSkills: string, coverLetter: string}) {
-    const response = await axios.put(`${import.meta.env.VITE_BACKEND_API_HOST}/resumes/${id}`, body, {
-        headers: {
-            'Content-Type': 'application/json',
-        },
-    })
-    return response.data
+export async function updateResumeById(id: string, body: { updatedResume: any, technicalSkills: string, softSkills: string, coverLetter: string }) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/resume/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify(body),
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to update resume');
+        }
+
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error("Error updating resume:", error);
+        throw error;
+    }
 }
 
 export async function deleteResumeById(id: string) {
-    const response = await axios.delete(`${import.meta.env.VITE_BACKEND_API_HOST}/resumes/${id}`, {
-        headers: {
-            'Content-Type': 'application/json',
-        },
-    })
-    return response.data
+    try {
+        const response = await fetch(`${API_BASE_URL}/resume/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to delete resume');
+        }
+
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error("Error deleting resume:", error);
+        throw error;
+    }
 }
 
-export async function createResume(body: {jobId: string, updatedResume: any, technicalSkills: string, softSkills: string, coverLetter: string}) {
-    const response = await axios.post(`${import.meta.env.VITE_BACKEND_API_HOST}/resumes`, body, {
-        headers: {
-            'Content-Type': 'application/json',
-        },
-    })
-    return response.data
+export async function createResume(body: { jobId: string, updatedResume: any, technicalSkills: string, softSkills: string, coverLetter: string }) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/resume`, {
+            method: 'POST',
+            body: JSON.stringify(body),
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to create resume');
+        }
+
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error("Error creating resume:", error);
+        throw error;
+    }
 }
 
 export async function generateResume(jobCompatibilityData: any, generateCoverLetter: boolean) {
-    const costSavingMode = import.meta.env.VITE_COST_SAVING_MODE ?? ""
-    const headers: any = {"streaming": "true", 'Content-Type': 'application/json'}
+    try {
+        const headers: any = { "Content-Type": "application/json" };
+        // If streaming is desired, add the header. Backend will handle it.
+        // headers["streaming"] = "true"; 
 
-
-    if (costSavingMode) {
-        headers['x-cost-saving-mode'] = 'true'
-    }
-    const mainResume = await getMainResume()
-    const response = await fetch(`${import.meta.env.VITE_BACKEND_API_HOST}/resumes/generate`
-        , {
+        const response = await fetch(`${API_BASE_URL}/resume/generate`, {
             method: 'POST',
             headers,
-            body: JSON.stringify({jobCompatibilityData, generateCoverLetter}),
-        })
+            body: JSON.stringify({ jobCompatibilityData, generateCoverLetter }),
+        });
 
-
-    const reader = response.body?.pipeThrough(new TextDecoderStream()).getReader()
-    const chunks = []
-    if (reader) {
-
-        let value, done
-        while (!done) {
-            const data = await reader.read()
-            value = data.value?.toString()
-            done = data.done
-            console.log(value)
-            chunks.push(value)
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to generate resume');
         }
 
+        // Assuming the backend returns the full JSON directly for non-streaming
+        const data = await response.json();
+        return data;
+
+    } catch (error) {
+        console.error("Error generating resume:", error);
+        throw error;
     }
-
-
-
-    console.log('stream end')
-    console.log({data: chunks.join('')})
-    const inferredResume = JSON.parse(chunks.join(''))
-    const converLetter = inferredResume.coverLetter
-    delete inferredResume.coverLetter
-    return {
-        resumeDetails: {
-            generatedResume: {
-
-                ...mainResume,
-                ...JSON.parse(chunks.join('')),
-            }, coverLetter: converLetter
-        }
-    }
-
-}
-
-
-export async function printResume({resumeId, resumeJson, resumeName}: {resumeId?: string, resumeJson?: any, resumeName: string}) {
-    const response = await axios.post(`${import.meta.env.VITE_BACKEND_API_HOST}/resumes/printResume`, {resumeId, resumeJson, resumeName}, {
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        responseType: 'blob',
-    })
-    return response.data
 }

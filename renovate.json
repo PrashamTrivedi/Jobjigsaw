@@ -9,7 +9,8 @@
   ],
   "excludeCommitPaths": [
     "frontend/**",
-    "codeSailor/**"
+    "codeSailor/**",
+    "backend/**"
   ],
   "automergeType": "branch",
   "prConcurrentLimit": 2,

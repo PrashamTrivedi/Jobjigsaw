@@ -1,0 +1,62 @@
+/**
+ * For more details on how to configure Wrangler, refer to:
+ * https://developers.cloudflare.com/workers/wrangler/configuration/
+ */
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "jobjigsaw-backend",
+	"main": "src/index.ts",
+	"compatibility_date": "2025-07-11",
+	"observability": {
+		"enabled": true
+	},
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
+	"browser": {
+		"binding": "BROWSER"
+	},
+	"kv_namespaces": [
+		{
+			"binding": "AI_GATEWAY_KV",
+			"id": "3d1ac9f21726406fbfd1c4565f0aad5a"
+		},
+		{
+			"binding": "VIEWED_JOBS_KV",
+			"id": "de606db50127491b8e8928b6b0c80f04",
+		}
+	],
+	"r2_buckets": [
+		{
+			"binding": "RESUME_BUCKET",
+			"bucket_name": "jobjigsaw-resumes"
+		}
+	],
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "jobjigsaw-db",
+			"database_id": "773786fb-e678-4724-8689-c0b64563505e"
+		}
+	],
+	"ai": {
+		"binding": "JOBJIBSAW"
+	},
+	"secrets_store_secrets": [
+		{
+			"binding": "OPENAI_API_KEY",
+			"store_id": "c4bb640e70124679a26674ef2fe8a942",
+			"secret_name": "OPENAI_API_KEY"
+		},
+		{
+			"binding": "GEMINI_API_KEY",
+			"store_id": "c4bb640e70124679a26674ef2fe8a942",
+			"secret_name": "GEMINI_API_KEY"
+		},
+		{
+			"binding": "JINA_API_KEY",
+			"store_id": "c4bb640e70124679a26674ef2fe8a942",
+			"secret_name": "JINA_API_KEY"
+		}
+	]
+}
