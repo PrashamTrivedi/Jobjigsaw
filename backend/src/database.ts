@@ -1,4 +1,5 @@
 import { D1Database } from '@cloudflare/workers-types';
+import { D1Result, D1Response } from './types';
 
 export class Database {
     private db: D1Database;
@@ -11,15 +12,15 @@ export class Database {
         return this.db.prepare(query);
     }
 
-    async run(query: string, params?: any[]) {
+    async run(query: string, params?: (string | number | null)[]): Promise<D1Result> {
         return this.db.run(query, params);
     }
 
-    async all(query: string, params?: any[]) {
+    async all<T = unknown>(query: string, params?: (string | number | null)[]): Promise<D1Response<T>> {
         return this.db.all(query, params);
     }
 
-    async get(query: string, params?: any[]) {
+    async get<T = unknown>(query: string, params?: (string | number | null)[]): Promise<T | null> {
         return this.db.first(query, params);
     }
 }
