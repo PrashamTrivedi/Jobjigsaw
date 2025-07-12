@@ -9,6 +9,18 @@ import {JobService} from './job/jobService'
 import {MainResumeService} from './mainResume/mainResumeService'
 import {ResumeService} from './resume/resumeService'
 import {generateJsonFromResume, inferJobDescription, checkCompatiblity, generateResume, inferCompanyDetails, inferJobDescriptionFromUrl} from './openai'
+import { Env, AppError } from './types'
+
+// Helper function to handle errors safely
+const handleError = (error: unknown, context: string, status: number = 500) => {
+	const appError: AppError = {
+		message: error instanceof Error ? error.message : 'Unknown error occurred',
+		status,
+		details: error
+	}
+	console.error(`${context}:`, appError)
+	return { error: appError.message, status: appError.status }
+}
 
 const app = new Hono<{Bindings: Env}>()
 
@@ -29,9 +41,9 @@ app.post('/job', async (c) => {
 		}
 		)
 		return c.json({jobId: id, success: result.success})
-	} catch (err: any) {
-		console.error("Error adding job:", err)
-		return c.json({error: err.message}, 500)
+	} catch (error: unknown) {
+		const { error: errorMessage, status } = handleError(error, "Error adding job")
+		return c.json({error: errorMessage}, status)
 	}
 })
 
@@ -45,9 +57,9 @@ app.delete('/job/:id', async (c) => {
 		} else {
 			return c.json({message: 'Job not found or no changes made'}, 404)
 		}
-	} catch (error: any) {
-		console.error("Error removing job:", error)
-		return c.json({error: error.message}, 500)
+	} catch (error: unknown) {
+		const { error: errorMessage, status } = handleError(error, "Error removing job")
+		return c.json({error: errorMessage}, status)
 	}
 })
 
@@ -56,9 +68,9 @@ app.get('/job', async (c) => {
 		const jobService = new JobService(c.env)
 		const jobs = await jobService.getJobs()
 		return c.json(jobs)
-	} catch (error: any) {
-		console.error("Error getting all jobs:", error)
-		return c.json({error: error.message}, 500)
+	} catch (error: unknown) {
+		const { error: errorMessage, status } = handleError(error, "Error getting all jobs")
+		return c.json({error: errorMessage}, status)
 	}
 })
 
@@ -72,9 +84,9 @@ app.get('/job/:id', async (c) => {
 		} else {
 			return c.json(job)
 		}
-	} catch (error: any) {
-		console.error("Error getting job:", error)
-		return c.json({error: error.message}, 500)
+	} catch (error: unknown) {
+		const { error: errorMessage, status } = handleError(error, "Error getting job")
+		return c.json({error: errorMessage}, status)
 	}
 })
 
@@ -86,9 +98,9 @@ app.post('/job/infer', async (c) => {
 		const inferredDescription = await inferJobDescription(description, additionalFields, c.env)
 
 		return c.json({inferredDescription: inferredDescription})
-	} catch (error: any) {
-		console.error("Error inferring job description:", error)
-		return c.json({error: error.message}, 500)
+	} catch (error: unknown) {
+		const { error: errorMessage, status } = handleError(error, "Error inferring job description")
+		return c.json({error: errorMessage}, status)
 	}
 })
 
@@ -99,9 +111,9 @@ app.post('/job/infer-url', async (c) => {
 
 		const inferredDescription = await inferJobDescriptionFromUrl(url, c.env)
 		return c.json({inferredDescription: inferredDescription})
-	} catch (error: any) {
-		console.error("Error inferring job from URL:", error)
-		return c.json({error: error.message}, 500)
+	} catch (error: unknown) {
+		const { error: errorMessage, status } = handleError(error, "Error inferring job from URL")
+		return c.json({error: errorMessage}, status)
 	}
 })
 
@@ -121,9 +133,9 @@ app.post('/job/infer-match', async (c) => {
 		const compatibilityMatrix = await checkCompatiblity(description, JSON.stringify(mainResume), c.env)
 
 		return c.json({compatibilityMatrix: compatibilityMatrix})
-	} catch (error: any) {
-		console.error("Error inferring job match:", error)
-		return c.json({error: error.message}, 500)
+	} catch (error: unknown) {
+		const { error: errorMessage, status } = handleError(error, "Error inferring job match")
+		return c.json({error: errorMessage}, status)
 	}
 })
 
@@ -136,9 +148,9 @@ app.get('/job/research-company/:companyName', async (c) => {
 		// For now, returning a placeholder
 		return c.json({companyResearch: `Research for ${companyName} is not yet implemented via AI Gateway.`})
 
-	} catch (error: any) {
-		console.error("Error researching company:", error)
-		return c.json({error: error.message}, 500)
+	} catch (error: unknown) {
+		const { error: errorMessage, status } = handleError(error, "Error researching company")
+		return c.json({error: errorMessage}, status)
 	}
 })
 
@@ -155,9 +167,9 @@ app.post('/job/analyze', async (c) => {
 
 		const analyzedData = await inferJobDescriptionFromUrl(jobUrl, c.env)
 		return c.json(analyzedData)
-	} catch (error: any) {
-		console.error("Error analyzing job:", error)
-		return c.json({error: error.message}, 500)
+	} catch (error: unknown) {
+		const { error: errorMessage, status } = handleError(error, "Error analyzing job")
+		return c.json({error: errorMessage}, status)
 	}
 })
 
@@ -172,9 +184,9 @@ app.get('/main-resume', async (c) => {
 		} else {
 			return c.json({message: "Main resume not found"}, 404)
 		}
-	} catch (error: any) {
-		console.error("Error getting main resume:", error)
-		return c.json({error: error.message}, 500)
+	} catch (error: unknown) {
+		const { error: errorMessage, status } = handleError(error, "Error getting main resume")
+		return c.json({error: errorMessage}, status)
 	}
 })
 
@@ -193,9 +205,9 @@ app.post('/main-resume', async (c) => {
 
 		const parsedResume = await mainResumeService.updateMainResume({fileBuffer, fileType})
 		return c.json(parsedResume)
-	} catch (error: any) {
-		console.error("Error uploading or parsing resume:", error)
-		return c.json({error: error.message}, 400)
+	} catch (error: unknown) {
+		const { error: errorMessage, status } = handleError(error, "Error uploading or parsing resume", 400)
+		return c.json({error: errorMessage}, status)
 	}
 })
 
@@ -205,9 +217,9 @@ app.put('/main-resume', async (c) => {
 		const resume = await c.req.json()
 		await mainResumeService.updateMainResume(resume)
 		return c.json({message: 'Main resume updated successfully'})
-	} catch (error: any) {
-		console.error("Error updating main resume:", error)
-		return c.json({error: error.message}, 500)
+	} catch (error: unknown) {
+		const { error: errorMessage, status } = handleError(error, "Error updating main resume")
+		return c.json({error: errorMessage}, status)
 	}
 })
 
@@ -221,9 +233,9 @@ app.post('/resume', async (c) => {
 			updateResume: JSON.stringify(updatedResume), technicalSkills, softSkills, coverLetter
 		})
 		return c.json({resumeId: result.meta.last_row_id, success: result.success})
-	} catch (error: any) {
-		console.error("Error adding resume:", error)
-		return c.json({error: error.message}, 500)
+	} catch (error: unknown) {
+		const { error: errorMessage, status } = handleError(error, "Error adding resume")
+		return c.json({error: errorMessage}, status)
 	}
 })
 
@@ -232,9 +244,9 @@ app.get('/resume', async (c) => {
 		const resumeService = new ResumeService(c.env)
 		const resumes = await resumeService.getResumes()
 		return c.json(resumes)
-	} catch (error: any) {
-		console.error("Error getting all resumes:", error)
-		return c.json({error: error.message}, 500)
+	} catch (error: unknown) {
+		const { error: errorMessage, status } = handleError(error, "Error getting all resumes")
+		return c.json({error: errorMessage}, status)
 	}
 })
 
@@ -248,9 +260,9 @@ app.get('/resume/:id', async (c) => {
 		} else {
 			return c.json(resume)
 		}
-	} catch (error: any) {
-		console.error("Error getting resume:", error)
-		return c.json({error: error.message}, 500)
+	} catch (error: unknown) {
+		const { error: errorMessage, status } = handleError(error, "Error getting resume")
+		return c.json({error: errorMessage}, status)
 	}
 })
 
@@ -264,9 +276,9 @@ app.delete('/resume/:id', async (c) => {
 		} else {
 			return c.json({message: 'Resume not found or no changes made'}, 404)
 		}
-	} catch (error: any) {
-		console.error("Error removing resume:", error)
-		return c.json({error: error.message}, 500)
+	} catch (error: unknown) {
+		const { error: errorMessage, status } = handleError(error, "Error removing resume")
+		return c.json({error: errorMessage}, status)
 	}
 })
 
@@ -282,9 +294,9 @@ app.put('/resume/:id', async (c) => {
 		} else {
 			return c.json({message: 'Resume not found or no changes made'}, 404)
 		}
-	} catch (error: any) {
-		console.error("Error updating resume:", error)
-		return c.json({error: error.message}, 500)
+	} catch (error: unknown) {
+		const { error: errorMessage, status } = handleError(error, "Error updating resume")
+		return c.json({error: errorMessage}, status)
 	}
 })
 
@@ -305,9 +317,9 @@ app.post('/resume/generate', async (c) => {
 
 
 		return c.json({generatedResume: generatedResume})
-	} catch (error: any) {
-		console.error("Error generating resume:", error)
-		return c.json({error: error.message}, 500)
+	} catch (error: unknown) {
+		const { error: errorMessage, status } = handleError(error, "Error generating resume")
+		return c.json({error: errorMessage}, status)
 	}
 })
 
