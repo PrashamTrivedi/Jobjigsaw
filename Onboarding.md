@@ -492,3 +492,7 @@ git commit -m "📝 docs: Update onboarding guide"
 **Welcome to the Jobjigsaw project!** This onboarding guide provides everything
 you need to understand, develop, and contribute to the codebase. For questions
 or clarifications, refer to the code files linked throughout this document.
+
+## 📝 Additional Notes
+
+- **npm Available**: `npm` is available, if the agent can not run it. Ask the user to run npm commands.
