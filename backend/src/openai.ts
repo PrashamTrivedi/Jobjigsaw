@@ -261,7 +261,13 @@ export async function inferCompanyDetails(companyName: string, env: Env) {
 
     const results = await Promise.all([companyProduct, companyFinancials, companyTechStack, companyBlog, companyEmployees])
 
-    const mapper: any = (result: {title: any; link: any; snippet: any}) => (`title: ${result.title}, link: ${result.link}, 
+    interface SearchResult {
+        title: string;
+        link: string;
+        snippet: string;
+    }
+    
+    const mapper = (result: SearchResult): string => (`title: ${result.title}, link: ${result.link}, 
     snippet: ${result.snippet}`)
     const companyDetails = {
         companyProduct: results[0],
