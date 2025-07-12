@@ -10,14 +10,14 @@ export interface ButtonProps
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = 'primary', size = 'md', loading = false, disabled, children, ...props }, ref) => {
-    const baseClasses = 'inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50';
+    const baseClasses = 'inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 active:scale-[0.98]';
     
     const variants = {
-      primary: 'bg-blue-600 text-white hover:bg-blue-700 focus-visible:ring-blue-500 dark:bg-blue-500 dark:hover:bg-blue-600',
-      secondary: 'bg-gray-100 text-gray-900 hover:bg-gray-200 focus-visible:ring-gray-500 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700',
-      outline: 'border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 focus-visible:ring-gray-500 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100 dark:hover:bg-gray-800',
-      ghost: 'hover:bg-gray-100 text-gray-700 focus-visible:ring-gray-500 dark:hover:bg-gray-800 dark:text-gray-100',
-      destructive: 'bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-500',
+      primary: 'bg-primary text-primary-foreground hover:bg-primary/90 focus-visible:ring-primary shadow-md hover:shadow-lg border border-primary/20',
+      secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80 focus-visible:ring-secondary border border-border shadow-sm hover:shadow-md',
+      outline: 'border-2 border-border bg-background hover:bg-accent hover:text-accent-foreground hover:border-primary/30 focus-visible:ring-accent-foreground shadow-sm hover:shadow-md',
+      ghost: 'hover:bg-accent hover:text-accent-foreground focus-visible:ring-accent-foreground rounded-md',
+      destructive: 'bg-error text-error-foreground hover:bg-error/90 focus-visible:ring-error shadow-md hover:shadow-lg border border-error/20',
     };
 
     const sizes = {

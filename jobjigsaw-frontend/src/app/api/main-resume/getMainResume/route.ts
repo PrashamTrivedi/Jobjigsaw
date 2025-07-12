@@ -13,7 +13,7 @@ export async function GET() {
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
+      const errorData =    await response.json();
       return NextResponse.json({ error: errorData.error || 'Failed to fetch main resume' }, { status: response.status });
     }
 

@@ -9,7 +9,7 @@ export const InferJobButton: React.FC<ButtonProps> = ({ pending, onClick }) => (
   <button
     onClick={onClick}
     disabled={pending}
-    className="flex-1 sm:flex-none inline-flex items-center justify-center px-6 py-3 border border-transparent text-sm font-medium rounded-lg shadow-sm text-primary-foreground bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+    className="flex-1 sm:flex-none inline-flex items-center justify-center px-6 py-3 border border-transparent text-sm font-medium rounded-lg shadow-xs text-primary-foreground bg-primary hover:bg-primary/90 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
   >
     {pending ? (
       <>
@@ -27,7 +27,7 @@ export const InferJobMatchButton: React.FC<ButtonProps> = ({ pending, onClick })
   <button
     onClick={onClick}
     disabled={pending}
-    className="flex-1 sm:flex-none inline-flex items-center justify-center px-6 py-3 border border-primary text-sm font-medium rounded-lg shadow-sm text-primary bg-transparent hover:bg-primary/10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+    className="flex-1 sm:flex-none inline-flex items-center justify-center px-6 py-3 border border-primary text-sm font-medium rounded-lg shadow-xs text-primary bg-transparent hover:bg-primary/10 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
   >
     {pending ? (
       <>

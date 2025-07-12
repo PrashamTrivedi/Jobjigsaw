@@ -223,6 +223,28 @@ app.put('/main-resume', async (c) => {
 	}
 })
 
+app.get('/main-resume/file/:fileName', async (c) => {
+	try {
+		const mainResumeService = new MainResumeService(c.env)
+		const { fileName } = c.req.param()
+		const fileStream = await mainResumeService.getResumeFile(fileName)
+		
+		if (!fileStream) {
+			return c.json({error: 'File not found'}, 404)
+		}
+		
+		return new Response(fileStream, {
+			headers: {
+				'Content-Type': fileName.endsWith('.pdf') ? 'application/pdf' : 'application/json',
+				'Content-Disposition': `attachment; filename="${fileName}"`
+			}
+		})
+	} catch (error: unknown) {
+		const { error: errorMessage, status } = handleError(error, "Error downloading resume file")
+		return c.json({error: errorMessage}, status)
+	}
+})
+
 // Resume Routes
 app.post('/resume', async (c) => {
 	try {

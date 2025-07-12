@@ -183,7 +183,7 @@ export default function CreateJobPage() {
 
                 <button onClick={handleAnalyzeJob}
                     disabled={isAnalyzing || (!jobUrl && !jobDescriptionInput)}
-                    className="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    className="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-xs text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                     {isAnalyzing ? 'Analyzing Job...' : 'Analyze Job'}
                 </button>
 
@@ -203,11 +203,11 @@ export default function CreateJobPage() {
                     <div className="flex justify-between mt-4">
                         <button onClick={handleAddJob}
                             disabled={isAdding}
-                            className="w-1/2 mr-2 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                            className="w-1/2 mr-2 inline-flex justify-center py-2 px-4 border border-transparent shadow-xs text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
                             {isAdding ? 'Adding Job...' : 'Save Analyzed Job'}
                         </button>
                         <button onClick={handleGenerateResume}
-                            className="w-1/2 ml-2 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            className="w-1/2 ml-2 inline-flex justify-center py-2 px-4 border border-transparent shadow-xs text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                             Generate Resume
                         </button>
                     </div>
