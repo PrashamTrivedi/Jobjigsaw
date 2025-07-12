@@ -18,3 +18,5 @@ export type { LoadingSpinnerProps, SkeletonProps } from './Loading';
 
 export { ToastProvider, useToast } from './Toast';
 export type { Toast } from './Toast';
+
+export { FileUpload } from './FileUpload';

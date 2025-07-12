@@ -1,67 +1,67 @@
-'use client';
+'use client'
 
-import React, { createContext, useContext, useState, useCallback } from 'react';
-import { cn } from '@/lib/utils';
-import { XMarkIcon, CheckCircleIcon, ExclamationTriangleIcon, InformationCircleIcon, XCircleIcon } from '@heroicons/react/24/outline';
+import React, {createContext, useContext, useState, useCallback} from 'react'
+import {cn} from '@/lib/utils'
+import {XMarkIcon, CheckCircleIcon, ExclamationTriangleIcon, InformationCircleIcon, XCircleIcon} from '@heroicons/react/24/outline'
 
-type ToastType = 'success' | 'error' | 'warning' | 'info';
+type ToastType = 'success' | 'error' | 'warning' | 'info'
 
 interface Toast {
-  id: string;
-  type: ToastType;
-  title: string;
-  description?: string;
-  duration?: number;
+  id: string
+  type: ToastType
+  title: string
+  description?: string
+  duration?: number
 }
 
 interface ToastContextType {
-  toasts: Toast[];
-  toast: (toast: Omit<Toast, 'id'>) => void;
-  dismiss: (id: string) => void;
+  toasts: Toast[]
+  toast: (toast: Omit<Toast, 'id'>) => void
+  dismiss: (id: string) => void
 }
 
-const ToastContext = createContext<ToastContextType | undefined>(undefined);
+const ToastContext = createContext<ToastContextType | undefined>(undefined)
 
 export const useToast = () => {
-  const context = useContext(ToastContext);
+  const context = useContext(ToastContext)
   if (!context) {
-    throw new Error('useToast must be used within a ToastProvider');
+    throw new Error('useToast must be used within a ToastProvider')
   }
-  return context;
-};
+  return context
+}
 
-export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [toasts, setToasts] = useState<Toast[]>([]);
+export const ToastProvider: React.FC<{children: React.ReactNode}> = ({children}) => {
+  const [toasts, setToasts] = useState<Toast[]>([])
 
   const toast = useCallback((newToast: Omit<Toast, 'id'>) => {
-    const id = Math.random().toString(36).substr(2, 9);
-    const toastWithId = { ...newToast, id };
-    
-    setToasts((prev) => [...prev, toastWithId]);
+    const id = Math.random().toString(36).substr(2, 9)
+    const toastWithId = {...newToast, id}
+
+    setToasts((prev) => [...prev, toastWithId])
 
     // Auto-dismiss after duration
-    const duration = newToast.duration || 5000;
+    const duration = newToast.duration || 5000
     setTimeout(() => {
-      dismiss(id);
-    }, duration);
-  }, []);
+      dismiss(id)
+    }, duration)
+  }, [])
 
   const dismiss = useCallback((id: string) => {
-    setToasts((prev) => prev.filter((toast) => toast.id !== id));
-  }, []);
+    setToasts((prev) => prev.filter((toast) => toast.id !== id))
+  }, [])
 
   return (
-    <ToastContext.Provider value={{ toasts, toast, dismiss }}>
+    <ToastContext.Provider value={{toasts, toast, dismiss}}>
       {children}
       <ToastContainer />
     </ToastContext.Provider>
-  );
-};
+  )
+}
 
 const ToastContainer: React.FC = () => {
-  const { toasts, dismiss } = useToast();
+  const {toasts, dismiss} = useToast()
 
-  if (toasts.length === 0) return null;
+  if (toasts.length === 0) return null
 
   return (
     <div className="fixed top-4 right-4 z-50 space-y-2 max-w-sm">
@@ -69,30 +69,30 @@ const ToastContainer: React.FC = () => {
         <ToastItem key={toast.id} toast={toast} onDismiss={dismiss} />
       ))}
     </div>
-  );
-};
-
-interface ToastItemProps {
-  toast: Toast;
-  onDismiss: (id: string) => void;
+  )
 }
 
-const ToastItem: React.FC<ToastItemProps> = ({ toast, onDismiss }) => {
+interface ToastItemProps {
+  toast: Toast
+  onDismiss: (id: string) => void
+}
+
+const ToastItem: React.FC<ToastItemProps> = ({toast, onDismiss}) => {
   const icons = {
     success: CheckCircleIcon,
     error: XCircleIcon,
     warning: ExclamationTriangleIcon,
     info: InformationCircleIcon,
-  };
+  }
 
-  const Icon = icons[toast.type];
+  const Icon = icons[toast.type]
 
   const variants = {
     success: 'bg-green-50 border-green-200 text-green-800 dark:bg-green-900/50 dark:border-green-800 dark:text-green-100',
     error: 'bg-red-50 border-red-200 text-red-800 dark:bg-red-900/50 dark:border-red-800 dark:text-red-100',
     warning: 'bg-yellow-50 border-yellow-200 text-yellow-800 dark:bg-yellow-900/50 dark:border-yellow-800 dark:text-yellow-100',
     info: 'bg-blue-50 border-blue-200 text-blue-800 dark:bg-blue-900/50 dark:border-blue-800 dark:text-blue-100',
-  };
+  }
 
   return (
     <div
@@ -115,7 +115,7 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onDismiss }) => {
         <XMarkIcon className="h-4 w-4" />
       </button>
     </div>
-  );
-};
+  )
+}
 
-export { Toast, ToastProvider };
+export {Toast}
