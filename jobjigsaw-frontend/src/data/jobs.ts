@@ -15,7 +15,7 @@ export interface Job {
     inferredJobMatch?: string
 }
 
-const API_BASE_URL = import.meta.env.VITE_BACKEND_API_HOST || "http://localhost:8787";
+const API_BASE_URL = process.env.NEXT_PUBLIC_VERCEL_URL ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}/api` : "http://localhost:3000/api";
 
 export async function addJob(job: Job) {
     console.log(job);

@@ -1,32 +1,37 @@
 {
-  "name": "jobjigsaw_app",
-  "version": "0.1.0",
+  "name": "jobjigsaw-frontend",
   "private": true,
+  "version": "0.0.0",
+  "type": "module",
   "scripts": {
-    "dev": "next dev --port 3001",
-    "build": "next build && next export",
-    "start": "next start --port 3001",
-    "lint": "next lint",
-    "deploy": "npx wrangler pages deploy ./out --project-name=jobjigsaw-frontend --branch=main"
+    "dev": "vite --host",
+    "build": "tsc && vite build",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "preview": "vite preview"
   },
   "dependencies": {
-    "@heroicons/react": "^2.0.18",
+    "@heroicons/react": "^2.1.1",
+    "axios": "^1.7.4",
     "clsx": "^2.0.0",
-    "dotenv": "^16.3.1",
-    "next": "14.2.10",
-    "react": "^18",
-    "react-dom": "^18"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-markdown": "^9.0.1",
+    "react-router-dom": "^6.21.0"
   },
   "devDependencies": {
-    "@types/node": "^20",
-    "@types/react": "^18",
-    "@types/react-dom": "^18",
-    "autoprefixer": "^10.0.1",
+    "@types/node": "^20.10.5",
+    "@types/react": "^18.2.43",
+    "@types/react-dom": "^18.2.17",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "@vitejs/plugin-react": "^4.2.1",
+    "autoprefixer": "^10.4.16",
     "eslint": "^9.0.0",
-    "eslint-config-next": "14.2.4",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.5",
     "postcss": "^8.4.32",
-    "tailwindcss": "^3.3.0",
-    "typescript": "^5",
-    "wrangler": "^3.57.0"
+    "tailwindcss": "^3.3.7",
+    "typescript": "^5.2.2",
+    "vite": "^5.4.8"
   }
 }

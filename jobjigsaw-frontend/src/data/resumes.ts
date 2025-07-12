@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-const API_BASE_URL = import.meta.env.VITE_BACKEND_API_HOST || "http://localhost:8787";
+const API_BASE_URL = process.env.NEXT_PUBLIC_VERCEL_URL ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}/api` : "http://localhost:3000/api";
 
 export async function getResumeById(id: string): Promise<any> {
     try {
@@ -137,6 +137,30 @@ export async function generateResume(jobCompatibilityData: any, generateCoverLet
 
     } catch (error) {
         console.error("Error generating resume:", error);
+        throw error;
+    }
+}
+
+
+export async function printResume({ resumeJson, resumeName }: { resumeJson: any, resumeName: string }) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/resume/print`, {
+            method: 'POST',
+            body: JSON.stringify({ resumeJson, resumeName }),
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to print resume');
+        }
+
+        const data = await response.blob();
+        return data;
+    } catch (error) {
+        console.error("Error printing resume:", error);
         throw error;
     }
 }
