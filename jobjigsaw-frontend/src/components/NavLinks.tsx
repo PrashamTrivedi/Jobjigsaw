@@ -36,7 +36,7 @@ export default function NavLinks() {
       </div>
 
       <ul className={clsx(
-        `flex flex-col lg:flex-row items-start lg:items-center gap-3 lg:gap-8 transition-all duration-300 ease-in-out overflow-hidden w-full lg:w-auto`,
+        `flex flex-col lg:flex-row items-start lg:items-center gap-2 lg:gap-6 transition-all duration-300 ease-in-out overflow-hidden w-full lg:w-auto`,
         isNavOpen ? 'max-h-screen mt-6 lg:mt-0' : 'max-h-0 lg:max-h-full',
       )}>
         {links.map(({path, label, icon: Icon}) => {
@@ -46,11 +46,11 @@ export default function NavLinks() {
               <Link
                 href={path}
                 className={clsx(
-                  "flex items-center px-4 py-3 lg:px-5 lg:py-2.5 rounded-lg transition-all duration-200 relative overflow-hidden group",
-                  "text-primary-foreground hover:bg-primary-foreground/10",
+                  "flex items-center px-3 py-2 lg:px-4 lg:py-2 rounded-lg transition-all duration-200 relative overflow-hidden group",
+                  "text-primary-foreground/90 hover:text-primary-foreground hover:bg-primary-foreground/10",
                   isActive
                     ? "bg-primary-foreground/15 font-semibold text-white shadow-md"
-                    : "hover:bg-primary-foreground/8 hover:text-white"
+                    : "hover:bg-primary-foreground/8 hover:text-white hover:scale-105"
                 )}
               >
                 <Icon className={clsx(

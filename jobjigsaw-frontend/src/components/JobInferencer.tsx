@@ -140,7 +140,20 @@ export default function JobInferencer() {
     if (!cache) return null
     
     if (cache.cached) {
-      return <Badge variant="cache-fresh">Cached - Fast processing</Badge>
+      const expiryDate = cache.expiry ? new Date(cache.expiry) : null
+      const now = new Date()
+      
+      if (expiryDate) {
+        const hoursUntilExpiry = (expiryDate.getTime() - now.getTime()) / (1000 * 60 * 60)
+        
+        if (hoursUntilExpiry <= 0) {
+          return <Badge variant="cache-expired" size="sm">Cache expired</Badge>
+        } else if (hoursUntilExpiry <= 2) {
+          return <Badge variant="cache-expiring" size="sm">Cache expiring soon</Badge>
+        }
+      }
+      
+      return <Badge variant="cache-fresh" size="sm">Cached - Fast processing</Badge>
     }
     return null
   }
@@ -209,9 +222,24 @@ export default function JobInferencer() {
               </div>
 
               {(getCacheBadge('inference') || getCacheBadge('match')) && (
-                <div className="flex flex-wrap gap-3 pt-4 border-t border-border/30">
-                  {getCacheBadge('inference')}
-                  {getCacheBadge('match')}
+                <div className="bg-muted/30 rounded-lg p-4 border border-border/50">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-sm font-medium text-muted-foreground">Cache Status</span>
+                  </div>
+                  <div className="flex flex-wrap gap-3">
+                    {getCacheBadge('inference') && (
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-muted-foreground">Job Analysis:</span>
+                        {getCacheBadge('inference')}
+                      </div>
+                    )}
+                    {getCacheBadge('match') && (
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-muted-foreground">Resume Match:</span>
+                        {getCacheBadge('match')}
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
             </CardContent>
