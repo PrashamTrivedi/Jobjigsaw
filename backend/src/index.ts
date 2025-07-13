@@ -1,15 +1,16 @@
-import {Hono} from 'hono'
-import {cors} from 'hono/cors'
-import {logger} from 'hono/logger'
-import {secureHeaders} from 'hono/secure-headers'
+import { OpenAPIHono } from '@hono/zod-openapi'
+import { cors } from 'hono/cors'
+import { logger } from 'hono/logger'
+import { secureHeaders } from 'hono/secure-headers'
 
-import {Database} from './database'
-import {CloudflareKv} from './utils/cloudflareKv'
-import {JobService} from './job/jobService'
-import {MainResumeService} from './mainResume/mainResumeService'
-import {ResumeService} from './resume/resumeService'
-import {generateJsonFromResume, inferJobDescription, checkCompatiblity, generateResume, inferCompanyDetails, inferJobDescriptionFromUrl} from './openai'
+import { Database } from './database'
+import { CloudflareKv } from './utils/cloudflareKv'
+import { JobService } from './job/jobService'
+import { MainResumeService } from './mainResume/mainResumeService'
+import { ResumeService } from './resume/resumeService'
+import { generateJsonFromResume, inferJobDescription, checkCompatiblity, generateResume, inferCompanyDetails, inferJobDescriptionFromUrl } from './openai'
 import { Env, AppError } from './types'
+import openapiApp from './openapi'
 
 // Helper function to handle errors safely
 const handleError = (error: unknown, context: string, status: number = 500) => {
@@ -22,7 +23,7 @@ const handleError = (error: unknown, context: string, status: number = 500) => {
 	return { error: appError.message, status: appError.status }
 }
 
-const app = new Hono<{Bindings: Env}>()
+const app = new OpenAPIHono<{ Bindings: Env }>()
 
 // Middleware
 app.use('*', logger())
@@ -63,16 +64,6 @@ app.delete('/job/:id', async (c) => {
 	}
 })
 
-app.get('/job', async (c) => {
-	try {
-		const jobService = new JobService(c.env)
-		const jobs = await jobService.getJobs()
-		return c.json(jobs)
-	} catch (error: unknown) {
-		const { error: errorMessage, status } = handleError(error, "Error getting all jobs")
-		return c.json({error: errorMessage}, status)
-	}
-})
 
 app.get('/job/:id', async (c) => {
 	try {
@@ -349,6 +340,16 @@ app.post('/resume/generate', async (c) => {
 app.onError((err, c) => {
 	console.error(`${err}`)
 	return c.text('Internal Server Error', 500)
+})
+
+app.route('/', openapiApp)
+
+app.doc('/doc', {
+	openapi: '3.0.0',
+	info: {
+		version: '1.0.0',
+		title: 'My API',
+	},
 })
 
 export default app

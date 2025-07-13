@@ -20,6 +20,7 @@
 		"@google/generative-ai": "^0.24.1",
 		"hono": "^4.8.4",
 		"openai": "^5.9.0",
-		"zod": "^3.23.8"
+		"zod": "^3.23.8",
+		"@hono/zod-openapi": "^0.14.5"
 	}
 }
