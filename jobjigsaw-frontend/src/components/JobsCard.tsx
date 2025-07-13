@@ -1,62 +1,75 @@
 'use client'
 
-import { useState } from "react";
-import clsx from "clsx";
-import { BriefcaseIcon, LinkIcon } from "@heroicons/react/20/solid";
+import { useState, useTransition } from "react";
+import { BriefcaseIcon, LinkIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { Job, deleteJob } from "@/data/jobs";
 import Link from "next/link";
-import { DeleteJobButton } from "./buttons";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export function JobsCard({ job }: { job: Job; i: number }) {
   const [isExpanded, setExpanded] = useState(false);
-  const [isPending, setPending] = useState(false);
+  const [isDeleting, startDeleteTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
+
   async function handleJobDeletion() {
-    setPending(true);
-    await deleteJob(`${job.id}`);
-    setPending(false);
+    startDeleteTransition(async () => {
+      try {
+        await deleteJob(`${job.id}`);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "An unknown error occurred");
+      }
+    });
   }
 
   return (
-    <div key={job.id} className=" dark:border-none border border-gray-800 dark:bg-gray-800 rounded-lg p-4 my-4 space-y-4">
-      <div className="space-y-2 mt-2">
-        <div className="text-lg">
-          <BriefcaseIcon className="inline-block h-5 w-5 ms-1 me-1"></BriefcaseIcon>
-          <strong>{job.companyName}</strong>
+    <Card key={job.id}>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <BriefcaseIcon className="h-6 w-6" />
+          <span>{job.companyName}</span>
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {error && (
+          <Alert variant="destructive">
+            <TrashIcon className="h-4 w-4" />
+            <AlertTitle>Deletion Failed</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+        <div className="space-y-2">
+          <p><strong>Role:</strong> {job.post}</p>
+          <p><strong>Type:</strong> <Badge variant="secondary">{job.type}</Badge></p>
+          <p><strong>Location:</strong> {job.location}</p>
         </div>
-
-        <div>
-          <strong>Role: </strong>
-          {job.post}
-        </div>
-        <div>
-          <strong>Type: </strong>
-          {job.type}
-        </div>
-        <div>
-          <strong>Location: </strong>
-          {job.location}
-        </div>
-        <div className={clsx("text-sm", { hidden: !isExpanded })}>
-          <strong>About The Job: </strong>
-          {job.text}
-        </div>
-        <div>
-          <Link href={job.url} target="_blank">
-            <LinkIcon className="inline-block h-5 w-5 ms-1 me-1"></LinkIcon> Job URL
-          </Link>
-        </div>
-        <div className="flex justify-between">
-          <button className="dark:text-slate-500 dark:hover:text-slate-300 active:text-slate-100 px-2 py-1 rounded-md" onClick={() => setExpanded(!isExpanded)}>
-            {isExpanded ? "Show Less" : "Show More"}
-          </button>
-          <Link href={`/saved-resumes/resume?jobId=${job.id}`} className="text-indigo-500 dark:hover:text-indigo-300 active:text-indigo-100 px-2 py-1 rounded-md">
-            View Resume
-          </Link>
-          <div className="flex flex-row space-x-2">
-            <DeleteJobButton pending={isPending} onClick={handleJobDeletion} />
+        {isExpanded && (
+          <div className="prose prose-sm dark:prose-invert">
+            <p>{job.text}</p>
           </div>
+        )}
+        <div>
+          <Link href={job.url} target="_blank" className="flex items-center gap-2 text-sm text-blue-500 hover:underline">
+            <LinkIcon className="h-4 w-4" />
+            <span>Job URL</span>
+          </Link>
         </div>
-      </div>
-    </div>
+      </CardContent>
+      <CardFooter className="flex justify-between">
+        <Button variant="outline" onClick={() => setExpanded(!isExpanded)}>
+          {isExpanded ? "Show Less" : "Show More"}
+        </Button>
+        <div className="flex gap-2">
+          <Button asChild>
+            <Link href={`/saved-resumes/resume?jobId=${job.id}`}>View Resume</Link>
+          </Button>
+          <Button variant="destructive" onClick={handleJobDeletion} disabled={isDeleting}>
+            {isDeleting ? "Deleting..." : <TrashIcon className="h-5 w-5" />}
+          </Button>
+        </div>
+      </CardFooter>
+    </Card>
   );
 }

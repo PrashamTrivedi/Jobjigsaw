@@ -1,8 +1,8 @@
 import type {Metadata} from "next"
 import "./globals.css"
-import NavLinks from "@/components/NavLinks"
 import { ToastProvider } from "@/components/ui"
 import { ThemeProvider } from "@/components/DarkModeProvider"
+import SideNav from "@/components/SideNav"
 
 export const metadata: Metadata = {
   title: "Jobjigsaw",
@@ -34,20 +34,11 @@ export default function RootLayout({
       <body suppressHydrationWarning={true}>
         <ThemeProvider defaultTheme="system" storageKey="jobjigsaw-theme">
           <ToastProvider>
-            <div className='flex flex-col min-h-screen bg-background text-foreground'>
-              <nav className="bg-gradient-to-r from-slate-900 via-blue-900 to-slate-900 text-primary-foreground px-6 py-5 shadow-lg border-b border-border/20">
-                <NavLinks />
-              </nav>
-
-              <main className="flex-grow px-6 py-8 bg-background">
-                <div className="max-w-7xl mx-auto">
-                  {children}
-                </div>
-              </main>
-              
-              <footer className="bg-secondary text-secondary-foreground px-6 py-4 text-center text-sm border-t border-border">
-                © 2025 Jobjigsaw
-              </footer>
+            <div className="flex h-screen flex-col md:flex-row md:overflow-hidden">
+              <div className="w-full flex-none md:w-64">
+                <SideNav />
+              </div>
+              <div className="flex-grow p-6 md:overflow-y-auto md:p-12">{children}</div>
             </div>
           </ToastProvider>
         </ThemeProvider>
