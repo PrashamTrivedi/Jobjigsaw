@@ -1,5 +1,5 @@
-import { Database } from "../database";
-import { Env, MainResume, D1Result } from "../types";
+import {Database} from "../database"
+import {Env, MainResume, D1Result} from "../types"
 
 export class MainResumeModel {
     private db: Database
@@ -25,7 +25,7 @@ export class MainResumeModel {
         return this.db.get<MainResume>(query)
     }
 
-    async updateMainResume(resume: Partial<MainResume>): Promise<D1Result> {
+    async updateMainResume(resume: Partial<MainResume>): Promise<D1Result | null> {
         const {resumeName, resumeContent, dateCreated, dateUpdated} = resume
         const query = `UPDATE mainResumes SET resumeName = ?, resumeContent = ?, dateCreated = ?, dateUpdated = ? WHERE id = 1`
         return this.db.run(query, [resumeName, resumeContent, dateCreated, dateUpdated])

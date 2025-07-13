@@ -20,3 +20,9 @@ export { ToastProvider, useToast } from './Toast';
 export type { Toast } from './Toast';
 
 export { FileUpload } from './FileUpload';
+
+export { Modal, ModalHeader, ModalFooter } from './Modal';
+export type { ModalProps } from './Modal';
+
+export { DataTable } from './DataTable';
+export type { DataTableProps, Column } from './DataTable';
