@@ -2,6 +2,7 @@ import { OpenAPIHono } from '@hono/zod-openapi'
 import { cors } from 'hono/cors'
 import { logger } from 'hono/logger'
 import { secureHeaders } from 'hono/secure-headers'
+import { swaggerUI } from '@hono/swagger-ui'
 
 import { Env } from './types'
 import openapiApp from './openapi'
@@ -25,12 +26,19 @@ app.onError((err, c) => {
 
 app.route('/', openapiApp)
 
-app.doc('/doc', {
+app.doc('/openapi.json', {
 	openapi: '3.0.0',
 	info: {
 		version: '1.0.0',
 		title: 'My API',
 	},
 })
+
+app.get(
+	'/doc',
+	swaggerUI({
+		url: '/openapi.json',
+	})
+)
 
 export default app
