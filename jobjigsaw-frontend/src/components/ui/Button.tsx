@@ -6,10 +6,11 @@ export interface ButtonProps
   variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'destructive';
   size?: 'sm' | 'md' | 'lg';
   loading?: boolean;
+  asChild?: boolean;
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant = 'primary', size = 'md', loading = false, disabled, children, ...props }, ref) => {
+  ({ className, variant = 'primary', size = 'md', loading = false, disabled, asChild, children, ...props }, ref) => {
     const baseClasses = 'inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 active:scale-[0.98]';
     
     const variants = {
@@ -26,6 +27,21 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       lg: 'h-11 px-8 text-lg',
     };
 
+    if (asChild) {
+      return React.cloneElement(children as React.ReactElement, {
+        className: cn(
+          baseClasses,
+          variants[variant],
+          sizes[size],
+          (children as React.ReactElement).props.className,
+          className
+        ),
+        ref,
+        'aria-disabled': disabled || loading,
+        ...props,
+      });
+    }
+
     return (
       <button
         className={cn(
@@ -36,6 +52,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         )}
         ref={ref}
         disabled={disabled || loading}
+        aria-disabled={disabled || loading}
         {...props}
       >
         {loading && (
@@ -44,6 +61,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
+            aria-hidden="true"
           >
             <circle
               className="opacity-25"
@@ -60,6 +78,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             />
           </svg>
         )}
+        {loading && <span className="sr-only">Loading...</span>}
         {children}
       </button>
     );

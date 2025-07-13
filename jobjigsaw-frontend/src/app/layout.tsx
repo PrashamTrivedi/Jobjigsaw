@@ -34,12 +34,15 @@ export default function RootLayout({
       <body suppressHydrationWarning={true}>
         <ThemeProvider defaultTheme="system" storageKey="jobjigsaw-theme">
           <ToastProvider>
+            <a href="#main-content" className="skip-link">
+              Skip to main content
+            </a>
             <div className='flex flex-col min-h-screen bg-background text-foreground'>
-              <nav className="bg-gradient-to-r from-slate-900 via-blue-900 to-slate-900 text-primary-foreground px-6 py-5 shadow-lg border-b border-border/20">
+              <nav className="bg-gradient-to-r from-slate-900 via-blue-900 to-slate-900 text-primary-foreground px-6 py-5 shadow-lg border-b border-border/20" role="navigation" aria-label="Main navigation">
                 <NavLinks />
               </nav>
 
-              <main className="flex-grow px-6 py-8 bg-background">
+              <main id="main-content" className="flex-grow px-6 py-8 bg-background" role="main">
                 <div className="max-w-7xl mx-auto">
                   {children}
                 </div>
