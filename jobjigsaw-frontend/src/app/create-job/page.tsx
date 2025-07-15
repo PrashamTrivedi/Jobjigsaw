@@ -156,14 +156,20 @@ export default function CreateJobPage() {
     };
 
     return (
-        <>
-            <h1 className='text-4xl font-bold text-center'>
-                Analyze and Add Job
-            </h1>
-            <div className="space-y-4 p-4 max-w-lg mx-auto shadow-md rounded px-8 pt-6 pb-8 mb-4">
+        <div className="max-w-4xl mx-auto px-6 py-8 space-y-8">
+            <div className="text-center">
+                <h1 className="text-heading-1 font-bold text-foreground mb-3">
+                    Analyze and Add Job
+                </h1>
+                <p className="text-body-lg text-muted-foreground">
+                    Enter a job URL or paste the job description to analyze and save it to your library.
+                </p>
+            </div>
+            
+            <div className="space-y-6 p-6 bg-background border border-border rounded-lg shadow-sm">
                 <div>
                     <label htmlFor="jobUrl"
-                        className="block text-sm font-medium text-gray-700 dark:text-gray-200">Job URL</label>
+                        className="block text-body-sm font-medium text-foreground">Job URL</label>
                     <input type="text"
                         id="jobUrl" name="jobUrl"
                         value={jobUrl}
@@ -172,7 +178,7 @@ export default function CreateJobPage() {
                 </div>
                 <div>
                     <label htmlFor="jobDescriptionInput"
-                        className="block text-sm font-medium text-gray-700 dark:text-gray-200">Or Job Description (Paste here)</label>
+                        className="block text-body-sm font-medium text-foreground">Or Job Description (Paste here)</label>
                     <textarea id="jobDescriptionInput"
                         rows={10}
                         name="jobDescriptionInput"
@@ -183,36 +189,38 @@ export default function CreateJobPage() {
 
                 <button onClick={handleAnalyzeJob}
                     disabled={isAnalyzing || (!jobUrl && !jobDescriptionInput)}
-                    className="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-xs text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    className="w-full inline-flex justify-center py-3 px-6 border border-transparent shadow-sm text-body font-medium rounded-md text-primary-foreground bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed">
                     {isAnalyzing ? 'Analyzing Job...' : 'Analyze Job'}
                 </button>
 
                 {analyzedJobData && (
-                    <div className="mt-4 p-4 border rounded-md bg-gray-50 dark:bg-gray-800">
-                        <h2 className="text-xl font-semibold mb-2">Analyzed Job Details:</h2>
-                        <p><strong>Job Title:</strong> {job.jobTitle}</p>
-                        <p><strong>Company:</strong> {job.company}</p>
-                        <p><strong>Location:</strong> {job.jobLocation}</p>
-                        <p><strong>Job Fit Score:</strong> {job.jobFitScore}</p>
-                        <p><strong>Job Description:</strong> {job.jobDescription?.substring(0, 200)}...</p>
+                    <div className="mt-6 p-6 border border-border rounded-lg bg-secondary/50">
+                        <h2 className="text-heading-3 font-semibold mb-4 text-foreground">Analyzed Job Details:</h2>
+                        <div className="space-y-2 text-body">
+                            <p><span className="font-medium">Job Title:</span> {job.jobTitle}</p>
+                            <p><span className="font-medium">Company:</span> {job.company}</p>
+                            <p><span className="font-medium">Location:</span> {job.jobLocation}</p>
+                            <p><span className="font-medium">Job Fit Score:</span> {job.jobFitScore}</p>
+                            <p><span className="font-medium">Job Description:</span> {job.jobDescription?.substring(0, 200)}...</p>
+                        </div>
                         {/* Display other relevant inferred data */}
                     </div>
                 )}
 
                 {analyzedJobData && (
-                    <div className="flex justify-between mt-4">
+                    <div className="flex flex-col sm:flex-row gap-4 mt-6">
                         <button onClick={handleAddJob}
                             disabled={isAdding}
-                            className="w-1/2 mr-2 inline-flex justify-center py-2 px-4 border border-transparent shadow-xs text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                            className="flex-1 inline-flex justify-center py-3 px-6 border border-transparent shadow-sm text-body font-medium rounded-md text-white bg-success hover:bg-success/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-success disabled:opacity-50 disabled:cursor-not-allowed">
                             {isAdding ? 'Adding Job...' : 'Save Analyzed Job'}
                         </button>
                         <button onClick={handleGenerateResume}
-                            className="w-1/2 ml-2 inline-flex justify-center py-2 px-4 border border-transparent shadow-xs text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            className="flex-1 inline-flex justify-center py-3 px-6 border border-info text-info hover:bg-info/10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-info shadow-sm text-body font-medium rounded-md transition-colors">
                             Generate Resume
                         </button>
                     </div>
                 )}
             </div>
-        </>
+        </div>
     );
 }
