@@ -1,16 +1,16 @@
-'use client';
+'use client'
 
-import React from 'react';
-import { Card, CardHeader, CardTitle, CardContent, Badge } from '@/components/ui';
-import { Resume } from '@/types/resume';
-import { MapPinIcon, EnvelopeIcon, PhoneIcon, GlobeAltIcon } from '@heroicons/react/24/outline';
+import React from 'react'
+import {Card, CardHeader, CardTitle, CardContent, Badge} from '@/components/ui'
+import {Resume} from '@/types/resume'
+import {MapPinIcon, EnvelopeIcon, PhoneIcon, GlobeAltIcon} from '@heroicons/react/24/outline'
 
 interface ResumeDisplayProps {
-  resume: Resume;
+  resume: Resume
 }
 
-const ResumeDisplay: React.FC<ResumeDisplayProps> = ({ resume }) => {
-  const { basics, workExperience, education, skills, projects, certifications } = resume;
+const ResumeDisplay: React.FC<ResumeDisplayProps> = ({resume}) => {
+  const {basics, workExperience, education, skills, projects, certifications} = resume
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -205,7 +205,7 @@ const ResumeDisplay: React.FC<ResumeDisplayProps> = ({ resume }) => {
         </Card>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default ResumeDisplay;
+export default ResumeDisplay
