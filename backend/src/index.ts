@@ -961,7 +961,13 @@ app.openapi(selectModelRoute, async (c) => {
 
 app.openapi(migrateRoute, async (c) => {
         try {
-                const sql = (await import('./dbMigration/initDb.sql?raw')).default
+                let module
+                try {
+                        module = await import('./dbMigration/initDb')
+                } catch (_) {
+                        return c.json({error: 'initDb script not found'}, 404)
+                }
+                const sql = module.default as string
                 await c.env.DB.exec(sql)
                 return c.json({success: true})
         } catch (error: unknown) {
@@ -973,7 +979,13 @@ app.openapi(migrateRoute, async (c) => {
 app.openapi(migrateWithParamsRoute, async (c) => {
         try {
                 const {toVersion} = c.req.valid('param')
-                const sql = (await import(`./dbMigration/v${toVersion}.sql?raw`)).default
+                let module
+                try {
+                        module = await import(`./dbMigration/v${toVersion}.js`)
+                } catch (_) {
+                        return c.json({error: 'migration script not found'}, 404)
+                }
+                const sql = module.default as string
                 await c.env.DB.exec(sql)
                 return c.json({success: true})
         } catch (error: unknown) {
