@@ -315,8 +315,8 @@ export async function listAvailableModels(env: Env) {
     const openaiModels = await env.JOBJIBSAW.models({provider: 'openai'})
     const geminiModels = await env.JOBJIBSAW.models({provider: 'google-ai-studio'})
     return [
-        ...openaiModels.map((m: any) => ({id: m.id, provider: 'openai'})),
-        ...geminiModels.map((m: any) => ({id: m.id, provider: 'google-ai-studio'})),
+        ...openaiModels.map((m: any) => ({id: m.id, name: m.name || m.id, provider: 'openai'})),
+        ...geminiModels.map((m: any) => ({id: m.id, name: m.name || m.id, provider: 'google-ai-studio'})),
     ]
 }
 

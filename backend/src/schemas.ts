@@ -43,6 +43,7 @@ export const JobAnalyzeSchema = z.object({
 
 export const ModelInfoSchema = z.object({
     id: z.string().openapi({example: 'gpt-4o'}),
+    name: z.string().openapi({example: 'GPT-4o'}),
     provider: z.string().openapi({example: 'openai'})
 }).openapi('ModelInfo')
 

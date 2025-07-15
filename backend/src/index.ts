@@ -968,7 +968,10 @@ app.openapi(migrateRoute, async (c) => {
                         return c.json({error: 'initDb script not found'}, 404)
                 }
                 const sql = module.default as string
-                await c.env.DB.exec(sql)
+                const statements = sql.split(';').map((s) => s.trim()).filter(Boolean)
+                for (const stmt of statements) {
+                        await c.env.DB.exec(stmt)
+                }
                 return c.json({success: true})
         } catch (error: unknown) {
                 const {error: errorMessage, status} = handleError(error, "Error running migration")
@@ -986,7 +989,10 @@ app.openapi(migrateWithParamsRoute, async (c) => {
                         return c.json({error: 'migration script not found'}, 404)
                 }
                 const sql = module.default as string
-                await c.env.DB.exec(sql)
+                const statements = sql.split(';').map((s) => s.trim()).filter(Boolean)
+                for (const stmt of statements) {
+                        await c.env.DB.exec(stmt)
+                }
                 return c.json({success: true})
         } catch (error: unknown) {
                 const {error: errorMessage, status} = handleError(error, "Error running migration")
@@ -1520,7 +1526,7 @@ app.get('/doc', c => c.json({
                                                                                         type: 'array',
                                                                                         items: {
                                                                                                 type: 'object',
-                                                                                                properties: { id: { type: 'string' }, provider: { type: 'string' } }
+                                                                                                properties: { id: { type: 'string' }, name: { type: 'string' }, provider: { type: 'string' } }
                                                                                         }
                                                                                 }
                                                                         }
