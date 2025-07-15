@@ -9,6 +9,7 @@ import {JobService} from './job/jobService'
 import {MainResumeService} from './mainResume/mainResumeService'
 import {ResumeService} from './resume/resumeService'
 import {generateJsonFromResume, inferJobDescription, checkCompatiblity, generateResume, inferCompanyDetails, inferJobDescriptionFromUrl, listAvailableModels, setPreferredModel} from './openai'
+import initDbSql from './dbMigration/initDb'
 import {AppError} from './types'
 import * as schemas from './schemas'
 
@@ -961,14 +962,7 @@ app.openapi(selectModelRoute, async (c) => {
 
 app.openapi(migrateRoute, async (c) => {
         try {
-                let module
-                try {
-                        module = await import('./dbMigration/initDb')
-                } catch (_) {
-                        return c.json({error: 'initDb script not found'}, 404)
-                }
-                const sql = module.default as string
-                const statements = sql.split(';').map((s) => s.trim()).filter(Boolean)
+                const statements = initDbSql.split(';').map((s) => s.trim()).filter(Boolean)
                 for (const stmt of statements) {
                         await c.env.DB.exec(stmt)
                 }
@@ -984,7 +978,7 @@ app.openapi(migrateWithParamsRoute, async (c) => {
                 const {toVersion} = c.req.valid('param')
                 let module
                 try {
-                        module = await import(`./dbMigration/v${toVersion}.js`)
+                        module = await import(`./dbMigration/v${toVersion}.ts`)
                 } catch (_) {
                         return c.json({error: 'migration script not found'}, 404)
                 }
