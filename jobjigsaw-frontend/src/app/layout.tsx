@@ -38,7 +38,7 @@ export default function RootLayout({
               Skip to main content
             </a>
             <div className='flex flex-col min-h-screen bg-background text-foreground'>
-              <nav className="bg-gradient-to-r from-slate-900 via-blue-900 to-slate-900 text-primary-foreground px-6 py-6 shadow-lg border-b border-border/20 min-h-[120px] flex items-center" role="navigation" aria-label="Main navigation">
+              <nav className="bg-gradient-to-r from-slate-900 via-blue-900 to-slate-900 text-primary-foreground px-6 py-2 shadow-lg border-b border-border/20 flex items-center" role="navigation" aria-label="Main navigation">
                 <NavLinks />
               </nav>
 
