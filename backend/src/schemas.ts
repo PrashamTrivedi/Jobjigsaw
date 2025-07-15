@@ -41,6 +41,25 @@ export const JobAnalyzeSchema = z.object({
     jobUrl: z.string().url().openapi({ example: 'https://jobs.example.com/software-engineer' })
 }).openapi('JobAnalyze')
 
+export const ModelInfoSchema = z.object({
+    id: z.string().openapi({example: 'gpt-4o'}),
+    provider: z.string().openapi({example: 'openai'})
+}).openapi('ModelInfo')
+
+export const ModelsResponseSchema = z.object({
+    models: ModelInfoSchema.array()
+}).openapi('ModelsResponse')
+
+export const SelectModelSchema = z.object({
+    modelName: z.string().openapi({example: 'gpt-4o'}),
+    provider: z.string().openapi({example: 'openai'})
+}).openapi('SelectModel')
+
+export const MigrateParamsSchema = z.object({
+    fromVersion: z.string().openapi({param: {name:'fromVersion', in:'path'}, example:'0'}),
+    toVersion: z.string().openapi({param: {name:'toVersion', in:'path'}, example:'1'})
+})
+
 // Resume schemas
 export const ResumeSchema = z.object({
     id: z.number().optional().openapi({ example: 1 }),
