@@ -996,18 +996,18 @@ app.openapi(migrateWithParamsRoute, async (c) => {
 
 // OpenAPI documentation endpoints
 app.get('/doc', c => c.json({
-	openapi: '3.0.0',
-	info: {
-		version: '1.0.0',
-		title: 'Jobjigsaw API',
-		description: 'AI-powered job application and resume customization platform API'
-	},
-	servers: [
-		{
-			url: 'http://localhost:8787',
-			description: 'Development server'
-		}
-	],
+        openapi: '3.0.0',
+        info: {
+                version: '1.0.0',
+                title: 'Jobjigsaw API',
+                description: 'AI-powered job application and resume customization platform API'
+        },
+        servers: [
+                {
+                        url: new URL(c.req.url).origin,
+                        description: 'Current server'
+                }
+        ],
 	tags: [
 		{ name: 'Jobs', description: 'Job management and analysis' },
 		{ name: 'Main Resume', description: 'User\'s main resume management' },
