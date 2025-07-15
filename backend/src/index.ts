@@ -962,10 +962,15 @@ app.openapi(selectModelRoute, async (c) => {
 
 app.openapi(migrateRoute, async (c) => {
         try {
-                const statements = initDbSql.split(';').map((s) => s.trim()).filter(Boolean)
-                for (const stmt of statements) {
+        const statements = initDbSql.split(';').map((s) => s.trim()).filter(Boolean)
+        for (const stmt of statements) {
+                try {
                         await c.env.DB.exec(stmt)
+                } catch (err) {
+                        console.error('Migration failed for statement:', stmt)
+                        throw err
                 }
+        }
                 return c.json({success: true})
         } catch (error: unknown) {
                 const {error: errorMessage, status} = handleError(error, "Error running migration")
@@ -983,10 +988,15 @@ app.openapi(migrateWithParamsRoute, async (c) => {
                         return c.json({error: 'migration script not found'}, 404)
                 }
                 const sql = module.default as string
-                const statements = sql.split(';').map((s) => s.trim()).filter(Boolean)
-                for (const stmt of statements) {
+        const statements = sql.split(';').map((s) => s.trim()).filter(Boolean)
+        for (const stmt of statements) {
+                try {
                         await c.env.DB.exec(stmt)
+                } catch (err) {
+                        console.error('Migration failed for statement:', stmt)
+                        throw err
                 }
+        }
                 return c.json({success: true})
         } catch (error: unknown) {
                 const {error: errorMessage, status} = handleError(error, "Error running migration")
