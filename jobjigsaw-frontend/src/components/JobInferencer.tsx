@@ -1,19 +1,19 @@
 'use client'
 
-import { useState } from 'react'
-import { Button, Card, CardHeader, CardTitle, CardContent, Textarea, Badge, useToast } from '@/components/ui'
+import {useState} from 'react'
+import {Button, Card, CardHeader, CardTitle, CardContent, Textarea, Badge, useToast} from '@/components/ui'
 import InferredJob from "./inferredJob"
 
 interface JobInferenceResponse {
-  inferredDescription: any;
-  cached?: boolean;
-  cacheExpiry?: string;
+  inferredDescription: any
+  cached?: boolean
+  cacheExpiry?: string
 }
 
 interface JobMatchResponse {
-  jobMatch: any;
-  cached?: boolean;
-  cacheExpiry?: string;
+  jobMatch: any
+  cached?: boolean
+  cacheExpiry?: string
 }
 
 async function inferJob(description: string): Promise<JobInferenceResponse> {
@@ -22,13 +22,13 @@ async function inferJob(description: string): Promise<JobInferenceResponse> {
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ description }),
-  });
+    body: JSON.stringify({description}),
+  })
   if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.error || 'Failed to infer job');
+    const errorData = await response.json()
+    throw new Error(errorData.error || 'Failed to infer job')
   }
-  return response.json();
+  return response.json()
 }
 
 async function inferJobMatch(description: string): Promise<JobMatchResponse> {
@@ -37,18 +37,18 @@ async function inferJobMatch(description: string): Promise<JobMatchResponse> {
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ description }),
-  });
+    body: JSON.stringify({description}),
+  })
   if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.error || 'Failed to infer job match');
+    const errorData = await response.json()
+    throw new Error(errorData.error || 'Failed to infer job match')
   }
-  return response.json();
+  return response.json()
 }
 
 export default function JobInferencer() {
   const [viewName, setViewName] = useState('form')
-  const { toast } = useToast()
+  const {toast} = useToast()
 
   const [inferPending, toggleInferPending] = useState(false)
   const [inferMatchPending, toggleInferMatchPending] = useState(false)
@@ -57,8 +57,8 @@ export default function JobInferencer() {
   const [inferredJob, setInferredJob] = useState<any>({})
   const [inferredJobMatch, setInferredJobMatch] = useState<any>({})
   const [cacheInfo, setCacheInfo] = useState<{
-    inference?: { cached: boolean; expiry?: string };
-    match?: { cached: boolean; expiry?: string };
+    inference?: {cached: boolean; expiry?: string}
+    match?: {cached: boolean; expiry?: string}
   }>({})
 
   async function handleInferJob() {
@@ -68,9 +68,9 @@ export default function JobInferencer() {
       setInferredJob(data.inferredDescription)
       setCacheInfo(prev => ({
         ...prev,
-        inference: { cached: data.cached || false, expiry: data.cacheExpiry }
+        inference: {cached: data.cached || false, expiry: data.cacheExpiry}
       }))
-      
+
       if (data.cached) {
         toast({
           type: 'info',
@@ -84,7 +84,7 @@ export default function JobInferencer() {
           description: 'Data has been cached for future use'
         })
       }
-      
+
       toggleInferPending(false)
       setViewName('inferrence')
     } catch (error) {
@@ -105,9 +105,9 @@ export default function JobInferencer() {
       setInferredJobMatch(data.jobMatch)
       setCacheInfo(prev => ({
         ...prev,
-        match: { cached: data.cached || false, expiry: data.cacheExpiry }
+        match: {cached: data.cached || false, expiry: data.cacheExpiry}
       }))
-      
+
       if (data.cached) {
         toast({
           type: 'info',
@@ -121,7 +121,7 @@ export default function JobInferencer() {
           description: 'Match results have been cached for future use'
         })
       }
-      
+
       toggleInferMatchPending(false)
       setViewName('inferrence')
     } catch (error) {
@@ -138,21 +138,21 @@ export default function JobInferencer() {
   const getCacheBadge = (type: 'inference' | 'match') => {
     const cache = cacheInfo[type]
     if (!cache) return null
-    
+
     if (cache.cached) {
       const expiryDate = cache.expiry ? new Date(cache.expiry) : null
       const now = new Date()
-      
+
       if (expiryDate) {
         const hoursUntilExpiry = (expiryDate.getTime() - now.getTime()) / (1000 * 60 * 60)
-        
+
         if (hoursUntilExpiry <= 0) {
           return <Badge variant="cache-expired" size="sm">Cache expired</Badge>
         } else if (hoursUntilExpiry <= 2) {
           return <Badge variant="cache-expiring" size="sm">Cache expiring soon</Badge>
         }
       }
-      
+
       return <Badge variant="cache-fresh" size="sm">Cached - Fast processing</Badge>
     }
     return null
@@ -160,8 +160,8 @@ export default function JobInferencer() {
 
   if (viewName === 'form') {
     return (
-      <div className="min-h-[calc(100vh-200px)] bg-gradient-to-br from-background via-blue-50/5 to-purple-50/10 dark:from-background dark:via-blue-950/10 dark:to-purple-950/10">
-        <div className="max-w-4xl mx-auto py-12">
+      <div className="bg-gradient-to-br from-background via-blue-50/5 to-purple-50/10 dark:from-background dark:via-blue-950/10 dark:to-purple-950/10">
+        <div className="mx-auto py-12 px-6">
           <div className="text-center mb-8">
             <h1 className="text-heading-1 font-bold text-foreground mb-3">
               AI-Powered Job Analysis
@@ -171,7 +171,7 @@ export default function JobInferencer() {
             </p>
           </div>
 
-          <Card elevated className="backdrop-blur-sm bg-gradient-to-br from-background/95 to-blue-50/30 dark:to-blue-950/30 border border-blue-200/30 dark:border-blue-800/30 shadow-2xl shadow-blue-500/10">
+          <Card elevated className="backdrop-blur-sm mx-5 bg-gradient-to-br from-background/95 to-blue-50/30 dark:to-blue-950/30 border border-blue-200/30 dark:border-blue-800/30 shadow-2xl shadow-blue-500/10">
             <CardContent className="p-8 space-y-8">
               <div className="space-y-3">
                 <label htmlFor="jobDescription" className="block text-body font-semibold text-foreground flex items-center gap-2">
@@ -208,7 +208,7 @@ export default function JobInferencer() {
                 >
                   {inferPending ? 'Analyzing...' : '🔍 Analyze Job'}
                 </Button>
-                
+
                 <Button
                   variant="outline"
                   size="lg"

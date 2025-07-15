@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from "react";
+import {useState, useEffect} from "react"
 // import { addJob } from "@/data/jobs"; // Adjust path as needed
 // import { analyzeJob, getAnalyzedJob } from "@/data/jobInferrence"; // Adjust path as needed
 // import { Job } from "@/data/jobs"; // Adjust path as needed
@@ -9,27 +9,27 @@ import { useState, useEffect } from "react";
 
 // Placeholder types and functions for now
 type Job = {
-    id: string;
-    jobTitle: string;
-    company: string;
-    jobDescription: string;
-    jobUrl: string | null;
-    jobLocation: string | null;
-    jobType: string | null;
-    salary: string | null;
-    postedDate: string | null;
-    applicationDeadline: string | null;
-    contactEmail: string | null;
-    contactPhone: string | null;
-    responsibilities: string | null;
-    requirements: string | null;
-    benefits: string | null;
-    aboutCompany: string | null;
-    howToApply: string | null;
-    jobFitScore: number | null;
-    jobFitBreakdown: string | null;
-    inferredData: string | null;
-};
+    id: string
+    jobTitle: string
+    company: string
+    jobDescription: string
+    jobUrl: string | null
+    jobLocation: string | null
+    jobType: string | null
+    salary: string | null
+    postedDate: string | null
+    applicationDeadline: string | null
+    contactEmail: string | null
+    contactPhone: string | null
+    responsibilities: string | null
+    requirements: string | null
+    benefits: string | null
+    aboutCompany: string | null
+    howToApply: string | null
+    jobFitScore: number | null
+    jobFitBreakdown: string | null
+    inferredData: string | null
+}
 
 async function addJob(job: Job): Promise<any> {
     const response = await fetch('/api/job', {
@@ -38,12 +38,12 @@ async function addJob(job: Job): Promise<any> {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify(job),
-    });
+    })
     if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to add job');
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to add job')
     }
-    return response.json();
+    return response.json()
 }
 
 async function analyzeJob(input: string): Promise<any> {
@@ -52,22 +52,22 @@ async function analyzeJob(input: string): Promise<any> {
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ jobUrl: input }), // Assuming input can be a URL or description
-    });
+        body: JSON.stringify({jobUrl: input}), // Assuming input can be a URL or description
+    })
     if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to analyze job');
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to analyze job')
     }
-    return response.json();
+    return response.json()
 }
 
 export default function CreateJobPage() {
     // const navigate = useNavigate(); // Uncomment when ready to use Next.js navigation
-    const [jobUrl, setJobUrl] = useState("");
-    const [jobDescriptionInput, setJobDescriptionInput] = useState("");
-    const [analyzedJobData, setAnalyzedJobData] = useState<any>(null);
-    const [isAnalyzing, setIsAnalyzing] = useState(false);
-    const [isAdding, setIsAdding] = useState(false);
+    const [jobUrl, setJobUrl] = useState("")
+    const [jobDescriptionInput, setJobDescriptionInput] = useState("")
+    const [analyzedJobData, setAnalyzedJobData] = useState<any>(null)
+    const [isAnalyzing, setIsAnalyzing] = useState(false)
+    const [isAdding, setIsAdding] = useState(false)
 
     const [job, setJob] = useState<Job>({
         id: "",
@@ -90,12 +90,12 @@ export default function CreateJobPage() {
         jobFitScore: null,
         jobFitBreakdown: null,
         inferredData: null,
-    });
+    })
 
     useEffect(() => {
         if (analyzedJobData) {
-            const inferredJob = analyzedJobData.inferredJob?.response || {};
-            const compatibility = analyzedJobData.compatibility?.response || {};
+            const inferredJob = analyzedJobData.inferredJob?.response || {}
+            const compatibility = analyzedJobData.compatibility?.response || {}
 
             setJob({
                 ...job,
@@ -118,45 +118,45 @@ export default function CreateJobPage() {
                 jobFitScore: compatibility.score || null,
                 jobFitBreakdown: compatibility.breakdown ? JSON.stringify(compatibility.breakdown) : null,
                 inferredData: JSON.stringify(analyzedJobData),
-            });
+            })
         }
-    }, [analyzedJobData]);
+    }, [analyzedJobData])
 
     async function handleAnalyzeJob() {
-        setIsAnalyzing(true);
+        setIsAnalyzing(true)
         try {
-            const data = await analyzeJob(jobUrl || jobDescriptionInput);
-            setAnalyzedJobData(data);
+            const data = await analyzeJob(jobUrl || jobDescriptionInput)
+            setAnalyzedJobData(data)
         } catch (error) {
-            console.error("Error analyzing job:", error);
-            alert("Failed to analyze job. Please check the URL or description.");
+            console.error("Error analyzing job:", error)
+            alert("Failed to analyze job. Please check the URL or description.")
         } finally {
-            setIsAnalyzing(false);
+            setIsAnalyzing(false)
         }
     }
 
     async function handleAddJob() {
-        setIsAdding(true);
+        setIsAdding(true)
         try {
-            await addJob(job);
+            await addJob(job)
             // Redirect is handled by the server action now
         } catch (error) {
-            console.error("Error adding job:", error);
-            alert("Failed to add job.");
+            console.error("Error adding job:", error)
+            alert("Failed to add job.")
         } finally {
-            setIsAdding(false);
+            setIsAdding(false)
         }
     }
 
     const handleGenerateResume = () => {
         if (analyzedJobData) {
             // navigate('/saved-resumes/resume', { state: { jobCompatibilityData: analyzedJobData.compatibility?.response, jobDescription: job.jobDescription } }); // Uncomment when ready to use Next.js navigation
-            console.log("Generate Resume clicked");
+            console.log("Generate Resume clicked")
         }
-    };
+    }
 
     return (
-        <div className="max-w-4xl mx-auto px-6 py-8 space-y-8">
+        <div className="mx-auto px-6 py-8 space-y-8">
             <div className="text-center">
                 <h1 className="text-heading-1 font-bold text-foreground mb-3">
                     Analyze and Add Job
@@ -165,7 +165,7 @@ export default function CreateJobPage() {
                     Enter a job URL or paste the job description to analyze and save it to your library.
                 </p>
             </div>
-            
+
             <div className="space-y-6 p-6 bg-background border border-border rounded-lg shadow-sm">
                 <div>
                     <label htmlFor="jobUrl"
@@ -222,5 +222,5 @@ export default function CreateJobPage() {
                 )}
             </div>
         </div>
-    );
+    )
 }

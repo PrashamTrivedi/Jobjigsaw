@@ -13,7 +13,7 @@ const ResumeDisplay: React.FC<ResumeDisplayProps> = ({resume}) => {
   const {basics, workExperience, education, skills, projects, certifications} = resume
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="mx-auto space-y-6">
       {/* Header Section */}
       <Card elevated>
         <CardContent className="pt-6">

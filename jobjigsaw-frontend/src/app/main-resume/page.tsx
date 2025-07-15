@@ -153,7 +153,7 @@ export default function MainResumePage() {
     }
 
     return (
-        <div className="max-w-6xl mx-auto px-6 py-8 space-y-8">
+        <div className="mx-auto px-6 py-8 space-y-8">
             <div className="text-center">
                 <h1 className="text-heading-1 mb-4">Resume Management</h1>
                 <p className="text-body text-muted-foreground">

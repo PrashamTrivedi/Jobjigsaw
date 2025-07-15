@@ -1,61 +1,61 @@
 'use client'
 
-import { Suspense, useEffect, useRef, useState } from "react"
+import {Suspense, useEffect, useRef, useState} from "react"
 import ResumeComponent from "@/components/ResumeComponent"
 import CopyButton from "@/components/CopyButton"
-import { Resume } from "@/types/resume"
-import { useSearchParams } from 'next/navigation'
+import {Resume} from "@/types/resume"
+import {useSearchParams} from 'next/navigation'
 
 async function getResumeById(id: string): Promise<any> {
-    const response = await fetch(`/api/resume/${id}`);
+    const response = await fetch(`/api/resume/${id}`)
     if (!response.ok) {
-        throw new Error('Failed to fetch resume by ID');
+        throw new Error('Failed to fetch resume by ID')
     }
-    return response.json();
+    return response.json()
 }
 
 async function getJob(id: string): Promise<any> {
-    const response = await fetch(`/api/job/${id}`);
+    const response = await fetch(`/api/job/${id}`)
     if (!response.ok) {
-        throw new Error('Failed to fetch job');
+        throw new Error('Failed to fetch job')
     }
-    return response.json();
+    return response.json()
 }
 
 async function generateResume(jobCompatibilityData: any, generateCoverLetter: boolean): Promise<any> {
     const response = await fetch('/api/resume/generate', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ jobCompatibilityData, generateCoverLetter }),
-    });
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({jobCompatibilityData, generateCoverLetter}),
+    })
     if (!response.ok) {
-        throw new Error('Failed to generate resume');
+        throw new Error('Failed to generate resume')
     }
-    return response.json();
+    return response.json()
 }
 
-async function printResume(data: { resumeJson: any, resumeName: string }): Promise<any> {
+async function printResume(data: {resumeJson: any, resumeName: string}): Promise<any> {
     const response = await fetch('/api/resume/print', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(data),
-    });
+    })
     if (!response.ok) {
-        throw new Error('Failed to print resume');
+        throw new Error('Failed to print resume')
     }
-    return response.blob();
+    return response.blob()
 }
 
-async function createResume(body: { jobId: string, updatedResume: any, technicalSkills: string, softSkills: string, coverLetter: string }): Promise<any> {
+async function createResume(body: {jobId: string, updatedResume: any, technicalSkills: string, softSkills: string, coverLetter: string}): Promise<any> {
     const response = await fetch('/api/resume', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(body),
-    });
+    })
     if (!response.ok) {
-        throw new Error('Failed to create resume');
+        throw new Error('Failed to create resume')
     }
-    return response.json();
+    return response.json()
 }
 
 export default function ResumesPage() {
@@ -65,7 +65,7 @@ export default function ResumesPage() {
 
     if ((!jobId && !resumeId) || (jobId === '' && resumeId === '')) {
         return (
-            <div className="max-w-4xl mx-auto px-6 py-8">
+            <div className="mx-auto px-6 py-8">
                 <div className="bg-secondary rounded-lg p-6 text-center">
                     <h2 className="text-heading-2 font-semibold text-foreground mb-2">Missing Parameters</h2>
                     <p className="text-body text-muted-foreground">No Job ID or Resume ID provided</p>
@@ -75,7 +75,7 @@ export default function ResumesPage() {
     } else {
         return (
             <Suspense fallback={
-                <div className="max-w-4xl mx-auto px-6 py-8 text-center">
+                <div className="mx-auto px-6 py-8 text-center">
                     <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
                     <p className="mt-4 text-muted-foreground">Loading...</p>
                 </div>
@@ -86,7 +86,7 @@ export default function ResumesPage() {
     }
 }
 
-function ResumeWithCoverLetterComponent({ jobId, resumeId }: { jobId: string | null, resumeId: string | null }) {
+function ResumeWithCoverLetterComponent({jobId, resumeId}: {jobId: string | null, resumeId: string | null}) {
     const [resume, setResume] = useState<Resume>({
         basics: {
             name: "",
@@ -156,7 +156,7 @@ function ResumeWithCoverLetterComponent({ jobId, resumeId }: { jobId: string | n
         setIsPrinting(true)
 
         const resumeName = `Resume: ${resume.basics.name} - ${companyName}.pdf`
-        const printedResume = await printResume({ resumeJson: resume, resumeName })
+        const printedResume = await printResume({resumeJson: resume, resumeName})
         // Download the file
         const url = window.URL.createObjectURL(new Blob([printedResume]))
         const link = document.createElement('a')
@@ -187,21 +187,21 @@ function ResumeWithCoverLetterComponent({ jobId, resumeId }: { jobId: string | n
         }
     }
     return (
-        <div className="max-w-4xl mx-auto px-6 py-8 space-y-8">
+        <div className="mx-auto px-6 py-8 space-y-8">
             <div ref={resumeRef}>
                 <ResumeComponent initialResume={resume} />
             </div>
-            
+
             <div className="flex flex-col sm:flex-row gap-4">
-                <button 
-                    className="px-6 py-3 border border-border rounded-md text-foreground bg-background hover:bg-secondary transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary" 
+                <button
+                    className="px-6 py-3 border border-border rounded-md text-foreground bg-background hover:bg-secondary transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
                     onClick={printPdf}
                 >
                     {isPrinting ? 'Printing Resume' : 'Print Resume'}
                 </button>
                 {(!resumeId || resumeId === '') && (
-                    <button 
-                        className="px-6 py-3 border border-transparent rounded-md text-primary-foreground bg-primary hover:bg-primary/90 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary" 
+                    <button
+                        className="px-6 py-3 border border-transparent rounded-md text-primary-foreground bg-primary hover:bg-primary/90 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
                         onClick={addResume}
                     >
                         {isAdding ? 'Adding Resume' : 'Add Resume'}

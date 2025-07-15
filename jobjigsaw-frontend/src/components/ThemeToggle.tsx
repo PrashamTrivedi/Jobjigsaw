@@ -2,9 +2,15 @@
 
 import { MoonIcon, SunIcon } from '@heroicons/react/24/outline'
 import { useTheme } from './DarkModeProvider'
+import { useEffect, useState } from 'react'
 
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const toggleTheme = () => {
     if (theme === 'light') {
@@ -23,6 +29,9 @@ export function ThemeToggle() {
       return <SunIcon className="h-5 w-5" />
     } else {
       // system theme - show based on actual system preference
+      if (!mounted) {
+        return <SunIcon className="h-5 w-5" />
+      }
       const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
       return isDark ? <MoonIcon className="h-5 w-5" /> : <SunIcon className="h-5 w-5" />
     }

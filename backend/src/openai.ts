@@ -101,7 +101,7 @@ export async function inferJobDescriptionFromUrl(url: string, env: Env) {
 }
 
 export async function inferJobDescription(description: string, additionalFields: string[], env: Env): Promise<string | undefined> {
-    const originalPrompt = `I am a developer with 14+ years of experience. 
+    const originalPrompt = `I am a developer with 16+ years of experience. 
     You will assess a Job description and infer and extract following fields in JSON. 
     Unless specified otherwise, all fields should be string
 
