@@ -8,9 +8,14 @@ import {CloudflareKv} from './utils/cloudflareKv'
 import {JobService} from './job/jobService'
 import {MainResumeService} from './mainResume/mainResumeService'
 import {ResumeService} from './resume/resumeService'
-import {generateJsonFromResume, inferJobDescription, checkCompatiblity, generateResume, inferCompanyDetails, inferJobDescriptionFromUrl} from './openai'
+import {generateJsonFromResume, inferJobDescription, checkCompatiblity, generateResume, inferCompanyDetails, inferJobDescriptionFromUrl, listAvailableModels, setPreferredModel} from './openai'
+import initDbSql from './dbMigration/initDb'
 import {AppError} from './types'
 import * as schemas from './schemas'
+
+// Constants
+const CACHE_TTL_SECONDS = 432000 // 5 days
+const ALLOWED_MIGRATION_VERSIONS = ['1', '2', '3', '4', '5'] // Add valid versions here
 
 // Helper function to handle errors safely
 const handleError = (error: unknown, context: string, status: number = 500) => {
@@ -23,12 +28,45 @@ const handleError = (error: unknown, context: string, status: number = 500) => {
 	return {error: appError.message, status: appError.status}
 }
 
+// Migration utility function with SQL validation
+const executeMigration = async (sql: string, db: D1Database) => {
+	// Basic SQL validation - only allow DDL statements for migrations
+	const allowedPrefixes = ['CREATE', 'ALTER', 'DROP', 'INSERT', 'UPDATE']
+	const statements = sql.split(';').map((s) => s.trim()).filter(Boolean)
+	
+	for (const stmt of statements) {
+		const upperStmt = stmt.toUpperCase()
+		const isAllowed = allowedPrefixes.some(prefix => upperStmt.startsWith(prefix))
+		
+		if (!isAllowed) {
+			throw new Error(`Invalid SQL statement in migration: ${stmt.substring(0, 50)}...`)
+		}
+		
+		try {
+			await db.exec(stmt)
+		} catch (err) {
+			console.error('Migration failed for statement:', stmt)
+			throw err
+		}
+	}
+}
+
+// Cache invalidation utility
+const invalidateJobCache = async (kv: CloudflareKv) => {
+	const keys = await kv.list('job_')
+	for (const key of keys) {
+		await kv.delete(key)
+	}
+}
+
 const app = new OpenAPIHono<{Bindings: Env}>()
 
 // Middleware
 app.use('*', logger())
 app.use('*', cors())
 app.use('*', secureHeaders())
+
+app.get('/', () => new Response('Hello World!'))
 
 // Route definitions
 const createJobRoute = createRoute({
@@ -532,6 +570,82 @@ const generateResumeRoute = createRoute({
 	tags: ['Resumes']
 })
 
+const listModelsRoute = createRoute({
+        method: 'get',
+        path: '/models',
+        responses: {
+                200: {
+                        content: {
+                                'application/json': {
+                                        schema: schemas.ModelsResponseSchema
+                                }
+                        },
+                        description: 'List available models'
+                }
+        },
+        tags: ['Models']
+})
+
+const selectModelRoute = createRoute({
+        method: 'post',
+        path: '/model',
+        request: {
+                body: {
+                        content: {
+                                'application/json': {
+                                        schema: schemas.SelectModelSchema
+                                }
+                        }
+                }
+        },
+        responses: {
+                200: {
+                        content: {
+                                'application/json': {
+                                        schema: schemas.SuccessResponseSchema
+                                }
+                        },
+                        description: 'Model selected'
+                }
+        },
+        tags: ['Models']
+})
+
+const migrateRoute = createRoute({
+        method: 'post',
+        path: '/migrate',
+        responses: {
+                200: {
+                        content: {
+                                'application/json': {
+                                        schema: schemas.SuccessResponseSchema
+                                }
+                        },
+                        description: 'Migration executed'
+                }
+        },
+        tags: ['Migrations']
+})
+
+const migrateWithParamsRoute = createRoute({
+        method: 'post',
+        path: '/migrate/{fromVersion}/{toVersion}',
+        request: {
+                params: schemas.MigrateParamsSchema
+        },
+        responses: {
+                200: {
+                        content: {
+                                'application/json': {
+                                        schema: schemas.SuccessResponseSchema
+                                }
+                        },
+                        description: 'Migration executed'
+                }
+        },
+        tags: ['Migrations']
+})
+
 // Job Routes
 app.openapi(createJobRoute, async (c) => {
 	try {
@@ -555,6 +669,9 @@ app.openapi(deleteJobRoute, async (c) => {
 		const {id} = c.req.valid('param')
 		const result = await jobService.deleteJob(id.toString())
 		if (result.changes && result.changes > 0) {
+			// Invalidate cache when job is deleted
+			const kv = new CloudflareKv(c.env.VIEWED_JOBS_KV)
+			await invalidateJobCache(kv)
 			return c.json({success: true, message: 'Job removed successfully'})
 		} else {
 			return c.json({error: 'Job not found or no changes made'}, 404)
@@ -566,14 +683,23 @@ app.openapi(deleteJobRoute, async (c) => {
 })
 
 app.openapi(getJobsRoute, async (c) => {
-	try {
-		const jobService = new JobService(c.env)
-		const jobs = await jobService.getJobs()
-		return c.json(jobs)
-	} catch (error: unknown) {
-		const {error: errorMessage, status} = handleError(error, "Error getting all jobs")
-		return c.json({error: errorMessage}, status)
-	}
+        try {
+                const jobService = new JobService(c.env)
+                const jobs = await jobService.getJobs()
+                const kv = new CloudflareKv(c.env.VIEWED_JOBS_KV)
+                const keys = await kv.list('job_')
+                const cached: any[] = []
+                for (const key of keys) {
+                        const val = await kv.get(key)
+                        if (val) {
+                                cached.push({...JSON.parse(val), fromCache: true, cacheKey: key})
+                        }
+                }
+                return c.json([...cached, ...jobs])
+        } catch (error: unknown) {
+                const {error: errorMessage, status} = handleError(error, "Error getting all jobs")
+                return c.json({error: errorMessage}, status)
+        }
 })
 
 app.openapi(getJobByIdRoute, async (c) => {
@@ -593,25 +719,47 @@ app.openapi(getJobByIdRoute, async (c) => {
 })
 
 app.openapi(inferJobRoute, async (c) => {
-	try {
-		const {description, additionalFields} = c.req.valid('json')
-		const inferredDescription = await inferJobDescription(description, additionalFields, c.env)
-		return c.json({inferredDescription: inferredDescription})
-	} catch (error: unknown) {
-		const {error: errorMessage, status} = handleError(error, "Error inferring job description")
-		return c.json({error: errorMessage}, status)
-	}
+        try {
+                const {description, additionalFields} = c.req.valid('json')
+                const inferredDescription = await inferJobDescription(description, additionalFields, c.env)
+
+                if (Number(c.req.header('x-version') || '1') >= 2) {
+                        const mainResumeService = new MainResumeService(c.env)
+                        const mainResume = await mainResumeService.getMainResume()
+                        if (mainResume) {
+                                const jobMatch = await checkCompatiblity(description, JSON.stringify(mainResume), c.env)
+                                const kv = new CloudflareKv(c.env.VIEWED_JOBS_KV)
+                                await kv.put(`job_${Date.now()}`, JSON.stringify({inferredJob: inferredDescription, jobMatch}), {expirationTtl: CACHE_TTL_SECONDS})
+                        }
+                }
+
+                return c.json({inferredDescription: inferredDescription})
+        } catch (error: unknown) {
+                const {error: errorMessage, status} = handleError(error, "Error inferring job description")
+                return c.json({error: errorMessage}, status)
+        }
 })
 
 app.openapi(inferJobFromUrlRoute, async (c) => {
-	try {
-		const {url} = c.req.valid('json')
-		const inferredDescription = await inferJobDescriptionFromUrl(url, c.env)
-		return c.json({inferredDescription: inferredDescription})
-	} catch (error: unknown) {
-		const {error: errorMessage, status} = handleError(error, "Error inferring job from URL")
-		return c.json({error: errorMessage}, status)
-	}
+        try {
+                const {url} = c.req.valid('json')
+                const inferredDescription = await inferJobDescriptionFromUrl(url, c.env)
+
+                if (Number(c.req.header('x-version') || '1') >= 2) {
+                        const mainResumeService = new MainResumeService(c.env)
+                        const mainResume = await mainResumeService.getMainResume()
+                        if (mainResume) {
+                                const jobMatch = await checkCompatiblity(inferredDescription || '', JSON.stringify(mainResume), c.env)
+                                const kv = new CloudflareKv(c.env.VIEWED_JOBS_KV)
+                                await kv.put(`job_${Date.now()}`, JSON.stringify({inferredJob: inferredDescription, jobMatch}), {expirationTtl: CACHE_TTL_SECONDS})
+                        }
+                }
+
+                return c.json({inferredDescription: inferredDescription})
+        } catch (error: unknown) {
+                const {error: errorMessage, status} = handleError(error, "Error inferring job from URL")
+                return c.json({error: errorMessage}, status)
+        }
 })
 
 app.openapi(inferJobMatchRoute, async (c) => {
@@ -810,7 +958,7 @@ app.openapi(updateResumeRoute, async (c) => {
 })
 
 app.openapi(generateResumeRoute, async (c) => {
-	try {
+        try {
 		const mainResumeService = new MainResumeService(c.env)
 		const {jobCompatibilityData, generateCoverLetter} = c.req.valid('json')
 
@@ -826,23 +974,79 @@ app.openapi(generateResumeRoute, async (c) => {
 	} catch (error: unknown) {
 		const {error: errorMessage, status} = handleError(error, "Error generating resume")
 		return c.json({error: errorMessage}, status)
-	}
+        }
+})
+
+app.openapi(listModelsRoute, async (c) => {
+        try {
+                const models = await listAvailableModels(c.env)
+                return c.json({models})
+        } catch (error: unknown) {
+                const {error: errorMessage, status} = handleError(error, "Error listing models")
+                return c.json({error: errorMessage}, status)
+        }
+})
+
+app.openapi(selectModelRoute, async (c) => {
+        try {
+                const {modelName, provider} = c.req.valid('json')
+                await setPreferredModel(modelName, provider, c.env)
+                return c.json({success: true})
+        } catch (error: unknown) {
+                const {error: errorMessage, status} = handleError(error, "Error selecting model")
+                return c.json({error: errorMessage}, status)
+        }
+})
+
+app.openapi(migrateRoute, async (c) => {
+        try {
+                await executeMigration(initDbSql, c.env.DB)
+                return c.json({success: true})
+        } catch (error: unknown) {
+                const {error: errorMessage, status} = handleError(error, "Error running migration")
+                return c.json({error: errorMessage}, status)
+        }
+})
+
+app.openapi(migrateWithParamsRoute, async (c) => {
+        try {
+                const {toVersion} = c.req.valid('param')
+                
+                // Validate version input
+                if (!ALLOWED_MIGRATION_VERSIONS.includes(toVersion)) {
+                        return c.json({error: 'Invalid migration version'}, 400)
+                }
+                
+                let module
+                try {
+                        module = await import(`./dbMigration/v${toVersion}.ts`)
+                } catch (_) {
+                        return c.json({error: 'migration script not found'}, 404)
+                }
+                
+                const sql = module.default as string
+                await executeMigration(sql, c.env.DB)
+                return c.json({success: true})
+        } catch (error: unknown) {
+                const {error: errorMessage, status} = handleError(error, "Error running migration")
+                return c.json({error: errorMessage}, status)
+        }
 })
 
 // OpenAPI documentation endpoints
 app.get('/doc', c => c.json({
-	openapi: '3.0.0',
-	info: {
-		version: '1.0.0',
-		title: 'Jobjigsaw API',
-		description: 'AI-powered job application and resume customization platform API'
-	},
-	servers: [
-		{
-			url: 'http://localhost:8787',
-			description: 'Development server'
-		}
-	],
+        openapi: '3.0.0',
+        info: {
+                version: '1.0.0',
+                title: 'Jobjigsaw API',
+                description: 'AI-powered job application and resume customization platform API'
+        },
+        servers: [
+                {
+                        url: new URL(c.req.url).origin,
+                        description: 'Current server'
+                }
+        ],
 	tags: [
 		{ name: 'Jobs', description: 'Job management and analysis' },
 		{ name: 'Main Resume', description: 'User\'s main resume management' },
@@ -1301,8 +1505,8 @@ app.get('/doc', c => c.json({
 				}
 			}
 		},
-		'/resume/generate': {
-			post: {
+                '/resume/generate': {
+                        post: {
 				tags: ['Resumes'],
 				summary: 'Generate tailored resume',
 				requestBody: {
@@ -1336,11 +1540,210 @@ app.get('/doc', c => c.json({
 					'404': {
 						description: 'Main resume not found'
 					}
-				}
-			}
-		}
-	},
-	components: {
+                                }
+                        }
+                },
+                '/models': {
+                        get: {
+                                tags: ['Models'],
+                                summary: 'List available models',
+                                responses: {
+                                        '200': {
+                                                description: 'List available models',
+                                                content: {
+                                                        'application/json': {
+                                                                schema: {
+                                                                        type: 'object',
+                                                                        properties: {
+                                                                                models: {
+                                                                                        type: 'array',
+                                                                                        items: {
+                                                                                                type: 'object',
+                                                                                                properties: { id: { type: 'string' }, name: { type: 'string' }, provider: { type: 'string' } }
+                                                                                        }
+                                                                                }
+                                                                        }
+                                                                }
+                                                        }
+                                                }
+                                        },
+                                        '500': {
+                                                description: 'Internal server error',
+                                                content: {
+                                                        'application/json': {
+                                                                schema: {
+                                                                        type: 'object',
+                                                                        properties: {
+                                                                                error: { type: 'string' }
+                                                                        }
+                                                                }
+                                                        }
+                                                }
+                                        }
+                                }
+                        }
+                },
+                '/model': {
+                        post: {
+                                tags: ['Models'],
+                                summary: 'Select preferred model',
+                                requestBody: {
+                                        content: {
+                                                'application/json': {
+                                                        schema: { 
+                                                                type: 'object', 
+                                                                properties: { 
+                                                                        modelName: { type: 'string' }, 
+                                                                        provider: { type: 'string' } 
+                                                                },
+                                                                required: ['modelName', 'provider']
+                                                        }
+                                                }
+                                        }
+                                },
+                                responses: { 
+                                        '200': { 
+                                                description: 'Model selected',
+                                                content: {
+                                                        'application/json': {
+                                                                schema: {
+                                                                        type: 'object',
+                                                                        properties: {
+                                                                                success: { type: 'boolean' }
+                                                                        }
+                                                                }
+                                                        }
+                                                }
+                                        },
+                                        '400': {
+                                                description: 'Bad request',
+                                                content: {
+                                                        'application/json': {
+                                                                schema: {
+                                                                        type: 'object',
+                                                                        properties: {
+                                                                                error: { type: 'string' }
+                                                                        }
+                                                                }
+                                                        }
+                                                }
+                                        },
+                                        '500': {
+                                                description: 'Internal server error',
+                                                content: {
+                                                        'application/json': {
+                                                                schema: {
+                                                                        type: 'object',
+                                                                        properties: {
+                                                                                error: { type: 'string' }
+                                                                        }
+                                                                }
+                                                        }
+                                                }
+                                        }
+                                }
+                        }
+                },
+                '/migrate': {
+                        post: {
+                                tags: ['Migrations'],
+                                summary: 'Run init migration',
+                                responses: { 
+                                        '200': { 
+                                                description: 'Migration executed',
+                                                content: {
+                                                        'application/json': {
+                                                                schema: {
+                                                                        type: 'object',
+                                                                        properties: {
+                                                                                success: { type: 'boolean' }
+                                                                        }
+                                                                }
+                                                        }
+                                                }
+                                        },
+                                        '500': {
+                                                description: 'Migration failed',
+                                                content: {
+                                                        'application/json': {
+                                                                schema: {
+                                                                        type: 'object',
+                                                                        properties: {
+                                                                                error: { type: 'string' }
+                                                                        }
+                                                                }
+                                                        }
+                                                }
+                                        }
+                                }
+                        }
+                },
+                '/migrate/{fromVersion}/{toVersion}': {
+                        post: {
+                                tags: ['Migrations'],
+                                summary: 'Run version migration',
+                                parameters: [
+                                        { name: 'fromVersion', in: 'path', required: true, schema: { type: 'string' } },
+                                        { name: 'toVersion', in: 'path', required: true, schema: { type: 'string' } }
+                                ],
+                                responses: { 
+                                        '200': { 
+                                                description: 'Migration executed',
+                                                content: {
+                                                        'application/json': {
+                                                                schema: {
+                                                                        type: 'object',
+                                                                        properties: {
+                                                                                success: { type: 'boolean' }
+                                                                        }
+                                                                }
+                                                        }
+                                                }
+                                        },
+                                        '400': {
+                                                description: 'Invalid migration version',
+                                                content: {
+                                                        'application/json': {
+                                                                schema: {
+                                                                        type: 'object',
+                                                                        properties: {
+                                                                                error: { type: 'string' }
+                                                                        }
+                                                                }
+                                                        }
+                                                }
+                                        },
+                                        '404': {
+                                                description: 'Migration script not found',
+                                                content: {
+                                                        'application/json': {
+                                                                schema: {
+                                                                        type: 'object',
+                                                                        properties: {
+                                                                                error: { type: 'string' }
+                                                                        }
+                                                                }
+                                                        }
+                                                }
+                                        },
+                                        '500': {
+                                                description: 'Migration failed',
+                                                content: {
+                                                        'application/json': {
+                                                                schema: {
+                                                                        type: 'object',
+                                                                        properties: {
+                                                                                error: { type: 'string' }
+                                                                        }
+                                                                }
+                                                        }
+                                                }
+                                        }
+                                }
+                        }
+                }
+        },
+        components: {
 		schemas: {
 			Error: {
 				type: 'object',

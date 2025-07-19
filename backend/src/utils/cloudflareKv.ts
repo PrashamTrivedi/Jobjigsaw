@@ -7,12 +7,17 @@ export class CloudflareKv {
         this.kv = kv;
     }
 
-    async put(key: string, value: string) {
-        return this.kv.put(key, value);
+    async put(key: string, value: string, options?: {expirationTtl?: number}) {
+        return this.kv.put(key, value, options);
     }
 
     async get(key: string) {
         return this.kv.get(key);
+    }
+
+    async list(prefix?: string) {
+        const res = await this.kv.list({prefix});
+        return res.keys.map((k) => k.name);
     }
 
     async delete(key: string) {

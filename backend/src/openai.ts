@@ -310,3 +310,19 @@ export async function inferCompanyDetails(companyName: string, env: Env) {
         return response.text()
     }
 }
+
+export async function listAvailableModels(env: Env) {
+    const openaiModels = await env.JOBJIBSAW.models({provider: 'openai'})
+    const geminiModels = await env.JOBJIBSAW.models({provider: 'google-ai-studio'})
+    return [
+        ...openaiModels.map((m: any) => ({id: m.id, name: m.name || m.id, provider: 'openai'})),
+        ...geminiModels.map((m: any) => ({id: m.id, name: m.name || m.id, provider: 'google-ai-studio'})),
+    ]
+}
+
+export async function setPreferredModel(modelName: string, provider: string, env: Env) {
+    const useOpenAi = provider === 'openai'
+    await env.AI_GATEWAY_KV.put('PREFERRED_MODEL', JSON.stringify({preferredModel: modelName, useOpenAi}))
+}
+
+export { getModel }
