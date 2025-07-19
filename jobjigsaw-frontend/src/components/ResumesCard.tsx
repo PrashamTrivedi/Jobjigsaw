@@ -3,11 +3,10 @@
 import { useState } from "react";
 import clsx from "clsx";
 import { DocumentIcon } from "@heroicons/react/20/solid";
-import { CopyButton } from "./buttons";
+import CopyButton from "./CopyButton";
 import { Resume, ResumeResponse } from "@/data/mainResume";
 import { deleteResumeById, printResume } from "@/data/resumes";
 import Link from "next/link";
-import { DeleteJobButton } from "./buttons";
 
 export function ResumesCard({ resume }: { resume: ResumeResponse; i: number }) {
   const [isExpanded, setExpanded] = useState(false);
@@ -20,6 +19,11 @@ export function ResumesCard({ resume }: { resume: ResumeResponse; i: number }) {
   const [isPrinting, setIsPrinting] = useState<boolean>(false);
 
   async function printPdf() {
+    if (typeof window === 'undefined' || typeof document === 'undefined') {
+      console.warn('PDF download not available during server-side rendering');
+      return;
+    }
+
     const resumeData = JSON.parse(resume.updated_resume) as Resume;
     setIsPrinting(true);
     const resumeName = `resume-${resumeData.basics.name}.pdf`;
@@ -59,7 +63,13 @@ export function ResumesCard({ resume }: { resume: ResumeResponse; i: number }) {
             Edit Resume
           </Link>
           <div className="flex flex-row space-x-2">
-            <DeleteJobButton pending={isPending} onClick={handleJobDeletion} />
+            <button 
+              onClick={handleJobDeletion}
+              disabled={isPending}
+              className="border border-red-500 text-red-500 hover:text-red-600 hover:border-red-600 disabled:opacity-50 disabled:cursor-not-allowed px-2 py-1 rounded-md"
+            >
+              {isPending ? 'Deleting...' : 'Delete Resume'}
+            </button>
           </div>
         </div>
       </div>

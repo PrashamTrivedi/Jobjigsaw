@@ -28,15 +28,15 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     };
 
     if (asChild) {
-      return React.cloneElement(children as React.ReactElement, {
+      const child = children as React.ReactElement<React.HTMLAttributes<HTMLElement>>;
+      return React.cloneElement(child, {
         className: cn(
           baseClasses,
           variants[variant],
           sizes[size],
-          (children as React.ReactElement).props.className,
+          child.props.className,
           className
         ),
-        ref,
         'aria-disabled': disabled || loading,
         ...props,
       });

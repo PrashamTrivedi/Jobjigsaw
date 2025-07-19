@@ -22,7 +22,7 @@ export interface Resume {
   companyName?: string;
   dateCreated?: string;
   dateUpdated?: string;
-  resumeContent?: any;
+  resumeContent?: unknown;
 }
 
 export interface ResumeCardProps {
@@ -57,14 +57,7 @@ export const ResumeCard: React.FC<ResumeCardProps> = ({
     });
   };
 
-  const getResumeInitials = (name: string) => {
-    return name
-      .split(' ')
-      .map(word => word.charAt(0))
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
-  };
+  // Removed unused function getResumeInitials
 
   return (
     <Card className={cn(
@@ -104,25 +97,24 @@ export const ResumeCard: React.FC<ResumeCardProps> = ({
           </Badge>
         </div>
 
-        {/* Resume Details */}
         <div className="space-y-2">
           {resume.dateCreated && (
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <CalendarIcon className="w-4 h-4" />
-              <span>Created {formatDate(resume.dateCreated)}</span>
+              <span>Created {formatDate(String(resume.dateCreated))}</span>
             </div>
           )}
           
           {resume.dateUpdated && resume.dateUpdated !== resume.dateCreated && (
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <PencilIcon className="w-4 h-4" />
-              <span>Updated {formatDate(resume.dateUpdated)}</span>
+              <span>Updated {formatDate(String(resume.dateUpdated))}</span>
             </div>
           )}
         </div>
 
         {/* Resume Preview/Stats */}
-        {!compact && resume.resumeContent && (
+        {!compact && !!resume.resumeContent && (
           <div className="p-3 bg-muted/50 rounded-lg">
             <div className="text-sm text-muted-foreground">
               {/* You could add resume stats here like word count, sections, etc. */}
@@ -151,7 +143,7 @@ export const ResumeCard: React.FC<ResumeCardProps> = ({
             
             {onDownload && (
               <Button
-                variant="default"
+                variant="primary"
                 size="sm"
                 onClick={() => onDownload(resume)}
                 className="flex-1"

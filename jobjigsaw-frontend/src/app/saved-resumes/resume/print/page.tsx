@@ -4,7 +4,7 @@ import {useState} from "react"
 // import {printResume} from "@/data/resumes" // Adjust path as needed
 
 // Placeholder function for now
-async function printResume(data: { resumeJson: any, resumeName: string }): Promise<any> {
+async function printResume(data: { resumeJson: unknown, resumeName: string }): Promise<unknown> {
     const response = await fetch('/api/resume/print', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -21,10 +21,15 @@ export default function PrintResumePage() {
     const [resumeJson, setResumeJson] = useState<string>("")
 
     async function processPrintResume() {
+        if (typeof window === 'undefined' || typeof document === 'undefined') {
+            console.warn('PDF download not available during server-side rendering');
+            return;
+        }
+
         const name = resumeName.endsWith('.pdf') ? resumeName : `${resumeName}.pdf`
         const printedResume = await printResume({resumeJson: JSON.parse(resumeJson), resumeName: name})
         // Download the file
-        const url = window.URL.createObjectURL(new Blob([printedResume]))
+        const url = window.URL.createObjectURL(new Blob([printedResume as BlobPart]))
         const link = document.createElement('a')
         link.href = url
         link.setAttribute('download', name)

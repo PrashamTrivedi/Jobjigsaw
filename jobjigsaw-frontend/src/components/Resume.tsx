@@ -1,9 +1,9 @@
 'use client'
 
-import { AtSymbolIcon, CheckIcon, DevicePhoneMobileIcon, GlobeAltIcon, LinkIcon, PencilIcon } from "@heroicons/react/20/solid";
+import { AtSymbolIcon, CheckIcon, DevicePhoneMobileIcon, GlobeAltIcon, PencilIcon } from "@heroicons/react/20/solid";
 import { Resume } from "@/data/mainResume";
 import Link from "next/link";
-import { CopyButton } from "./buttons";
+import CopyButton from "./CopyButton";
 import clsx from "clsx";
 import { useEffect, useState } from "react";
 
@@ -71,10 +71,10 @@ export default function ResumeComponent({ initialResume, onResumeUpdated }: { in
                 </p>
                 <p>
                     {resume.basics.profiles.map((profile, index) => (
-                        <>
+                        <span key={index}>
                             <Link target="_blank" className={clsx("me-1 ms-1", { "animate-pulse": isLoading })} href={profile.url}>{profile.network}</Link>
                             <CopyButton text={profile.url} />
-                        </>
+                        </span>
                     ))}
                 </p>
             </header>
@@ -104,8 +104,8 @@ export default function ResumeComponent({ initialResume, onResumeUpdated }: { in
             <section className={clsx("mt-4", { "animate-pulse": isLoading })}>
                 <h2><strong>Certifications</strong></h2>
                 <ul>
-                    {resume.certifications.map((certification: string, index: number) => (
-                        <li key={index}>{certification}</li>
+                    {resume.certifications.map((certification: string, certificateIndex: number) => (
+                        <li key={certificateIndex}>{certification}</li>
                     ))}
                 </ul>
             </section>
@@ -135,8 +135,8 @@ export default function ResumeComponent({ initialResume, onResumeUpdated }: { in
                             {experience.startDate} - {experience.endDate}
                         </p>
                         <ul>
-                            {experience.highlights.map((highlight, index) => (
-                                <li key={index}>{highlight}</li>
+                            {experience.highlights.map((highlight, highlightIndex) => (
+                                <li key={highlightIndex}>{highlight}</li>
                             ))}
                         </ul>
                     </div>

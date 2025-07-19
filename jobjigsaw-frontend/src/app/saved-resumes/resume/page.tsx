@@ -6,23 +6,23 @@ import CopyButton from "@/components/CopyButton"
 import { Resume } from "@/types/resume"
 import { useSearchParams } from 'next/navigation'
 
-async function getResumeById(id: string): Promise<any> {
+async function getResumeById(id: string): Promise<unknown> {
     const response = await fetch(`/api/resume/${id}`);
     if (!response.ok) {
         throw new Error('Failed to fetch resume by ID');
     }
-    return response.json();
+    return response.json() as unknown;
 }
 
-async function getJob(id: string): Promise<any> {
+async function getJob(id: string): Promise<unknown> {
     const response = await fetch(`/api/job/${id}`);
     if (!response.ok) {
         throw new Error('Failed to fetch job');
     }
-    return response.json();
+    return response.json() as unknown;
 }
 
-async function generateResume(jobCompatibilityData: any, generateCoverLetter: boolean): Promise<any> {
+async function generateResume(jobCompatibilityData: unknown, generateCoverLetter: boolean): Promise<unknown> {
     const response = await fetch('/api/resume/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -31,10 +31,10 @@ async function generateResume(jobCompatibilityData: any, generateCoverLetter: bo
     if (!response.ok) {
         throw new Error('Failed to generate resume');
     }
-    return response.json();
+    return response.json() as unknown;
 }
 
-async function printResume(data: { resumeJson: any, resumeName: string }): Promise<any> {
+async function printResume(data: { resumeJson: unknown, resumeName: string }): Promise<unknown> {
     const response = await fetch('/api/resume/print', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -46,7 +46,7 @@ async function printResume(data: { resumeJson: any, resumeName: string }): Promi
     return response.blob();
 }
 
-async function createResume(body: { jobId: string, updatedResume: any, technicalSkills: string, softSkills: string, coverLetter: string }): Promise<any> {
+async function createResume(body: { jobId: string, updatedResume: unknown, technicalSkills: string, softSkills: string, coverLetter: string }): Promise<unknown> {
     const response = await fetch('/api/resume', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -55,10 +55,10 @@ async function createResume(body: { jobId: string, updatedResume: any, technical
     if (!response.ok) {
         throw new Error('Failed to create resume');
     }
-    return response.json();
+    return response.json() as unknown;
 }
 
-export default function ResumesPage() {
+function ResumePageContent() {
     const searchParams = useSearchParams()
     const jobId = searchParams.get("jobId")
     const resumeId = searchParams.get("resumeId")
@@ -72,12 +72,16 @@ export default function ResumesPage() {
             </div>
         )
     } else {
-        return (
-            <Suspense fallback={<div>Loading...</div>}>
-                <ResumeWithCoverLetterComponent jobId={jobId} resumeId={resumeId} />
-            </Suspense>
-        )
+        return <ResumeWithCoverLetterComponent jobId={jobId} resumeId={resumeId} />
     }
+}
+
+export default function ResumesPage() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <ResumePageContent />
+        </Suspense>
+    )
 }
 
 function ResumeWithCoverLetterComponent({ jobId, resumeId }: { jobId: string | null, resumeId: string | null }) {
@@ -119,12 +123,12 @@ function ResumeWithCoverLetterComponent({ jobId, resumeId }: { jobId: string | n
         (async () => {
             if (resumeId) {
                 console.log("Ignoring JOB ID parameter.")
-                const resume = await getResumeById(resumeId)
+                const resume = await getResumeById(resumeId) as {updated_resume: string; cover_letter: string}
                 setResume(JSON.parse(resume.updated_resume))
                 setCoverLetter(resume.cover_letter)
             } else if (jobId) {
                 console.log("Parsing from job id means resumeId is not provided.")
-                const jobData = await getJob(jobId)
+                const jobData = await getJob(jobId) as {inferredJobMatch: string; companyName: string; post: string}
                 const compatibilityData = jobData.inferredJobMatch
                 setCompanyName(jobData.companyName)
                 if (compatibilityData) {
@@ -136,9 +140,9 @@ function ResumeWithCoverLetterComponent({ jobId, resumeId }: { jobId: string | n
                         softSkills: compatibilityJson.compatibilityMatrix.requiredSkills.softSkills,
                     }
 
-                    const inferredResume = await generateResume(jsonData, true)
+                    const inferredResume = await generateResume(jsonData, true) as {resumeDetails: {generatedResume: unknown; coverLetter: string}}
                     console.log(inferredResume)
-                    setResume(inferredResume.resumeDetails.generatedResume)
+                    setResume(inferredResume.resumeDetails.generatedResume as Resume)
                     setCoverLetter(inferredResume.resumeDetails.coverLetter)
 
                 }
@@ -147,12 +151,17 @@ function ResumeWithCoverLetterComponent({ jobId, resumeId }: { jobId: string | n
         })()
     }, [resumeId, jobId])
     async function printPdf() {
+        if (typeof window === 'undefined' || typeof document === 'undefined') {
+            console.warn('PDF download not available during server-side rendering');
+            return;
+        }
+
         setIsPrinting(true)
 
         const resumeName = `Resume: ${resume.basics.name} - ${companyName}.pdf`
         const printedResume = await printResume({ resumeJson: resume, resumeName })
         // Download the file
-        const url = window.URL.createObjectURL(new Blob([printedResume]))
+        const url = window.URL.createObjectURL(new Blob([printedResume as BlobPart]))
         const link = document.createElement('a')
         link.href = url
         link.setAttribute('download', resumeName)
@@ -165,7 +174,7 @@ function ResumeWithCoverLetterComponent({ jobId, resumeId }: { jobId: string | n
     async function addResume() {
         if (jobId) {
             setIsAdding(true)
-            const jobData = await getJob(jobId)
+            const jobData = await getJob(jobId) as {inferredJobMatch: string; companyName: string; post: string}
             const compatibilityData = jobData.inferredJobMatch ?? "{}"
 
             const compatibilityJson = JSON.parse(compatibilityData)

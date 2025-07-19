@@ -23,8 +23,12 @@ export function ThemeToggle() {
       return <SunIcon className="h-5 w-5" />
     } else {
       // system theme - show based on actual system preference
-      const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-      return isDark ? <MoonIcon className="h-5 w-5" /> : <SunIcon className="h-5 w-5" />
+      if (typeof window !== 'undefined') {
+        const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+        return isDark ? <MoonIcon className="h-5 w-5" /> : <SunIcon className="h-5 w-5" />
+      }
+      // Default to light icon during SSR
+      return <SunIcon className="h-5 w-5" />
     }
   }
 

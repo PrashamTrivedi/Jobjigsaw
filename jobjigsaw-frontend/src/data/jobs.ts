@@ -1,4 +1,3 @@
-import axios from 'axios'
 
 export interface Job {
     id?: number
@@ -29,11 +28,11 @@ export async function addJob(job: Job) {
         });
 
         if (!response.ok) {
-            const errorData = await response.json();
+            const errorData = await response.json() as { error?: string };
             throw new Error(errorData.error || 'Failed to add job');
         }
 
-        const data = await response.json();
+        const data = await response.json() as unknown;
         console.log(data);
         return data;
     } catch (error) {
@@ -53,11 +52,11 @@ export async function getJobs(): Promise<Job[]> {
         });
 
         if (!response.ok) {
-            const errorData = await response.json();
+            const errorData = await response.json() as { error?: string };
             throw new Error(errorData.error || 'Failed to fetch jobs');
         }
 
-        const data = await response.json();
+        const data = await response.json() as Job[];
         return data;
     } catch (error) {
         console.error("Error getting jobs:", error);
@@ -76,11 +75,11 @@ export async function getJob(id: string): Promise<Job> {
         });
 
         if (!response.ok) {
-            const errorData = await response.json();
+            const errorData = await response.json() as { error?: string };
             throw new Error(errorData.error || 'Failed to fetch job');
         }
 
-        const data = await response.json();
+        const data = await response.json() as Job;
         return data;
     } catch (error) {
         console.error("Error getting job:", error);
@@ -100,11 +99,11 @@ export async function deleteJob(id: string) {
         });
 
         if (!response.ok) {
-            const errorData = await response.json();
+            const errorData = await response.json() as { error?: string };
             throw new Error(errorData.error || 'Failed to delete job');
         }
 
-        const data = await response.json();
+        const data = await response.json() as unknown;
         console.log(data);
         return data;
     } catch (error) {

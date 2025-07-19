@@ -1,8 +1,8 @@
 import React from 'react';
 
 interface ResumeComponentProps {
-  initialResume: any;
-  onResumeUpdated?: (resume: any) => void;
+  initialResume: unknown;
+  onResumeUpdated?: (resume: unknown) => void;
 }
 
 const ResumeComponent: React.FC<ResumeComponentProps> = ({ initialResume, onResumeUpdated }) => {

@@ -207,7 +207,7 @@ export const JobCard: React.FC<JobCardProps> = ({
             
             {onGenerateResume && (
               <Button
-                variant="default"
+                variant="primary"
                 size="sm"
                 onClick={() => onGenerateResume(job)}
                 className="flex-1"

@@ -5,7 +5,6 @@ import clsx from "clsx";
 import { BriefcaseIcon, LinkIcon } from "@heroicons/react/20/solid";
 import { Job, deleteJob } from "@/data/jobs";
 import Link from "next/link";
-import { DeleteJobButton } from "./buttons";
 
 export function JobsCard({ job }: { job: Job; i: number }) {
   const [isExpanded, setExpanded] = useState(false);
@@ -53,7 +52,13 @@ export function JobsCard({ job }: { job: Job; i: number }) {
             View Resume
           </Link>
           <div className="flex flex-row space-x-2">
-            <DeleteJobButton pending={isPending} onClick={handleJobDeletion} />
+            <button 
+              onClick={handleJobDeletion}
+              disabled={isPending}
+              className="px-3 py-1 text-sm text-red-600 hover:text-red-800 disabled:opacity-50"
+            >
+              {isPending ? 'Deleting...' : 'Delete'}
+            </button>
           </div>
         </div>
       </div>

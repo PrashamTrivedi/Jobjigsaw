@@ -30,6 +30,8 @@ const Modal: React.FC<ModalProps> = ({
   className,
 }) => {
   useEffect(() => {
+    if (typeof document === 'undefined') return;
+
     const handleEscape = (event: KeyboardEvent) => {
       if (closeOnEscape && event.key === 'Escape') {
         onClose();

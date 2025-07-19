@@ -16,10 +16,10 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: `Backend error: ${response.statusText}` }, { status: response.status });
     }
 
-    const data = await response.json();
+    const data = await response.json() as unknown;
     return NextResponse.json(data);
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 });
   }
 }
 
@@ -40,10 +40,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: `Backend error: ${response.statusText}` }, { status: response.status });
     }
 
-    const data = await response.json();
+    const data = await response.json() as unknown;
     return NextResponse.json(data);
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 });
   }
 }
 
@@ -64,10 +64,10 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: `Backend error: ${response.statusText}` }, { status: response.status });
     }
 
-    const data = await response.json();
+    const data = await response.json() as unknown;
     return NextResponse.json(data);
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 });
   }
 }
 
@@ -86,9 +86,9 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: `Backend error: ${response.statusText}` }, { status: response.status });
     }
 
-    const data = await response.json();
+    const data = await response.json() as unknown;
     return NextResponse.json(data);
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 });
   }
 }

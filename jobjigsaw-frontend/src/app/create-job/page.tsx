@@ -1,6 +1,9 @@
 'use client'
 
 import { useState, useEffect } from "react";
+
+// Force dynamic rendering to prevent SSR issues
+export const dynamic = 'force-dynamic';
 // import { addJob } from "@/data/jobs"; // Adjust path as needed
 // import { analyzeJob, getAnalyzedJob } from "@/data/jobInferrence"; // Adjust path as needed
 // import { Job } from "@/data/jobs"; // Adjust path as needed
@@ -8,6 +11,34 @@ import { useState, useEffect } from "react";
 // import { useNavigate } from "next/navigation"; // Use Next.js navigation
 
 // Placeholder types and functions for now
+type AnalyzedJobData = {
+    inferredJob?: {
+        response?: {
+            jobTitle?: string;
+            company?: string;
+            jobDescription?: string;
+            jobLocation?: string;
+            jobType?: string;
+            salary?: string;
+            postedDate?: string;
+            applicationDeadline?: string;
+            contactEmail?: string;
+            contactPhone?: string;
+            responsibilities?: string;
+            requirements?: string;
+            benefits?: string;
+            aboutCompany?: string;
+            howToApply?: string;
+        };
+    };
+    compatibility?: {
+        response?: {
+            score?: number;
+            breakdown?: unknown;
+        };
+    };
+};
+
 type Job = {
     id: string;
     jobTitle: string;
@@ -31,7 +62,7 @@ type Job = {
     inferredData: string | null;
 };
 
-async function addJob(job: Job): Promise<any> {
+async function addJob(job: Job): Promise<unknown> {
     const response = await fetch('/api/job', {
         method: 'POST',
         headers: {
@@ -40,13 +71,13 @@ async function addJob(job: Job): Promise<any> {
         body: JSON.stringify(job),
     });
     if (!response.ok) {
-        const errorData = await response.json();
+        const errorData = await response.json() as { error?: string };
         throw new Error(errorData.error || 'Failed to add job');
     }
-    return response.json();
+    return await response.json() as unknown;
 }
 
-async function analyzeJob(input: string): Promise<any> {
+async function analyzeJob(input: string): Promise<AnalyzedJobData> {
     const response = await fetch('/api/job/analyze', {
         method: 'POST',
         headers: {
@@ -55,17 +86,17 @@ async function analyzeJob(input: string): Promise<any> {
         body: JSON.stringify({ jobUrl: input }), // Assuming input can be a URL or description
     });
     if (!response.ok) {
-        const errorData = await response.json();
+        const errorData = await response.json() as { error?: string };
         throw new Error(errorData.error || 'Failed to analyze job');
     }
-    return response.json();
+    return await response.json() as AnalyzedJobData;
 }
 
 export default function CreateJobPage() {
     // const navigate = useNavigate(); // Uncomment when ready to use Next.js navigation
     const [jobUrl, setJobUrl] = useState("");
     const [jobDescriptionInput, setJobDescriptionInput] = useState("");
-    const [analyzedJobData, setAnalyzedJobData] = useState<any>(null);
+    const [analyzedJobData, setAnalyzedJobData] = useState<AnalyzedJobData | null>(null);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [isAdding, setIsAdding] = useState(false);
 
@@ -120,7 +151,7 @@ export default function CreateJobPage() {
                 inferredData: JSON.stringify(analyzedJobData),
             });
         }
-    }, [analyzedJobData]);
+    }, [analyzedJobData, job, jobDescriptionInput, jobUrl]);
 
     async function handleAnalyzeJob() {
         setIsAnalyzing(true);

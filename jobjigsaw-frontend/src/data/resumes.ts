@@ -12,11 +12,11 @@ export async function getResumeById(id: string): Promise<any> {
         });
 
         if (!response.ok) {
-            const errorData = await response.json();
+            const errorData = await response.json() as { error?: string };
             throw new Error(errorData.error || 'Failed to fetch resume by ID');
         }
 
-        const data = await response.json();
+        const data = await response.json() as unknown;
         return data;
     } catch (error) {
         console.error("Error getting resume by ID:", error);
@@ -34,11 +34,11 @@ export async function getResumes(): Promise<any[]> {
         });
 
         if (!response.ok) {
-            const errorData = await response.json();
+            const errorData = await response.json() as { error?: string };
             throw new Error(errorData.error || 'Failed to fetch resumes');
         }
 
-        const data = await response.json();
+        const data = await response.json() as any[];
         return data;
     } catch (error) {
         console.error("Error getting resumes:", error);
@@ -57,11 +57,11 @@ export async function updateResumeById(id: string, body: { updatedResume: any, t
         });
 
         if (!response.ok) {
-            const errorData = await response.json();
+            const errorData = await response.json() as { error?: string };
             throw new Error(errorData.error || 'Failed to update resume');
         }
 
-        const data = await response.json();
+        const data = await response.json() as unknown;
         return data;
     } catch (error) {
         console.error("Error updating resume:", error);
@@ -79,11 +79,11 @@ export async function deleteResumeById(id: string) {
         });
 
         if (!response.ok) {
-            const errorData = await response.json();
+            const errorData = await response.json() as { error?: string };
             throw new Error(errorData.error || 'Failed to delete resume');
         }
 
-        const data = await response.json();
+        const data = await response.json() as unknown;
         return data;
     } catch (error) {
         console.error("Error deleting resume:", error);
@@ -102,11 +102,11 @@ export async function createResume(body: { jobId: string, updatedResume: any, te
         });
 
         if (!response.ok) {
-            const errorData = await response.json();
+            const errorData = await response.json() as { error?: string };
             throw new Error(errorData.error || 'Failed to create resume');
         }
 
-        const data = await response.json();
+        const data = await response.json() as unknown;
         return data;
     } catch (error) {
         console.error("Error creating resume:", error);
@@ -127,12 +127,12 @@ export async function generateResume(jobCompatibilityData: any, generateCoverLet
         });
 
         if (!response.ok) {
-            const errorData = await response.json();
+            const errorData = await response.json() as { error?: string };
             throw new Error(errorData.error || 'Failed to generate resume');
         }
 
         // Assuming the backend returns the full JSON directly for non-streaming
-        const data = await response.json();
+        const data = await response.json() as unknown;
         return data;
 
     } catch (error) {
@@ -153,7 +153,7 @@ export async function printResume({ resumeJson, resumeName }: { resumeJson: any,
         });
 
         if (!response.ok) {
-            const errorData = await response.json();
+            const errorData = await response.json() as { error?: string };
             throw new Error(errorData.error || 'Failed to print resume');
         }
 

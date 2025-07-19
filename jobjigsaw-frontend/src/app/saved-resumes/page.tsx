@@ -1,101 +1,106 @@
 'use client'
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { Button, DataTable, Modal, ModalHeader, ModalFooter, useToast } from '@/components/ui';
-import { ResumeCard, Resume } from '@/components/ResumeCard';
-import { Column } from '@/components/ui/DataTable';
-import { PlusIcon, TableCellsIcon, Squares2X2Icon, DocumentIcon } from '@heroicons/react/24/outline';
-import { getResumes } from '@/data/resumes';
+import {useState, useEffect, useCallback} from 'react'
+import Link from 'next/link'
+import {Button, DataTable, Modal, ModalFooter, useToast} from '@/components/ui'
+import {ResumeCard, Resume} from '@/components/ResumeCard'
+import {Column} from '@/components/ui/DataTable'
+import {PlusIcon, TableCellsIcon, Squares2X2Icon, DocumentIcon} from '@heroicons/react/24/outline'
+import {getResumes} from '@/data/resumes'
 
-type ViewMode = 'grid' | 'table';
+type ViewMode = 'grid' | 'table'
 
 export default function SavedResumesPage() {
-  const [resumes, setResumes] = useState<Resume[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [viewMode, setViewMode] = useState<ViewMode>('grid');
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [resumeToDelete, setResumeToDelete] = useState<Resume | null>(null);
-  const [deleting, setDeleting] = useState(false);
-  const { toast } = useToast();
+  const [resumes, setResumes] = useState<Resume[]>([])
+  const [loading, setLoading] = useState(true)
+  const [viewMode, setViewMode] = useState<ViewMode>('grid')
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
+  const [resumeToDelete, setResumeToDelete] = useState<Resume | null>(null)
+  const [deleting, setDeleting] = useState(false)
+  const {toast} = useToast()
 
-  useEffect(() => {
-    loadResumes();
-  }, []);
-
-  const loadResumes = async () => {
+  const loadResumes = useCallback(async () => {
     try {
-      setLoading(true);
-      const resumesData = await getResumes();
-      setResumes(resumesData);
+      setLoading(true)
+      const resumesData = await getResumes()
+      setResumes(resumesData)
     } catch (error) {
+      console.error('Error loading resumes:', error)
       toast({
         type: 'error',
         title: 'Failed to load resumes',
         description: 'Could not fetch your saved resumes'
-      });
+      })
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }, [toast])
+
+  useEffect(() => {
+    loadResumes()
+  }, [loadResumes])
+
 
   const handleViewResume = (resume: Resume) => {
     // Navigate to resume viewer
-    console.log('View resume:', resume);
-  };
+    console.log('View resume:', resume)
+  }
 
   const handleEditResume = (resume: Resume) => {
     // Navigate to resume editor
-    console.log('Edit resume:', resume);
-  };
+    console.log('Edit resume:', resume)
+  }
 
   const handleDeleteResume = (resume: Resume) => {
-    setResumeToDelete(resume);
-    setDeleteModalOpen(true);
-  };
+    setResumeToDelete(resume)
+    setDeleteModalOpen(true)
+  }
 
   const confirmDelete = async () => {
-    if (!resumeToDelete?.id) return;
+    if (!resumeToDelete?.id) return
 
     try {
-      setDeleting(true);
+      setDeleting(true)
       // await deleteResume(String(resumeToDelete.id));
-      setResumes(resumes.filter(resume => resume.id !== resumeToDelete.id));
+      setResumes(resumes.filter(r => r.id !== resumeToDelete.id))
       toast({
         type: 'success',
         title: 'Resume deleted',
         description: 'The resume has been removed from your library'
-      });
+      })
     } catch (error) {
+      console.error('Error deleting resume:', error)
       toast({
         type: 'error',
         title: 'Delete failed',
         description: 'Could not delete the resume'
-      });
+      })
     } finally {
-      setDeleting(false);
-      setDeleteModalOpen(false);
-      setResumeToDelete(null);
+      setDeleting(false)
+      setDeleteModalOpen(false)
+      setResumeToDelete(null)
     }
-  };
+  }
 
   const handleDownloadResume = (resume: Resume) => {
     // Implement download functionality
+    console.log({resume})
     toast({
       type: 'info',
       title: 'Download started',
       description: 'Your resume is being prepared for download'
-    });
-  };
+    })
+  }
 
   const handleDuplicateResume = (resume: Resume) => {
     // Implement duplicate functionality
+    console.log({resume})
     toast({
       type: 'success',
       title: 'Resume duplicated',
       description: 'A copy of your resume has been created'
-    });
-  };
+    })
+  }
 
   // Table columns configuration
   const columns: Column<Resume>[] = [
@@ -109,7 +114,7 @@ export default function SavedResumesPage() {
             <DocumentIcon className="w-4 h-4 text-primary" />
           </div>
           <div>
-            <div className="font-medium">{value}</div>
+            <div className="font-medium">{String(value)}</div>
             {row.jobTitle && row.companyName && (
               <div className="text-sm text-muted-foreground">
                 {row.jobTitle} at {row.companyName}
@@ -133,15 +138,15 @@ export default function SavedResumesPage() {
       key: 'dateCreated',
       header: 'Created',
       sortable: true,
-      render: (value) => value ? new Date(value).toLocaleDateString() : '-',
+      render: (value) => value ? new Date(String(value)).toLocaleDateString() : '-',
     },
     {
       key: 'dateUpdated',
       header: 'Updated',
       sortable: true,
-      render: (value) => value ? new Date(value).toLocaleDateString() : '-',
+      render: (value) => value ? new Date(String(value)).toLocaleDateString() : '-',
     },
-  ];
+  ]
 
   return (
     <div className="container-xl mx-auto px-6 py-8 space-y-6">
@@ -153,12 +158,12 @@ export default function SavedResumesPage() {
             Manage your customized resumes for different job applications
           </p>
         </div>
-        
+
         <div className="flex items-center gap-4">
           {/* View Mode Toggle */}
           <div className="flex items-center bg-secondary rounded-lg p-1">
             <Button
-              variant={viewMode === 'grid' ? 'default' : 'ghost'}
+              variant={viewMode === 'grid' ? 'primary' : 'ghost'}
               size="sm"
               onClick={() => setViewMode('grid')}
               className="h-8 px-3"
@@ -166,7 +171,7 @@ export default function SavedResumesPage() {
               <Squares2X2Icon className="w-4 h-4" />
             </Button>
             <Button
-              variant={viewMode === 'table' ? 'default' : 'ghost'}
+              variant={viewMode === 'table' ? 'primary' : 'ghost'}
               size="sm"
               onClick={() => setViewMode('table')}
               className="h-8 px-3"
@@ -232,10 +237,10 @@ export default function SavedResumesPage() {
             </div>
           ) : (
             <DataTable
-              data={resumes}
-              columns={columns}
+              data={resumes as unknown as Record<string, unknown>[]}
+              columns={columns as unknown as Column<Record<string, unknown>>[]}
               searchPlaceholder="Search resumes by name or company..."
-              onRowClick={handleViewResume}
+              onRowClick={handleViewResume as unknown as (row: Record<string, unknown>) => void}
             />
           )}
         </>
@@ -259,7 +264,7 @@ export default function SavedResumesPage() {
               )}
             </div>
           )}
-          
+
           <ModalFooter>
             <Button
               variant="outline"
@@ -279,5 +284,5 @@ export default function SavedResumesPage() {
         </div>
       </Modal>
     </div>
-  );
+  )
 }

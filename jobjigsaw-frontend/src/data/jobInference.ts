@@ -19,11 +19,11 @@ export async function inferJob(jobDescription: string): Promise<any> {
         });
 
         if (!response.ok) {
-            const errorData = await response.json();
+            const errorData = await response.json() as { error?: string };
             throw new Error(errorData.error || 'Failed to infer job');
         }
 
-        const data = await response.json();
+        const data = await response.json() as { inferredDescription: string };
         return data.inferredDescription;
     } catch (error) {
         console.error("Error inferring job:", error);
@@ -47,11 +47,11 @@ export async function researchCompany(search: string): Promise<any> {
         });
 
         if (!response.ok) {
-            const errorData = await response.json();
+            const errorData = await response.json() as { error?: string };
             throw new Error(errorData.error || 'Failed to research company');
         }
 
-        const data = await response.json();
+        const data = await response.json() as { companyResearch: string };
         return data.companyResearch;
     } catch (error) {
         console.error("Error researching company:", error);
@@ -77,11 +77,11 @@ export async function inferJobMatch(jobDescription: string): Promise<any> {
         });
 
         if (!response.ok) {
-            const errorData = await response.json();
+            const errorData = await response.json() as { error?: string };
             throw new Error(errorData.error || 'Failed to infer job match');
         }
 
-        const data = await response.json();
+        const data = await response.json() as { compatibilityMatrix: any };
         return data.compatibilityMatrix;
     } catch (error) {
         console.error("Error inferring job match:", error);
@@ -100,11 +100,11 @@ export async function analyzeJob(jobUrl: string): Promise<any> {
         });
 
         if (!response.ok) {
-            const errorData = await response.json();
+            const errorData = await response.json() as { error?: string };
             throw new Error(errorData.error || 'Failed to analyze job');
         }
 
-        const data = await response.json();
+        const data = await response.json() as any;
         return data;
     } catch (error) {
         console.error("Error analyzing job:", error);
@@ -123,11 +123,11 @@ export async function getAnalyzedJob(id: string): Promise<any> {
         });
 
         if (!response.ok) {
-            const errorData = await response.json();
+            const errorData = await response.json() as { error?: string };
             throw new Error(errorData.error || 'Failed to fetch analyzed job');
         }
 
-        const data = await response.json();
+        const data = await response.json() as any;
         return data;
     } catch (error) {
         console.error("Error getting analyzed job:", error);

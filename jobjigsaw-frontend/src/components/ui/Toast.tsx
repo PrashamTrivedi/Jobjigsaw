@@ -33,6 +33,10 @@ export const useToast = () => {
 export const ToastProvider: React.FC<{children: React.ReactNode}> = ({children}) => {
   const [toasts, setToasts] = useState<Toast[]>([])
 
+  const dismiss = useCallback((id: string) => {
+    setToasts((prev) => prev.filter((toast) => toast.id !== id))
+  }, [])
+
   const toast = useCallback((newToast: Omit<Toast, 'id'>) => {
     const id = Math.random().toString(36).substr(2, 9)
     const toastWithId = {...newToast, id}
@@ -44,11 +48,7 @@ export const ToastProvider: React.FC<{children: React.ReactNode}> = ({children})
     setTimeout(() => {
       dismiss(id)
     }, duration)
-  }, [])
-
-  const dismiss = useCallback((id: string) => {
-    setToasts((prev) => prev.filter((toast) => toast.id !== id))
-  }, [])
+  }, [dismiss])
 
   return (
     <ToastContext.Provider value={{toasts, toast, dismiss}}>
@@ -118,4 +118,4 @@ const ToastItem: React.FC<ToastItemProps> = ({toast, onDismiss}) => {
   )
 }
 
-export {Toast}
+export type {Toast}

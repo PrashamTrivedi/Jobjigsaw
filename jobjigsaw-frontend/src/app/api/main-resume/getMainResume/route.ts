@@ -13,14 +13,14 @@ export async function GET() {
     });
 
     if (!response.ok) {
-      const errorData =    await response.json();
+      const errorData = await response.json() as { error?: string };
       return NextResponse.json({ error: errorData.error || 'Failed to fetch main resume' }, { status: response.status });
     }
 
-    const data = await response.json();
+    const data = await response.json() as unknown;
     return NextResponse.json(data);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error getting main resume:", error);
-    return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
+    return NextResponse.json({ error: error instanceof Error ? error.message : 'Internal Server Error' }, { status: 500 });
   }
 }

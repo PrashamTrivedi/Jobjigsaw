@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent, Button, FileUpload, LoadingSpinner, useToast } from "@/components/ui";
 import ResumeDisplay from "@/components/ResumeDisplay";
-import { Resume, Skills, WorkExperience, Project } from "@/types/resume";
+import { Resume } from "@/types/resume";
 
 interface ResumeUploadResponse {
   resume: Resume;
@@ -19,7 +19,7 @@ async function getMainResume(): Promise<Resume | null> {
             }
             throw new Error('Failed to fetch main resume');
         }
-        return response.json();
+        return await response.json() as Resume;
     } catch (error) {
         console.error('Error fetching main resume:', error);
         return null;
@@ -32,10 +32,10 @@ async function uploadResume(formData: FormData): Promise<ResumeUploadResponse> {
         body: formData,
     });
     if (!response.ok) {
-        const errorData = await response.json();
+        const errorData = await response.json() as { error?: string };
         throw new Error(errorData.error || 'Failed to upload resume');
     }
-    return response.json();
+    return await response.json() as ResumeUploadResponse;
 }
 
 export default function MainResumePage() {
@@ -45,33 +45,6 @@ export default function MainResumePage() {
     const [mainResume, setMainResume] = useState<Resume | null>(null);
     const { toast } = useToast();
 
-    const defaultResume: Resume = {
-        basics: {
-            name: "",
-            label: "",
-            email: "",
-            phone: "",
-            url: "",
-            summary: "",
-            location: {
-                address: "",
-                postalCode: "",
-                city: "",
-                countryCode: "",
-                region: "",
-            },
-            profiles: [],
-        },
-        workExperience: [],
-        education: [],
-        awards: [],
-        skills: [],
-        languages: [],
-        interests: [],
-        references: [],
-        projects: [],
-        certifications: [],
-    };
 
     useEffect(() => {
         const loadResume = async () => {

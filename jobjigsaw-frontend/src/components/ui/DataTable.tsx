@@ -5,14 +5,13 @@ import { cn } from '@/lib/utils';
 import { ChevronUpIcon, ChevronDownIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { Button } from './Button';
 import { Input } from './Input';
-import { Badge } from './Badge';
 
 export interface Column<T> {
   key: keyof T;
   header: string;
   sortable?: boolean;
   filterable?: boolean;
-  render?: (value: any, row: T) => React.ReactNode;
+  render?: (value: unknown, row: T) => React.ReactNode;
   width?: string;
 }
 
@@ -30,7 +29,7 @@ export interface DataTableProps<T> {
 
 type SortDirection = 'asc' | 'desc' | null;
 
-export function DataTable<T extends Record<string, any>>({
+export function DataTable<T extends Record<string, unknown>>({
   data,
   columns,
   searchable = true,
@@ -265,7 +264,7 @@ export function DataTable<T extends Record<string, any>>({
                   <React.Fragment key={page}>
                     {showEllipsis && <span className="text-muted-foreground">...</span>}
                     <Button
-                      variant={currentPage === page ? 'default' : 'outline'}
+                      variant={currentPage === page ? 'primary' : 'outline'}
                       size="sm"
                       onClick={() => handlePageChange(page)}
                     >

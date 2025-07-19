@@ -1,17 +1,38 @@
 'use client'
 
 import { useState } from 'react'
-import { Button, Card, CardHeader, CardTitle, CardContent, Textarea, Badge, useToast } from '@/components/ui'
+import { Button, Card, CardContent, Textarea, Badge, useToast } from '@/components/ui'
 import InferredJob from "./inferredJob"
 
+// Import types from inferredJob
+interface JobDetails {
+  jobTitle?: string;
+  companyName?: string;
+  location?: string;
+  workType?: string;
+  technicalSkills?: string[];
+  softSkills?: string[];
+  requirements?: string[];
+  responsibilities?: string[];
+}
+
+interface MatchDetails {
+  overallScore?: number;
+  skillsMatch?: {
+    matched?: string[];
+    missing?: string[];
+  };
+  recommendations?: string[];
+}
+
 interface JobInferenceResponse {
-  inferredDescription: any;
+  inferredDescription: unknown;
   cached?: boolean;
   cacheExpiry?: string;
 }
 
 interface JobMatchResponse {
-  jobMatch: any;
+  jobMatch: unknown;
   cached?: boolean;
   cacheExpiry?: string;
 }
@@ -25,10 +46,10 @@ async function inferJob(description: string): Promise<JobInferenceResponse> {
     body: JSON.stringify({ description }),
   });
   if (!response.ok) {
-    const errorData = await response.json();
+    const errorData = await response.json() as { error?: string };
     throw new Error(errorData.error || 'Failed to infer job');
   }
-  return response.json();
+  return await response.json() as JobInferenceResponse;
 }
 
 async function inferJobMatch(description: string): Promise<JobMatchResponse> {
@@ -40,10 +61,10 @@ async function inferJobMatch(description: string): Promise<JobMatchResponse> {
     body: JSON.stringify({ description }),
   });
   if (!response.ok) {
-    const errorData = await response.json();
+    const errorData = await response.json() as { error?: string };
     throw new Error(errorData.error || 'Failed to infer job match');
   }
-  return response.json();
+  return await response.json() as JobMatchResponse;
 }
 
 export default function JobInferencer() {
@@ -54,8 +75,8 @@ export default function JobInferencer() {
   const [inferMatchPending, toggleInferMatchPending] = useState(false)
 
   const [jobDescription, setJobDescription] = useState('')
-  const [inferredJob, setInferredJob] = useState<any>({})
-  const [inferredJobMatch, setInferredJobMatch] = useState<any>({})
+  const [inferredJob, setInferredJob] = useState<JobDetails>({})
+  const [inferredJobMatch, setInferredJobMatch] = useState<MatchDetails>({})
   const [cacheInfo, setCacheInfo] = useState<{
     inference?: { cached: boolean; expiry?: string };
     match?: { cached: boolean; expiry?: string };
@@ -65,7 +86,7 @@ export default function JobInferencer() {
     try {
       toggleInferPending(true)
       const data = await inferJob(jobDescription)
-      setInferredJob(data.inferredDescription)
+      setInferredJob(data.inferredDescription as JobDetails)
       setCacheInfo(prev => ({
         ...prev,
         inference: { cached: data.cached || false, expiry: data.cacheExpiry }
@@ -102,7 +123,7 @@ export default function JobInferencer() {
     try {
       toggleInferMatchPending(true)
       const data = await inferJobMatch(jobDescription)
-      setInferredJobMatch(data.jobMatch)
+      setInferredJobMatch(data.jobMatch as MatchDetails)
       setCacheInfo(prev => ({
         ...prev,
         match: { cached: data.cached || false, expiry: data.cacheExpiry }

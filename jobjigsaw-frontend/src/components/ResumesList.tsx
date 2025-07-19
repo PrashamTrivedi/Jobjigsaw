@@ -1,5 +1,6 @@
 import { ResumesCard } from "./ResumesCard";
-import { getResumes, ResumeResponse } from "@/data/mainResume";
+import { getResumes } from "@/data/resumes";
+import { ResumeResponse } from "@/data/mainResume";
 
 export default async function ResumesList() {
   const resumes = await getResumes();

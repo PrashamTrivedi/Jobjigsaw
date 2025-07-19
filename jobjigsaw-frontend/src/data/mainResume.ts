@@ -1,4 +1,3 @@
-import axios from 'axios'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_VERCEL_URL ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}/api` : "http://localhost:3000/api";
 
@@ -13,11 +12,11 @@ export async function getMainResume() {
         });
 
         if (!response.ok) {
-            const errorData = await response.json();
+            const errorData = await response.json() as { error?: string };
             throw new Error(errorData.error || 'Failed to fetch main resume');
         }
 
-        const data = await response.json();
+        const data = await response.json() as unknown;
         return data;
     } catch (error) {
         console.error("Error getting main resume:", error);
@@ -36,11 +35,11 @@ export async function updateSkills(skills: { name: string; items: string[] }[]) 
         });
 
         if (!response.ok) {
-            const errorData = await response.json();
+            const errorData = await response.json() as { error?: string };
             throw new Error(errorData.error || 'Failed to update skills');
         }
 
-        const data = await response.json();
+        const data = await response.json() as unknown;
         return data;
     } catch (error) {
         console.error("Error updating skills:", error);
@@ -48,7 +47,7 @@ export async function updateSkills(skills: { name: string; items: string[] }[]) 
     }
 }
 
-export async function updateExperience(experience: any) {
+export async function updateExperience(experience: unknown) {
     try {
         const response = await fetch(`${API_BASE_URL}/main-resume/addWorkExperience`, {
             method: 'PUT',
@@ -59,11 +58,11 @@ export async function updateExperience(experience: any) {
         });
 
         if (!response.ok) {
-            const errorData = await response.json();
+            const errorData = await response.json() as { error?: string };
             throw new Error(errorData.error || 'Failed to update work experience');
         }
 
-        const data = await response.json();
+        const data = await response.json() as unknown;
         return data;
     } catch (error) {
         console.error("Error updating work experience:", error);
@@ -71,7 +70,7 @@ export async function updateExperience(experience: any) {
     }
 }
 
-export async function addProject(project: any) {
+export async function addProject(project: unknown) {
     try {
         const response = await fetch(`${API_BASE_URL}/main-resume/addProject`, {
             method: 'PUT',
@@ -82,11 +81,11 @@ export async function addProject(project: any) {
         });
 
         if (!response.ok) {
-            const errorData = await response.json();
+            const errorData = await response.json() as { error?: string };
             throw new Error(errorData.error || 'Failed to add project');
         }
 
-        const data = await response.json();
+        const data = await response.json() as unknown;
         return data;
     } catch (error) {
         console.error("Error adding project:", error);
@@ -102,11 +101,11 @@ export async function uploadResume(formData: FormData) {
         });
 
         if (!response.ok) {
-            const errorData = await response.json();
+            const errorData = await response.json() as { error?: string };
             throw new Error(errorData.error || 'Failed to upload resume');
         }
 
-        const data = await response.json();
+        const data = await response.json() as unknown;
         return data;
     } catch (error) {
         console.error("Error uploading resume:", error);

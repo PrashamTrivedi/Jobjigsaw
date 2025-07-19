@@ -1,38 +1,58 @@
-'use client';
+'use client'
 
-import React, { useState } from 'react';
-import { Card, CardHeader, CardTitle, CardContent, CardFooter, Button, Badge } from '@/components/ui';
-import { ChevronDownIcon, ChevronUpIcon, DocumentDuplicateIcon, CheckIcon } from '@heroicons/react/24/outline';
+import React, {useState} from 'react'
+import {Card, CardHeader, CardTitle, CardContent, Button, Badge} from '@/components/ui'
+import {ChevronDownIcon, ChevronUpIcon, DocumentDuplicateIcon, CheckIcon} from '@heroicons/react/24/outline'
 
-interface InferredJobProps {
-  jobDescription: string;
-  job: any;
-  match: any;
-  cacheInfo?: {
-    inference?: { cached: boolean; expiry?: string };
-    match?: { cached: boolean; expiry?: string };
-  };
+interface JobDetails {
+  jobTitle?: string
+  companyName?: string
+  location?: string
+  workType?: string
+  technicalSkills?: string[]
+  softSkills?: string[]
+  requirements?: string[]
+  responsibilities?: string[]
 }
 
-const InferredJob: React.FC<InferredJobProps> = ({ jobDescription, job, match, cacheInfo }) => {
-  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
-  const [copiedSections, setCopiedSections] = useState<Record<string, boolean>>({});
+interface MatchDetails {
+  overallScore?: number
+  skillsMatch?: {
+    matched?: string[]
+    missing?: string[]
+  }
+  recommendations?: string[]
+}
+
+interface InferredJobProps {
+  jobDescription: string
+  job: JobDetails
+  match: MatchDetails
+  cacheInfo?: {
+    inference?: {cached: boolean; expiry?: string}
+    match?: {cached: boolean; expiry?: string}
+  }
+}
+
+const InferredJob: React.FC<InferredJobProps> = ({jobDescription, job, match, cacheInfo}) => {
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({})
+  const [copiedSections, setCopiedSections] = useState<Record<string, boolean>>({})
 
   const toggleSection = (section: string) => {
-    setExpandedSections(prev => ({ ...prev, [section]: !prev[section] }));
-  };
+    setExpandedSections(prev => ({...prev, [section]: !prev[section]}))
+  }
 
   const copyToClipboard = async (text: string, section: string) => {
     try {
-      await navigator.clipboard.writeText(text);
-      setCopiedSections(prev => ({ ...prev, [section]: true }));
+      await navigator.clipboard.writeText(text)
+      setCopiedSections(prev => ({...prev, [section]: true}))
       setTimeout(() => {
-        setCopiedSections(prev => ({ ...prev, [section]: false }));
-      }, 2000);
+        setCopiedSections(prev => ({...prev, [section]: false}))
+      }, 2000)
     } catch (err) {
-      console.error('Failed to copy text: ', err);
+      console.error('Failed to copy text: ', err)
     }
-  };
+  }
 
   const renderJobDetails = () => {
     if (!job || Object.keys(job).length === 0) {
@@ -40,11 +60,11 @@ const InferredJob: React.FC<InferredJobProps> = ({ jobDescription, job, match, c
         <Card>
           <CardContent>
             <p className="text-muted-foreground text-center py-8">
-              No job analysis data available. Click "Analyze Job" to get started.
+              No job analysis data available. Click &quot;Analyze Job&quot; to get started.
             </p>
           </CardContent>
         </Card>
-      );
+      )
     }
 
     return (
@@ -174,8 +194,8 @@ const InferredJob: React.FC<InferredJobProps> = ({ jobDescription, job, match, c
           </Card>
         )}
       </div>
-    );
-  };
+    )
+  }
 
   const renderMatchDetails = () => {
     if (!match || Object.keys(match).length === 0) {
@@ -183,11 +203,11 @@ const InferredJob: React.FC<InferredJobProps> = ({ jobDescription, job, match, c
         <Card>
           <CardContent>
             <p className="text-muted-foreground text-center py-8">
-              No resume match data available. Click "Check Resume Match" to analyze compatibility.
+              No resume match data available. Click &quot;Check Resume Match&quot; to analyze compatibility.
             </p>
           </CardContent>
         </Card>
-      );
+      )
     }
 
     return (
@@ -233,7 +253,7 @@ const InferredJob: React.FC<InferredJobProps> = ({ jobDescription, job, match, c
                   </div>
                 </div>
               )}
-              
+
               {match.skillsMatch.missing && match.skillsMatch.missing.length > 0 && (
                 <div>
                   <h5 className="text-body-sm font-medium text-red-600 mb-2">✗ Skills to Develop</h5>
@@ -267,8 +287,8 @@ const InferredJob: React.FC<InferredJobProps> = ({ jobDescription, job, match, c
           </Card>
         )}
       </div>
-    );
-  };
+    )
+  }
 
   return (
     <div className="max-w-6xl mx-auto p-4">
@@ -321,7 +341,7 @@ const InferredJob: React.FC<InferredJobProps> = ({ jobDescription, job, match, c
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default InferredJob;
+export default InferredJob

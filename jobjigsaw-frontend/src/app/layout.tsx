@@ -21,9 +21,13 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{
             __html: `
               try {
-                const theme = localStorage.getItem('jobjigsaw-theme') || 'system';
-                const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-                document.documentElement.classList.add(isDark ? 'dark' : 'light');
+                if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+                  const theme = localStorage.getItem('jobjigsaw-theme') || 'system';
+                  const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+                  document.documentElement.classList.add(isDark ? 'dark' : 'light');
+                } else {
+                  document.documentElement.classList.add('light');
+                }
               } catch (e) {
                 document.documentElement.classList.add('light');
               }
