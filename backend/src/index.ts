@@ -13,6 +13,10 @@ import initDbSql from './dbMigration/initDb'
 import {AppError} from './types'
 import * as schemas from './schemas'
 
+// Constants
+const CACHE_TTL_SECONDS = 432000 // 5 days
+const ALLOWED_MIGRATION_VERSIONS = ['1', '2', '3', '4', '5'] // Add valid versions here
+
 // Helper function to handle errors safely
 const handleError = (error: unknown, context: string, status: number = 500) => {
 	const appError: AppError = {
@@ -22,6 +26,37 @@ const handleError = (error: unknown, context: string, status: number = 500) => {
 	}
 	console.error(`${context}:`, appError)
 	return {error: appError.message, status: appError.status}
+}
+
+// Migration utility function with SQL validation
+const executeMigration = async (sql: string, db: D1Database) => {
+	// Basic SQL validation - only allow DDL statements for migrations
+	const allowedPrefixes = ['CREATE', 'ALTER', 'DROP', 'INSERT', 'UPDATE']
+	const statements = sql.split(';').map((s) => s.trim()).filter(Boolean)
+	
+	for (const stmt of statements) {
+		const upperStmt = stmt.toUpperCase()
+		const isAllowed = allowedPrefixes.some(prefix => upperStmt.startsWith(prefix))
+		
+		if (!isAllowed) {
+			throw new Error(`Invalid SQL statement in migration: ${stmt.substring(0, 50)}...`)
+		}
+		
+		try {
+			await db.exec(stmt)
+		} catch (err) {
+			console.error('Migration failed for statement:', stmt)
+			throw err
+		}
+	}
+}
+
+// Cache invalidation utility
+const invalidateJobCache = async (kv: CloudflareKv) => {
+	const keys = await kv.list('job_')
+	for (const key of keys) {
+		await kv.delete(key)
+	}
 }
 
 const app = new OpenAPIHono<{Bindings: Env}>()
@@ -634,6 +669,9 @@ app.openapi(deleteJobRoute, async (c) => {
 		const {id} = c.req.valid('param')
 		const result = await jobService.deleteJob(id.toString())
 		if (result.changes && result.changes > 0) {
+			// Invalidate cache when job is deleted
+			const kv = new CloudflareKv(c.env.VIEWED_JOBS_KV)
+			await invalidateJobCache(kv)
 			return c.json({success: true, message: 'Job removed successfully'})
 		} else {
 			return c.json({error: 'Job not found or no changes made'}, 404)
@@ -691,7 +729,7 @@ app.openapi(inferJobRoute, async (c) => {
                         if (mainResume) {
                                 const jobMatch = await checkCompatiblity(description, JSON.stringify(mainResume), c.env)
                                 const kv = new CloudflareKv(c.env.VIEWED_JOBS_KV)
-                                await kv.put(`job_${Date.now()}`, JSON.stringify({inferredJob: inferredDescription, jobMatch}), {expirationTtl: 432000})
+                                await kv.put(`job_${Date.now()}`, JSON.stringify({inferredJob: inferredDescription, jobMatch}), {expirationTtl: CACHE_TTL_SECONDS})
                         }
                 }
 
@@ -713,7 +751,7 @@ app.openapi(inferJobFromUrlRoute, async (c) => {
                         if (mainResume) {
                                 const jobMatch = await checkCompatiblity(inferredDescription || '', JSON.stringify(mainResume), c.env)
                                 const kv = new CloudflareKv(c.env.VIEWED_JOBS_KV)
-                                await kv.put(`job_${Date.now()}`, JSON.stringify({inferredJob: inferredDescription, jobMatch}), {expirationTtl: 432000})
+                                await kv.put(`job_${Date.now()}`, JSON.stringify({inferredJob: inferredDescription, jobMatch}), {expirationTtl: CACHE_TTL_SECONDS})
                         }
                 }
 
@@ -962,15 +1000,7 @@ app.openapi(selectModelRoute, async (c) => {
 
 app.openapi(migrateRoute, async (c) => {
         try {
-        const statements = initDbSql.split(';').map((s) => s.trim()).filter(Boolean)
-        for (const stmt of statements) {
-                try {
-                        await c.env.DB.exec(stmt)
-                } catch (err) {
-                        console.error('Migration failed for statement:', stmt)
-                        throw err
-                }
-        }
+                await executeMigration(initDbSql, c.env.DB)
                 return c.json({success: true})
         } catch (error: unknown) {
                 const {error: errorMessage, status} = handleError(error, "Error running migration")
@@ -981,22 +1011,21 @@ app.openapi(migrateRoute, async (c) => {
 app.openapi(migrateWithParamsRoute, async (c) => {
         try {
                 const {toVersion} = c.req.valid('param')
+                
+                // Validate version input
+                if (!ALLOWED_MIGRATION_VERSIONS.includes(toVersion)) {
+                        return c.json({error: 'Invalid migration version'}, 400)
+                }
+                
                 let module
                 try {
                         module = await import(`./dbMigration/v${toVersion}.ts`)
                 } catch (_) {
                         return c.json({error: 'migration script not found'}, 404)
                 }
+                
                 const sql = module.default as string
-        const statements = sql.split(';').map((s) => s.trim()).filter(Boolean)
-        for (const stmt of statements) {
-                try {
-                        await c.env.DB.exec(stmt)
-                } catch (err) {
-                        console.error('Migration failed for statement:', stmt)
-                        throw err
-                }
-        }
+                await executeMigration(sql, c.env.DB)
                 return c.json({success: true})
         } catch (error: unknown) {
                 const {error: errorMessage, status} = handleError(error, "Error running migration")
@@ -1537,6 +1566,19 @@ app.get('/doc', c => c.json({
                                                                 }
                                                         }
                                                 }
+                                        },
+                                        '500': {
+                                                description: 'Internal server error',
+                                                content: {
+                                                        'application/json': {
+                                                                schema: {
+                                                                        type: 'object',
+                                                                        properties: {
+                                                                                error: { type: 'string' }
+                                                                        }
+                                                                }
+                                                        }
+                                                }
                                         }
                                 }
                         }
@@ -1548,18 +1590,92 @@ app.get('/doc', c => c.json({
                                 requestBody: {
                                         content: {
                                                 'application/json': {
-                                                        schema: { type: 'object', properties: { modelName: { type: 'string' }, provider: { type: 'string' } } }
+                                                        schema: { 
+                                                                type: 'object', 
+                                                                properties: { 
+                                                                        modelName: { type: 'string' }, 
+                                                                        provider: { type: 'string' } 
+                                                                },
+                                                                required: ['modelName', 'provider']
+                                                        }
                                                 }
                                         }
                                 },
-                                responses: { '200': { description: 'Model selected' } }
+                                responses: { 
+                                        '200': { 
+                                                description: 'Model selected',
+                                                content: {
+                                                        'application/json': {
+                                                                schema: {
+                                                                        type: 'object',
+                                                                        properties: {
+                                                                                success: { type: 'boolean' }
+                                                                        }
+                                                                }
+                                                        }
+                                                }
+                                        },
+                                        '400': {
+                                                description: 'Bad request',
+                                                content: {
+                                                        'application/json': {
+                                                                schema: {
+                                                                        type: 'object',
+                                                                        properties: {
+                                                                                error: { type: 'string' }
+                                                                        }
+                                                                }
+                                                        }
+                                                }
+                                        },
+                                        '500': {
+                                                description: 'Internal server error',
+                                                content: {
+                                                        'application/json': {
+                                                                schema: {
+                                                                        type: 'object',
+                                                                        properties: {
+                                                                                error: { type: 'string' }
+                                                                        }
+                                                                }
+                                                        }
+                                                }
+                                        }
+                                }
                         }
                 },
                 '/migrate': {
                         post: {
                                 tags: ['Migrations'],
                                 summary: 'Run init migration',
-                                responses: { '200': { description: 'Migration executed' } }
+                                responses: { 
+                                        '200': { 
+                                                description: 'Migration executed',
+                                                content: {
+                                                        'application/json': {
+                                                                schema: {
+                                                                        type: 'object',
+                                                                        properties: {
+                                                                                success: { type: 'boolean' }
+                                                                        }
+                                                                }
+                                                        }
+                                                }
+                                        },
+                                        '500': {
+                                                description: 'Migration failed',
+                                                content: {
+                                                        'application/json': {
+                                                                schema: {
+                                                                        type: 'object',
+                                                                        properties: {
+                                                                                error: { type: 'string' }
+                                                                        }
+                                                                }
+                                                        }
+                                                }
+                                        }
+                                }
                         }
                 },
                 '/migrate/{fromVersion}/{toVersion}': {
@@ -1570,7 +1686,60 @@ app.get('/doc', c => c.json({
                                         { name: 'fromVersion', in: 'path', required: true, schema: { type: 'string' } },
                                         { name: 'toVersion', in: 'path', required: true, schema: { type: 'string' } }
                                 ],
-                                responses: { '200': { description: 'Migration executed' } }
+                                responses: { 
+                                        '200': { 
+                                                description: 'Migration executed',
+                                                content: {
+                                                        'application/json': {
+                                                                schema: {
+                                                                        type: 'object',
+                                                                        properties: {
+                                                                                success: { type: 'boolean' }
+                                                                        }
+                                                                }
+                                                        }
+                                                }
+                                        },
+                                        '400': {
+                                                description: 'Invalid migration version',
+                                                content: {
+                                                        'application/json': {
+                                                                schema: {
+                                                                        type: 'object',
+                                                                        properties: {
+                                                                                error: { type: 'string' }
+                                                                        }
+                                                                }
+                                                        }
+                                                }
+                                        },
+                                        '404': {
+                                                description: 'Migration script not found',
+                                                content: {
+                                                        'application/json': {
+                                                                schema: {
+                                                                        type: 'object',
+                                                                        properties: {
+                                                                                error: { type: 'string' }
+                                                                        }
+                                                                }
+                                                        }
+                                                }
+                                        },
+                                        '500': {
+                                                description: 'Migration failed',
+                                                content: {
+                                                        'application/json': {
+                                                                schema: {
+                                                                        type: 'object',
+                                                                        properties: {
+                                                                                error: { type: 'string' }
+                                                                        }
+                                                                }
+                                                        }
+                                                }
+                                        }
+                                }
                         }
                 }
         },

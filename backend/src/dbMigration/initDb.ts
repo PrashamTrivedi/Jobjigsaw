@@ -21,8 +21,10 @@ CREATE TABLE IF NOT EXISTS resumes (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     resumeName TEXT NOT NULL,
     resumeContent TEXT NOT NULL,
+    jobId INTEGER,
     dateCreated TEXT NOT NULL,
-    dateUpdated TEXT NOT NULL
+    dateUpdated TEXT NOT NULL,
+    FOREIGN KEY (jobId) REFERENCES jobs(id) ON DELETE SET NULL
 );
 
 CREATE TABLE IF NOT EXISTS mainResumes (
