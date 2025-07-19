@@ -5,30 +5,74 @@ import puppeteer from "@cloudflare/puppeteer"
 import {GoogleGenerativeAI} from '@google/generative-ai'
 import {search} from "./jina"
 
+const DEFAULT_MODEL = "o3"
+
 
 // Ensure this function is exported
 export async function generateJsonFromResume(resumeText: string, env: Env,): Promise<string | undefined> {
     const {preferredModel: model, useOpenAi} = await getModel(env)
+    
+    // Check if this is a PDF file in base64 format
+    const isPdfBase64 = resumeText.startsWith('PDF_BASE64:')
+    
     if (useOpenAi) {
         const openai = await getOpenAiClient(env)
-        const resumeMessages: ChatCompletionMessageParam[] = [{
-            role: "system",
-            content: `You are a programmatic resume parser who can parse the resume and create the JSON output from it. 
-            You don't lose any information from original text. You will only receive resume text and respond with JSON and nothing else. You will provide following fields from the resume.
-            - contactDetails: {name, email, phone, address, linkedin, github, website}
-            - about: {summary, highlights}
-            - skills: Which is an array with following fields: name and items which shoud be array of strings
-            - certifications: Array of name and lin
-            - education: {degree, institution, location, duration}
-            - workExperience: {role, company, location, duration, responsibilities}
-            - projects: {name, description, duration, techStack, responsibilities, link}
+        
+        let resumeMessages: ChatCompletionMessageParam[]
+        
+        if (isPdfBase64) {
+            // Handle PDF base64 data
+            const base64Data = resumeText.replace('PDF_BASE64:', '')
+            resumeMessages = [{
+                role: "system",
+                content: `You are a programmatic resume parser who can parse the resume and create the JSON output from it. 
+                You don't lose any information from original text. You will only receive resume content and respond with JSON and nothing else. You will provide following fields from the resume.
+                - contactDetails: {name, email, phone, address, linkedin, github, website}
+                - about: {summary, highlights}
+                - skills: Which is an array with following fields: name and items which shoud be array of strings
+                - certifications: Array of name and lin
+                - education: {degree, institution, location, duration}
+                - workExperience: {role, company, location, duration, responsibilities}
+                - projects: {name, description, duration, techStack, responsibilities, link}
 
-            If you don't find any of the above fields, remove it from the JSON.
-            `
-        }, {
-            role: "user",
-            content: resumeText
-        }]
+                If you don't find any of the above fields, remove it from the JSON.
+                `
+            }, {
+                role: "user",
+                content: [
+                    {
+                        type: "text",
+                        text: "Please parse this PDF resume and extract the information in JSON format:"
+                    },
+                    {
+                        type: "image_url",
+                        image_url: {
+                            url: `data:application/pdf;base64,${base64Data}`
+                        }
+                    }
+                ]
+            }]
+        } else {
+            // Handle text content
+            resumeMessages = [{
+                role: "system",
+                content: `You are a programmatic resume parser who can parse the resume and create the JSON output from it. 
+                You don't lose any information from original text. You will only receive resume text and respond with JSON and nothing else. You will provide following fields from the resume.
+                - contactDetails: {name, email, phone, address, linkedin, github, website}
+                - about: {summary, highlights}
+                - skills: Which is an array with following fields: name and items which shoud be array of strings
+                - certifications: Array of name and lin
+                - education: {degree, institution, location, duration}
+                - workExperience: {role, company, location, duration, responsibilities}
+                - projects: {name, description, duration, techStack, responsibilities, link}
+
+                If you don't find any of the above fields, remove it from the JSON.
+                `
+            }, {
+                role: "user",
+                content: resumeText
+            }]
+        }
         const resumeJson = await openai.chat.completions.create({
             model,
             response_format: {type: "json_object"},
@@ -64,7 +108,7 @@ async function getModel(env: Env): Promise<{preferredModel: string, useOpenAi: b
         }
     )
 
-    return data ?? {preferredModel: "", useOpenAi: false}
+    return data ?? {preferredModel: DEFAULT_MODEL, useOpenAi: true}
 }
 
 
@@ -325,4 +369,4 @@ export async function setPreferredModel(modelName: string, provider: string, env
     await env.AI_GATEWAY_KV.put('PREFERRED_MODEL', JSON.stringify({preferredModel: modelName, useOpenAi}))
 }
 
-export { getModel }
+export {getModel}

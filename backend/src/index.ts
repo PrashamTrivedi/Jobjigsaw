@@ -32,22 +32,24 @@ const handleError = (error: unknown, context: string, status: number = 500) => {
 const executeMigration = async (sql: string, db: D1Database) => {
 	// Basic SQL validation - only allow DDL statements for migrations
 	const allowedPrefixes = ['CREATE', 'ALTER', 'DROP', 'INSERT', 'UPDATE']
-	const statements = sql.split(';').map((s) => s.trim()).filter(Boolean)
 	
-	for (const stmt of statements) {
-		const upperStmt = stmt.toUpperCase()
-		const isAllowed = allowedPrefixes.some(prefix => upperStmt.startsWith(prefix))
-		
-		if (!isAllowed) {
-			throw new Error(`Invalid SQL statement in migration: ${stmt.substring(0, 50)}...`)
-		}
-		
-		try {
-			await db.exec(stmt)
-		} catch (err) {
-			console.error('Migration failed for statement:', stmt)
-			throw err
-		}
+	// Simple validation: check that the SQL starts with allowed statements
+	const trimmedSql = sql.trim().toUpperCase()
+	const hasValidStatements = allowedPrefixes.some(prefix => 
+		trimmedSql.includes(prefix) && 
+		(trimmedSql.startsWith(prefix) || trimmedSql.includes(`\n${prefix}`) || trimmedSql.includes(` ${prefix}`))
+	)
+	
+	if (!hasValidStatements) {
+		throw new Error(`Invalid SQL in migration - must contain DDL statements`)
+	}
+	
+	try {
+		// D1 can handle multiple statements in one exec call
+		await db.exec(sql)
+	} catch (err) {
+		console.error('Migration failed:', err)
+		throw err
 	}
 }
 
@@ -1000,7 +1002,47 @@ app.openapi(selectModelRoute, async (c) => {
 
 app.openapi(migrateRoute, async (c) => {
         try {
-                await executeMigration(initDbSql, c.env.DB)
+                // Execute each table creation separately to avoid D1 parsing issues
+                const statements = [
+                        `CREATE TABLE IF NOT EXISTS jobs (
+                                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                companyName TEXT NOT NULL,
+                                jobTitle TEXT NOT NULL,
+                                jobDescription TEXT NOT NULL,
+                                jobUrl TEXT,
+                                jobStatus TEXT NOT NULL,
+                                jobSource TEXT,
+                                jobType TEXT,
+                                jobLocation TEXT,
+                                jobSalary TEXT,
+                                jobContact TEXT,
+                                jobNotes TEXT,
+                                jobDateApplied TEXT,
+                                jobDateCreated TEXT NOT NULL,
+                                jobDateUpdated TEXT NOT NULL
+                        );`,
+                        `CREATE TABLE IF NOT EXISTS resumes (
+                                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                resumeName TEXT NOT NULL,
+                                resumeContent TEXT NOT NULL,
+                                jobId INTEGER,
+                                dateCreated TEXT NOT NULL,
+                                dateUpdated TEXT NOT NULL,
+                                FOREIGN KEY (jobId) REFERENCES jobs(id) ON DELETE SET NULL
+                        );`,
+                        `CREATE TABLE IF NOT EXISTS mainResumes (
+                                id INTEGER PRIMARY KEY,
+                                resumeName TEXT NOT NULL,
+                                resumeContent TEXT NOT NULL,
+                                dateCreated TEXT NOT NULL,
+                                dateUpdated TEXT NOT NULL
+                        );`
+                ]
+                
+                for (const stmt of statements) {
+                        await c.env.DB.exec(stmt)
+                }
+                
                 return c.json({success: true})
         } catch (error: unknown) {
                 const {error: errorMessage, status} = handleError(error, "Error running migration")

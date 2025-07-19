@@ -39,9 +39,10 @@ export class MainResumeService {
             // Parse resume content with AI
             let resumeText: string
             if (fileType === 'application/pdf') {
-                // For PDF files, we'll need to extract text - for now using buffer as text
-                // In production, you'd want to use a PDF parsing library
-                resumeText = new TextDecoder().decode(fileBuffer)
+                // For PDF files, use base64 encoding and let AI extract the content
+                // This is a Workers-compatible approach since most AI models can handle PDF content
+                const base64Data = btoa(String.fromCharCode(...new Uint8Array(fileBuffer)))
+                resumeText = `PDF_BASE64:${base64Data}`
             } else {
                 // For JSON files
                 resumeText = new TextDecoder().decode(fileBuffer)
