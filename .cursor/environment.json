@@ -1,0 +1,26 @@
+{
+  // Cursor Cloud Agent environment (https://cursor.com/docs/cloud-agent/setup)
+  // Runtime: npm. Bun is installed in `install` when this repo uses it.
+  // Secrets cannot live in this file — add names below in the Cursor dashboard Secrets tab.
+  // OPENAI_API_KEY, SERP_API_KEY, OPENROUTER_API_KEY, GEMINI_API_KEY, JINA_API_KEY
+  "name": "jobjigsaw",
+  "install": "(cd backend && (npm ci || npm install)) && (cd jobjigsaw-frontend && (npm ci || npm install))",
+  "start": "npm --prefix backend run dev",
+  "ports": [
+    {
+      "name": "worker",
+      "port": 8787
+    },
+    {
+      "name": "web",
+      "port": 3000
+    }
+  ],
+  "terminals": [
+    {
+      "name": "frontend",
+      "command": "npm --prefix jobjigsaw-frontend run dev",
+      "description": "Next.js frontend on port 3000"
+    }
+  ]
+}
